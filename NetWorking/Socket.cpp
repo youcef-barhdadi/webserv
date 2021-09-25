@@ -111,6 +111,8 @@ MyReadFile.close();
 
         readlen = read(new_socket, buffer, 30000);
         buffer[readlen] =0;
+        std::string copy = std::string(buffer);
+        Request *request = new Request(copy);
         std::cout << buffer << std::endl;
         write(new_socket,  hello.c_str(),hello.length());
         close(new_socket);

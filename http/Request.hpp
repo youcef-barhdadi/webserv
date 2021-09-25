@@ -10,7 +10,8 @@ class Request
 	public:
 
 		Request();
-		Request( Request const & src );
+
+		Request( std::string &  src );
 		~Request();
 
 		Request &		operator=( Request const & rhs );
@@ -22,6 +23,8 @@ class Request
 		std::string  _accetpt_languge;
 		std::string _accetpt_charset;
 		std::string  _allow;
+		std::string  verbe;
+		std::string target
 
 
 

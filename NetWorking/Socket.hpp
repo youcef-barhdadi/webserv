@@ -7,7 +7,8 @@
 #include "iostream"
 #include <unistd.h>
 #include <netinet/in.h>
-  #include <sys/socket.h>
+#include <sys/socket.h>
+#include "../http/Request.hpp"
 
      #include <sys/types.h>
 
