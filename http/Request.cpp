@@ -36,7 +36,14 @@ Request::Request(  std::string & src )
 	int i = 0;
 	while (i < lines.size())
 	{
-		cout <<  "==>>>>>>>" << lines[i] << endl;
+		// cout <<  "==>>>>>>>" << lines[i] << endl;
+
+		// first argument is HTTP Verb  and requested resource
+		if (i == 0)
+		{
+			std::vector<std::string> words = split(lines[i], ' ');
+			this->setPath(words[1]);
+		}
 		i++;
 	}
 }
@@ -86,6 +93,19 @@ std::ostream &			operator<<( std::ostream & o, Request const & i )
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
+
+
+std::string  Request::getPath() const
+{
+	return this->_path;
+}
+
+
+void	 Request::setPath(std::string path)
+{
+	this->_path = path;
+}
 
 
 /* ************************************************************************** */

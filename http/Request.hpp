@@ -4,6 +4,8 @@
 # include <iostream>
 # include <string>
 
+// see this link to see why i peekup this names https://code.tutsplus.com/tutorials/http-headers-for-dummies--net-8039
+
 class Request
 {
 
@@ -19,12 +21,20 @@ class Request
 
 		void Parser();
 
+
+		std::string  getPath() const;
+		void	setPath(std::string path);
+
+
+
+	
 	private:
 		std::string  _accetpt_languge;
 		std::string _accetpt_charset;
 		std::string  _allow;
-		std::string  verbe;
-		std::string target
+		std::string  _method;
+		std::string _target;
+		std::string _path;
 
 
 

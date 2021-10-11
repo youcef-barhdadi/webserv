@@ -2,10 +2,11 @@
 #include "Socket.hpp"
 #include <fstream>
 
+#include <filesystem>
 
 
 #include <stdlib.h>
-
+#include <cstring>
 
 
 Socket::Socket()
@@ -36,6 +37,7 @@ int Socket::create_Connection(){
                 exit(0);
             }
             this->_connection = server_fd;
+            std::cout << "connection is created " << std::endl;
          return server_fd;
 }
 
@@ -45,7 +47,7 @@ void Socket::Create_server()
 {
     struct sockaddr_in address;
 
-    this->_port = 8080;
+    this->_port = 1337;
 
     memset((char *)&address, 0, sizeof(address));
     address.sin_family = AF_INET;
@@ -58,6 +60,7 @@ void Socket::Create_server()
        perror("error");
        return ;
    }
+   std::cout << "server is created " << std::endl;
 }
 
 
@@ -65,40 +68,20 @@ void Socket::Create_server()
 
 void Socket::listen_on()
 {
+    std::cout << "starte listening " << std::endl;
     this->create_Connection();
     this->Create_server();
+    std::cout << "servrev  started  hhhhhh" << std::endl;
     struct sockaddr_in address;
     socklen_t addrlen;
     size_t  readlen;
     char buffer[30000] = {0};
     int  ret  =   listen(this->_connection, 15);
-    
-    
-    std::ifstream MyReadFile("index.html");
-
-    std::string  str;
-
-    std::string  hello = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
-    std::string body = "";
-
-    while (getline (MyReadFile, str)) {
-  // Output the text from the file
-    body +=  str;
-}
-
-
-std::string number = std::to_string(body.length());
-hello +=  number + "\n\n" +  body;
-// Close the file
-MyReadFile.close();
-
     if (ret < 0)
     {
         perror("In listen");
         return ;
     }
-
-
     while (1)
     {
         int new_socket = accept(this->_connection, (struct sockaddr *)&address, (socklen_t*)&addrlen);
@@ -110,11 +93,15 @@ MyReadFile.close();
         }
 
         readlen = read(new_socket, buffer, 30000);
+
         buffer[readlen] =0;
         std::string copy = std::string(buffer);
         Request *request = new Request(copy);
-        std::cout << buffer << std::endl;
-        write(new_socket,  hello.c_str(),hello.length());
+        Response *response = new Response();
+        std::string  res = response->serv(*request);
+        std::cout << res << std::endl;
+
+        write(new_socket,  res.c_str(),res.length());
         close(new_socket);
     }
     close(this->_connection);
