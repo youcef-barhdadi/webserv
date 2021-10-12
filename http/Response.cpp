@@ -71,40 +71,73 @@ std::string getExtension(std::string file)
 
 std::string  Response::Creat_Header(Request & request, std::string resource)
 {
-
 	std::string header = "HTTP/1.1 200 OK\n";
 
 
-	std::string extetion = getExtension(resource);
-	std::cout  << extetion << std::endl;
- 
-	if (extetion == "css")
+	if (this->_status == 404)
 	{
-		header += "Content-Type: text/css\n";
+		header = "HTTP/1.1  404 Not found \n";
+		header += "Content-Length: "+ std::to_string(this->_size);
+		header += "\n\n";
+		return header;
 	}
-	else if (extetion == "png")
+	else if (this->_status = 200)
 	{
-	  	header +=	"Content-Type: image/png\n";
-	}
-	else if (extetion ==  "js")
-	{
-		header += "Content-Type: text/javascript\n";
-	}
-	else if (extetion  == "html")
-	{
+		std::string extetion = getExtension(resource);
+		std::cout  << extetion << std::endl;
+	
+		if (extetion == "css")
+		{
+			header += "Content-Type: text/css\n";
+		}
+		else if (extetion == "png")
+		{
+			header +=	"Content-Type: image/png\n";
+		}
+		else if (extetion ==  "js")
+		{
+			header += "Content-Type: text/javascript\n";
+		}
+		else if (extetion  == "html")
+		{
+				header += "Content-Type: text/html\n";
+		}else {
 			header += "Content-Type: text/html\n";
-	}else {
-		header += "Content-Type: text/html\n";
-	}
+		}
 
-	header += "Content-Length: "+ std::to_string(this->_size);
-	header += "\n\n";
+		header += "Content-Length: "+ std::to_string(this->_size);
+		header += "\n\n";
+	}
 	return header;
 }
 
 
 
 
+
+std::vector<char> getfileRaw(std::string file)
+{
+	std::ifstream iffile(file,  std::ios::in|std::ios::binary|std::ios::ate);
+	std::streampos size;
+	char* memblock;
+	int sizee;
+	// stup
+	std::vector<char> oo;
+
+	if (iffile.is_open())
+	{
+		size = iffile.tellg();
+		sizee = size;
+		memblock = new char [sizee];
+		iffile.seekg (0, std::ios::beg);
+		iffile.read (memblock, size);
+		iffile.close();
+		std::vector<char> ret(memblock, memblock+sizee);
+		return ret;
+	}
+	return oo;
+
+}
 
 
 
@@ -125,40 +158,38 @@ std::vector<char>	Response::serv(Request & request)
 	}
 	// std::cout << resource << std::endl;
 		std::string  responce;
-		responce = Creat_Header(request, resource);
-
+		// responce = Creat_Header(request, resource);
 		std::string  str;
 		std::string  body = "";
 		std::streampos size;
 		char* memblock;
-
 		std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
 
 		if (file.is_open())
 		{
 			this->_status = 200;
-		    size = file.tellg();
-			int sizee = size;
-			memblock = new char [sizee];
-			file.seekg (0, std::ios::beg);
-			file.read (memblock, size);
 			file.close();
-			std::cout << "-----------------------" << std::endl; 		
-			this->_size = size;
+  		  	std::vector<char> tow= getfileRaw(resource);	
+			this->_size = tow.size();
 			responce = Creat_Header(request, resource);
   		  	std::vector<char> first(responce.begin(), responce.end());
-  		  	std::vector<char> tow(memblock, memblock + size);
 			first.insert(first.end(), tow.begin(), tow.end());
-			std::cout << "-----------------------" << std::endl; 		
-			std::cout << first.size() << "|||" << size << std::endl;
 			return first;
 
 		}
 		else {
 			// this means 404
-			this->_status = 404;
+		this->_status = 404;
+  		  	std::vector<char> tow= getfileRaw("404.html");	
+			this->_size = tow.size();
+			responce = Creat_Header(request, "404.html");
+  		  	std::vector<char> first(responce.begin(), responce.end());
+			first.insert(first.end(), tow.begin(), tow.end());
+
+			return  first;
 		}
-		exit(0);
+		// exit(0);
+
 
 }
 
