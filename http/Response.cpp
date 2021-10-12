@@ -61,6 +61,51 @@ int getSizeOfile(std::string file) {
 
 
 
+std::string getExtension(std::string file)
+{
+	std::string str = file.substr(file.find('.')+1);
+
+	return str;
+} 
+
+
+std::string Creat_Header(Request & request, std::string resource)
+{
+
+	std::string header = "HTTP/1.1 200 OK\n";
+
+
+	std::string extetion = getExtension(resource);
+	std::cout  << extetion << std::endl;
+ 
+	if (extetion == "css")
+	{
+		header += "Content-Type: text/css\n";
+	}
+	else if (extetion == "png")
+	{
+	  	header +=	"Content-Type: image/png\n";
+	}
+	else if (extetion ==  "js")
+	{
+		header += "Content-Type: text/javascript\n";
+	}
+	else if (extetion  == "html")
+	{
+			header += "Content-Type: text/html\n";
+	}else {
+		header = "";
+	}
+	return header;
+
+
+}
+
+
+
+
+
+
 
 
 std::vector<char>	Response::serv(Request & request)
@@ -73,9 +118,13 @@ std::vector<char>	Response::serv(Request & request)
 	{
 		resource = "index.html";
 	}
-	
+	else 
+	{
+	resource.erase(0, 1);
+	}
 	// std::cout << resource << std::endl;
-	std::string  responce = "HTTP/1.1 200 OK\n";
+	std::string  responce;
+	 responce = Creat_Header(request, resource);
 
 	std::string  str;
 	std::string  body = "";
@@ -87,15 +136,17 @@ char* memblock;
 	// 	std::cout << "file not find" << std::endl;
 	// 	return "";
 	// }
-	if (resource == "/image.png")
-	{	
-		resource.erase(0, 1);
+	if (resource == "image.png")
+	{				
+
+
+
 		std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
 
 		if (file.is_open())
 		{
 
-		responce += "Content-Type: image/png\n";
+		// responce += "Content-Type: image/png\n";
 
 
 		    size = file.tellg();
@@ -126,7 +177,9 @@ char* memblock;
 
 	}
 	else {
-		responce += "Content-Type: text/html\n";
+		// responce += "Content-Type: text/html\n";
+							// resource.erase(0, 1);
+
 	}
 
 
