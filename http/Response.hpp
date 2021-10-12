@@ -24,9 +24,14 @@ class Response
 
 
 		std::string buildResponse();
+		std::string  Creat_Header(Request & request, std::string resource);
 
 
 	private:
+
+		size_t  _size;
+		unsigned int _status;
+
 
 };
 

@@ -69,7 +69,7 @@ std::string getExtension(std::string file)
 } 
 
 
-std::string Creat_Header(Request & request, std::string resource)
+std::string  Response::Creat_Header(Request & request, std::string resource)
 {
 
 	std::string header = "HTTP/1.1 200 OK\n";
@@ -94,11 +94,12 @@ std::string Creat_Header(Request & request, std::string resource)
 	{
 			header += "Content-Type: text/html\n";
 	}else {
-		header = "";
+		header += "Content-Type: text/html\n";
 	}
+
+	header += "Content-Length: "+ std::to_string(this->_size);
+	header += "\n\n";
 	return header;
-
-
 }
 
 
@@ -120,35 +121,22 @@ std::vector<char>	Response::serv(Request & request)
 	}
 	else 
 	{
-	resource.erase(0, 1);
+		resource.erase(0, 1);
 	}
 	// std::cout << resource << std::endl;
-	std::string  responce;
-	 responce = Creat_Header(request, resource);
+		std::string  responce;
+		responce = Creat_Header(request, resource);
 
-	std::string  str;
-	std::string  body = "";
-	std::streampos size;
-char* memblock;
-	// if (!file.is_open()) 
-	// {
-	// 	// this means 404 response
-	// 	std::cout << "file not find" << std::endl;
-	// 	return "";
-	// }
-	if (resource == "image.png")
-	{				
-
-
+		std::string  str;
+		std::string  body = "";
+		std::streampos size;
+		char* memblock;
 
 		std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
 
 		if (file.is_open())
 		{
-
-		// responce += "Content-Type: image/png\n";
-
-
+			this->_status = 200;
 		    size = file.tellg();
 			int sizee = size;
 			memblock = new char [sizee];
@@ -156,13 +144,8 @@ char* memblock;
 			file.read (memblock, size);
 			file.close();
 			std::cout << "-----------------------" << std::endl; 		
-
-			responce +=  "Content-Length: "+ std::to_string(size);
-			responce += "\n\n";
-
-
-
-			
+			this->_size = size;
+			responce = Creat_Header(request, resource);
   		  	std::vector<char> first(responce.begin(), responce.end());
   		  	std::vector<char> tow(memblock, memblock + size);
 			first.insert(first.end(), tow.begin(), tow.end());
@@ -171,39 +154,12 @@ char* memblock;
 			return first;
 
 		}
-		std::cout<< "exiiist " << std::endl;
+		else {
+			// this means 404
+			this->_status = 404;
+		}
 		exit(0);
 
-
-	}
-	else {
-		// responce += "Content-Type: text/html\n";
-							// resource.erase(0, 1);
-
-	}
-
-
-		std::ifstream file(resource);
-
-
-	   while (getline (file, str)) {
-    // Output the text from the file
-    		body +=  str;
-    	}
-
-
-		std::string number = std::to_string(body.length());
-		responce +=   "Content-Length: " + number + "\n\n" +  body;
-
-
-	file.close();
-
-
-	// std::cout << responce << std::endl;
-
-
-	std::vector<char> ret(responce.begin(), responce.end());
-	return ret;
 }
 
 
