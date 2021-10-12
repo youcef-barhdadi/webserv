@@ -4,6 +4,7 @@
 # include <iostream>
 # include <string>
 # include  "./Request.hpp"
+#include <vector>
 
 class Response
 {
@@ -19,7 +20,7 @@ class Response
 
 
 		// this method will do magic 
-		std::string	serv(Request & request);
+		std::vector<char>	serv(Request & request);
 
 
 		std::string buildResponse();

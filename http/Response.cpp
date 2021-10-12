@@ -1,6 +1,7 @@
 #include "Response.hpp"
 #include <fstream>
 #include <filesystem>
+#include <vector>
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -62,7 +63,7 @@ int getSizeOfile(std::string file) {
 
 
 
-std::string	Response::serv(Request & request)
+std::vector<char>	Response::serv(Request & request)
 {
 	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
 	std::string resource = request.getPath();
@@ -73,7 +74,7 @@ std::string	Response::serv(Request & request)
 		resource = "index.html";
 	}
 	
-	std::cout << resource << std::endl;
+	// std::cout << resource << std::endl;
 	std::string  responce = "HTTP/1.1 200 OK\n";
 
 	std::string  str;
@@ -99,16 +100,24 @@ char* memblock;
 
 		    size = file.tellg();
 			int sizee = size;
-			std::cout << "size is " << sizee << std::endl; 
-		memblock = new char [sizee];
-	
+			memblock = new char [sizee];
 			file.seekg (0, std::ios::beg);
 			file.read (memblock, size);
 			file.close();
-			responce +=   "Content-Length: " + std::to_string(sizee) + "\n\n";
-			responce.append(memblock);
-			std::cout  << "response size is " << responce.length() << std::endl;
-			return responce;
+			std::cout << "-----------------------" << std::endl; 		
+
+			responce +=  "Content-Length: "+ std::to_string(size);
+			responce += "\n\n";
+
+
+
+			
+  		  	std::vector<char> first(responce.begin(), responce.end());
+  		  	std::vector<char> tow(memblock, memblock + size);
+			first.insert(first.end(), tow.begin(), tow.end());
+			std::cout << "-----------------------" << std::endl; 		
+			std::cout << first.size() << "|||" << size << std::endl;
+			return first;
 
 		}
 		std::cout<< "exiiist " << std::endl;
@@ -137,11 +146,11 @@ char* memblock;
 	file.close();
 
 
-	std::cout << responce << std::endl;
+	// std::cout << responce << std::endl;
 
 
-
-	return responce;
+	std::vector<char> ret(responce.begin(), responce.end());
+	return ret;
 }
 
 

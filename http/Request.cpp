@@ -44,6 +44,18 @@ Request::Request(  std::string & src )
 			std::vector<std::string> words = split(lines[i], ' ');
 			this->setPath(words[1]);
 		}
+		else {
+
+			if ( lines[i].find(' ')  !=std::string::npos)
+			{
+				std::string  first = lines[i].substr(0, lines[i].find(' '));
+				first.pop_back();
+				std::string  tow = lines[i].substr(lines[i].find(' '));
+				this->header.insert(pair<std::string, std::string>( first, tow));
+				  std::map<std::string, std::string>::iterator it;
+				it = this->header.find(first);
+			}
+		}
 		i++;
 	}
 }

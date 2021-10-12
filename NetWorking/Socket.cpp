@@ -98,10 +98,10 @@ void Socket::listen_on()
         std::string copy = std::string(buffer);
         Request *request = new Request(copy);
         Response *response = new Response();
-        std::string  res = response->serv(*request);
-        std::cout << res << std::endl;
-
-        write(new_socket,  res.c_str(),res.length());
+        std::vector<char> array  = response->serv(*request);
+        // std::cout << res << std::endl;
+        char *data  = array.data();
+        write(new_socket,  data,array.size());
         close(new_socket);
     }
     close(this->_connection);
