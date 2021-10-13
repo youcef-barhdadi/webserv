@@ -17,9 +17,12 @@ class Server
 		Server &		operator=( Server const & rhs );
 
 	private:
-		std::vector<int> listenfd;
-		std::string server_name;
+		std::vector<unsigned int> _listenfds;
+		std::vector<unsigned int> _ports;
+		std::string _server_name;
 		
+
+
 
 
 };
