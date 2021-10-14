@@ -2,7 +2,7 @@
 #include <fstream>
 #include <filesystem>
 #include <vector>
-
+#include "../cgi/Cgi.hpp"
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -146,6 +146,24 @@ std::vector<char>	Response::serv(Request & request)
 {
 	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
 	std::string resource = request.getPath();
+
+	std::string extension = getExtension(resource);
+	std::cout <<  "extension===>" << extension << std::endl;
+	// this means is cgi
+	if (extension == "pl")
+	{
+	std::cout <<  "enter" << std::endl;
+
+
+			Cgi cgi;
+			cgi.startCgi(request);
+			std::vector<char> test ;
+			exit(0);
+		return  test;
+	}
+
+
+
 
 	// this code temporary 
 	if (resource == "/")
