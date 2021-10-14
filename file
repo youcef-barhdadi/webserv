@@ -1,0 +1,38 @@
+1
+2
+3
+3
+eroror  ===> 3
+socket fd ==> ||1
+socket fd ==> ||2
+socket fd ==> ||3
+3
+4
+5
+5
+started of the loop 
+end of select
+workkkkkk
+workkkkkk
+workkkkkk
+workkkkkk
+workkkkkk
+workkkkkk
+workkkkkk
+started of the loop 
+end of select
+workkkkkk
+workkkkkk
+workkkkkk
+workkkkkk
+workkkkkk
+workkkkkk
+workkkkkk
+enter heere
+extension===>pl
+enter
+cgi.pl
+Content-type:text/html
+
+<html>  9999999999<head><title>Hello Word - First CGI Program</title></head><body><h2>Hello Word! This is my first CGI program</h2></body></html>workkkkkk
+started of the loop 

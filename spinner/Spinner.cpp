@@ -103,7 +103,6 @@ void	Spinner::run()
 
 		for (size_t i = 0; i < maxfd + 1; i++)
 		{
-							std::cout<< "workkkkkk"   << std::endl;
 
 			if (FD_ISSET(i, &ready_socket))
 			{			
@@ -139,12 +138,16 @@ void	Spinner::run()
 				}
 			}
 		}
-		
-
-	
-
 	}
-	close(this->_servers[0]->socket_fd[0]);
+	for (size_t i = 0; i < this->_servers.size(); i++)
+	{
+		for (size_t j = 0; j < this->_servers[i]->socket_fd.size(); j++)
+		{
+			close(this->_servers[0]->socket_fd[0]);
+		}
+		
+	}
+	
 
 
 

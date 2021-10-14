@@ -54,51 +54,61 @@ std::ostream &			operator<<( std::ostream & o, Cgi const & i )
 */
 
 
-void  Cgi::startCgi(Request &request)
-{
+std::string		Cgi::startCgi(Request &request)
+{	
+	
+		int pip[2];
+
+	pipe(pip);
+
 	pid_t pid = fork();
 	int new_fd;
-	int pip[2];
 
 
-	int fd = open("test.test", O_CREAT | O_RDWR, 0644);
-	if (fd < 0)
-	{
-		perror("rr");
-		exit(1);
-	}
+	// int fd = open("test÷.test", O_CREAT | O_RDWR, 0644);
+	// if (fd < 0)
+	// {
+	// 	perror("rr");
+	// 	exit(1);
+	// }
 
 	if (pid == 0)
-{
-			std::string new_stg = request.getPath().erase(0,1);
-				std::cout <<new_stg << std::endl;
-	const char *s =new_stg.c_str();
+	{
+		std::string new_stg = request.getPath().erase(0,1);
+		std::cout <<new_stg << std::endl;
+		const char *s =new_stg.c_str();
+		// dup2(fd, 1);
+		dup2(pip[1], 1);
+		perror("dup2");
+		close(pip[1]);
+		perror("close 1");
 
-		dup2(fd, 1);
-		// std::cout << s << std::endl;
+		close(pip[0]);
+				perror("close 2");
+
 		const char *args[] = {"perl", s, NULL };
 		// set environment variables
 		 execvp("perl", (char **) args);
-		 std::cout << "======="<< std::endl;
-		 exit(0);
+			perror("perl 1");
+			exit(1);
+
 	}
-	else if (pid > 0)
-	{
-		std::string s;
-		// Take input using cin
-		std::cin >> s;
-		// Print output
-		std::cout <<  "-----------------------"<< s<< std::endl;
 		waitpid(-1, NULL,0);
+		char c[500];
+		std::cout<< "sssss"<< std::endl;
+		close(pip[1]);
+		int ret;
+		std::string str;
+		while ((ret = read(pip[0], c, 499)))
+		{
+				c[ret] = 0;
 
-		exit(0);
-	}
-	else
-	{
-
-		printf("error");
-		// error
-	}
+				std::string bu(c, c+ret);
+				str += c;
+	
+		}
+		std::cout << str<< std::endl;
+		return str;
 
 
 }

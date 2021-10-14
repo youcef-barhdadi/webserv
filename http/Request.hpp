@@ -47,5 +47,6 @@ class Request
 };
 
 std::ostream &			operator<<( std::ostream & o, Request const & i );
+std::vector<std::string> split (const std::string &s, char delim);
 
 #endif /* ********************************************************* REQUEST_H */

@@ -11,9 +11,9 @@ int     main(int argc, char **argv)
     Server *server = new Server();
     // Server *server = new Server();
 
-    server->addPort(1337);
-    server->addPort(1338);
-    server->addPort(1568);
+    server->addPort(1334);
+    server->addPort(1332);
+    server->addPort(1565);
     std::cout << server->_ports.size() << std::endl;
     s._servers.push_back(server);
 

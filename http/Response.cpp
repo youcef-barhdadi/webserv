@@ -61,7 +61,18 @@ int getSizeOfile(std::string file) {
 
 
 
-std::string getExtension(std::string file)
+void	Response::handlPut(Request & request)
+{
+
+
+
+	
+}
+
+
+
+
+std::string	getExtension(std::string file)
 {
 	std::string str = file.substr(file.find('.')+1);
 
@@ -81,7 +92,7 @@ std::string  Response::Creat_Header(Request & request, std::string resource)
 		header += "\n\n";
 		return header;
 	}
-	else if (this->_status = 200)
+	else if (this->_status == 200)
 	{
 		std::string extetion = getExtension(resource);
 		std::cout  << extetion << std::endl;
@@ -141,6 +152,28 @@ std::vector<char> getfileRaw(std::string file)
 
 
 
+std::vector<char> handlCgiresponse(std::string & str)
+{
+
+	std::vector<std::string> strs = split(str, '\n');;
+
+	int size = strs[2].length();
+
+
+	std::string content = "HTTP/1.1 200 OK\nContent-Length: "+ std::to_string(size);
+	content += "\n";
+	content.append(str);
+
+	std::vector <char> vec(content.begin(), content.end());
+	
+
+	return vec;
+}
+
+
+
+
+
 
 std::vector<char>	Response::serv(Request & request)
 {
@@ -152,13 +185,14 @@ std::vector<char>	Response::serv(Request & request)
 	// this means is cgi
 	if (extension == "pl")
 	{
-	std::cout <<  "enter" << std::endl;
 
 
 			Cgi cgi;
-			cgi.startCgi(request);
-			std::vector<char> test ;
-			exit(0);
+			
+			std::string  strtest = cgi.startCgi(request);
+
+			std::vector<char> test = handlCgiresponse(strtest);
+			// exit(0);
 		return  test;
 	}
 

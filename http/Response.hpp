@@ -26,6 +26,8 @@ class Response
 		std::string buildResponse();
 		std::string  Creat_Header(Request & request, std::string resource);
 
+		void	handlPut(Request & request);
+
 
 	private:
 
