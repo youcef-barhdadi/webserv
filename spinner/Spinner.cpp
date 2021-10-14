@@ -94,14 +94,14 @@ void	Spinner::run()
 
 		ready_socket = current_socket;
 		std::cout << "started of the loop " << std::endl;
-		if (select((int)maxfd, &ready_socket, NULL, NULL, NULL) < 0)
+		if (select((int)maxfd +1, &ready_socket, NULL, NULL, NULL) < 0)
 		{
 			perror("select error");
 			exit(0);
 		}
 		std::cout<< "end of select"   << std::endl;
 
-		for (size_t i = 0; i < maxfd; i++)
+		for (size_t i = 0; i < maxfd + 1; i++)
 		{
 							std::cout<< "workkkkkk"   << std::endl;
 
