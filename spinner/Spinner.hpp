@@ -1,9 +1,12 @@
-#ifndef SPINNER _HPP
-# define SPINNER _HPP
+#ifndef SPINNER_HPP
+# define SPINNER_HPP
 
 # include <iostream>
 # include <string>
 # include "../server/Server.hpp"
+#include "../http/Request.hpp"
+#include "../http/Response.hpp"
+#include <unistd.h>
 
 class Spinner 
 {
@@ -17,9 +20,9 @@ class Spinner
 		Spinner  &		operator=( Spinner  const & rhs );
 
 		void	run();
+		std::vector<Server *> _servers;
 
 	private:
-		std::vector<Server> _servers;
 
 };
 

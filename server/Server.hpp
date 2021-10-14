@@ -4,6 +4,10 @@
 # include <iostream>
 # include <string>
 #include <vector>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <map>
 
 class Server
 {
@@ -16,11 +20,22 @@ class Server
 
 		Server &		operator=( Server const & rhs );
 
-	private:
+		void create_server();
+
+
+		void addPort(unsigned int port);
 		std::vector<unsigned int> _listenfds;
+		std::vector<unsigned int> socket_fd;
 		std::vector<unsigned int> _ports;
 		std::string _server_name;
+
+
+		// clients ;
+		std::map<unsigned int, unsigned int> clients;
+
 		
+	private:
+
 
 
 

@@ -1,6 +1,6 @@
 
-#pragma once
-
+#ifndef SOCKET_HPP
+# define SOCKET_HPP
 
 
 #include <sys/socket.h>
@@ -29,3 +29,4 @@ class Socket{
         ~Socket();
 void listen_on();
 };
+#endif /* ********************************************************** SERVER_H */
