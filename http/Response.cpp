@@ -3,13 +3,17 @@
 #include <filesystem>
 #include <vector>
 #include "../cgi/Cgi.hpp"
+# include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
 
 
-Response::Response( const Response & src ) : req(src.req)
+Response::Response( const Response & src) : req(src.req)
 {
 }
 
@@ -17,6 +21,7 @@ Response::Response( const Response & src ) : req(src.req)
 
 Response::Response(Request & req ) : req(req)
 {
+	this->chanked_request = false;
 }
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -86,7 +91,6 @@ std::string  Response::Creat_Header(Request & request, std::string resource)
 {
 	std::string header = "HTTP/1.1 200 OK\n";
 
-
 	if (this->_status == 404)
 	{
 		header = "HTTP/1.1  404 Not found \n";
@@ -123,6 +127,60 @@ std::string  Response::Creat_Header(Request & request, std::string resource)
 	}
 	return header;
 }
+
+
+
+long FdGetFileSize(int fd)
+{
+    struct stat stat_buf;
+    int rc = fstat(fd, &stat_buf);
+    return rc == 0 ? stat_buf.st_size : -1;
+}
+
+
+
+
+std::vector<char> Response::Get(Request  &req, fd_set set)
+{
+	size_t BUFFER_SIZE = 10000;
+	char BUFEFR[BUFFER_SIZE];
+	if (this->chanked_request == false)
+	{
+	 	 this->requestedFileFD = open(this->req.getPath().c_str(), O_RDONLY);
+		this->sizeFile = FdGetFileSize(this->requestedFileFD);
+		// size of file
+
+		assert(this->requestedFileFD > 0);
+	}
+	int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
+	assert(ret > 0);
+	BUFEFR[ret] = 0;
+	std::vector<char> req(BUFEFR, BUFEFR + ret);
+
+		// perpr header
+
+	if (this->fileSize > ret && this->req.keepAlive == false)
+	{
+		close(this->requestedFileFD);
+		FD_CLR(this->req.getConnectinFD(), &set);
+	}	
+	// write(this->req.getConnectinFD(), BUFFER_SIZE, BUFEFR)÷
+
+}
+
+
+std::vector<char> Response::Post(Request &req, fd_set set)
+{
+	
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -177,31 +235,21 @@ std::vector<char> handlCgiresponse(std::string & str)
 
 
 
-std::vector<char>	Response::serv(Request & request)
+std::vector<char>	Response::serv(Request & request,fd_set set)
 {
 	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
 	std::string resource = request.getPath();
-
 	std::string extension = getExtension(resource);
 	std::cout <<  "extension===>" << extension << std::endl;
 	// this means is cgi
 	if (extension == "pl")
 	{
-
-
-			Cgi cgi;
-			
-			std::string  strtest = cgi.startCgi(request);
-
-			std::vector<char> test = handlCgiresponse(strtest);
-			// exit(0);
+		Cgi cgi;
+		std::string  strtest = cgi.startCgi(request);
+		std::vector<char> test = handlCgiresponse(strtest);
+		// exit(0);
 		return  test;
-	}
-
-
-
-
-	// this code temporary 
+	}	
 	if (resource == "/")
 	{
 		resource = "index.html";

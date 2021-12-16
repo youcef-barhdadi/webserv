@@ -64,7 +64,11 @@ Request::Request(  std::string & src  , int connection_fd)
 }
 
 
+int Request::getConnectinFD()
+{
+	return this->connection_fd;
 
+}
 
 
 

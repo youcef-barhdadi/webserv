@@ -1,6 +1,7 @@
 #include "Server.hpp"
-
-/*
+# include <assert.h>
+#include <fcntl.h>
+/*<fcntl.h>
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
@@ -49,31 +50,32 @@ std::ostream &			operator<<( std::ostream & o, Server const & i )
 
 void Server::create_server()
 {
-
-		 std::cout << "eroror  ===> " <<  this->_ports.size()<< std::endl;
 	for (int i = 0; i <  this->_ports.size(); i++)
 	{
 
 		int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
+		fcntl(server_fd, F_SETFL, O_NONBLOCK);
+		assert((server_fd > 0));
 		if (server_fd < 0)
 		{
 			perror("error");
 			exit(0);
 		}
 		this->socket_fd.push_back(server_fd);
-		std::cout << "socket fd ==> ||"<< this->socket_fd.size() << std::endl;
 		struct  sockaddr_in address;
 		memset((char *)&address, 0, sizeof(address));
 		address.sin_family = AF_INET;
 		address.sin_addr.s_addr= INADDR_ANY;
 		address.sin_port =htons(this->_ports[i]);
 		int ret =  bind(server_fd, (struct sockaddr *)&address , sizeof(address));
+		assert(ret > 0);
 		if (ret < 0)
 		{
 			perror("error ");
 			return ;
 		}
 		 ret = listen(server_fd, 1000);
+		assert(ret > 0);
 		if (ret < 0)
 		{
 			perror("error ");

@@ -29,9 +29,9 @@ class Request
 		void	setPath(std::string path);
 
 
+		int getConnectinFD();
 
-
-			std::map<std::string, std::string> header;
+		std::map<std::string, std::string> header;
 
 	private:
 		std::string  _accetpt_languge;

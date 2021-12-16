@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2021/12/16 02:26:14 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2021/12/16 02:38:03 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,32 +82,28 @@ void	Spinner::run()
 
 	fd_set  current_socket, ready_socket;
 	FD_ZERO(&current_socket);
-
-		this->_servers[0]->create_server();
-  
- 	 unsigned	int maxfd = 0;
+	this->_servers[0]->create_server();
+ 	unsigned	int maxfd = 0;
 
 	for (size_t i = 0; i < this->_servers[0]->socket_fd.size(); i++)
 	{	
 			FD_SET(this->_servers[0]->socket_fd[i], &current_socket);
-			std::cout << this->_servers[0]->socket_fd[i] << std::endl;
+			// std::cout << this->_servers[0]->socket_fd[i] << std::endl;
 			maxfd = std::max(maxfd, this->_servers[0]->socket_fd[i] );
 	}
 	
-		std::cout << maxfd << std::endl;
 
 
 	while (true)
 	{	
 
 		ready_socket = current_socket;
-		std::cout << "started of the loop " << std::endl;
 		if (select((int)maxfd +1, &ready_socket, NULL, NULL, NULL) < 0)
 		{
+			assert(true);
 			perror("select error");
 			exit(0);
 		}
-		std::cout<< "end of select"   << std::endl;
 
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
@@ -129,7 +125,7 @@ void	Spinner::run()
 				}
 				else {
 
-					if (connection.find(connection_fd) != connectiod.end())
+					if (connection.find(connection_fd) != connection.end())
 					{
 						readlen = read(connection_fd, buffer, 30000);
 						buffer[readlen] = 0;
@@ -139,7 +135,7 @@ void	Spinner::run()
 						connection.insert(std::make_pair(connection_fd, response));					
 					}					
 					Response &res = connection.find(connection_fd)->second;
-					std::vector<char> array  = res.serv(request);				
+					std::vector<char> array  = res.serv(request,  ready_socket);				
 					char *data  = array.data();
 					write(connection_fd,  data,array.size());
 					close(connection_fd);
