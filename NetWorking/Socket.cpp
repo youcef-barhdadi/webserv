@@ -85,15 +85,12 @@ void Socket::listen_on()
     while (1)
     {
         int new_socket = accept(this->_connection, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-
         if (new_socket < 0)
         {
             perror("In accept");
             return ;
         }
-
         readlen = read(new_socket, buffer, 30000);
-
         buffer[readlen] =0;
         std::string copy = std::string(buffer);
         Request *request = new Request(copy);

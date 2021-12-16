@@ -84,8 +84,7 @@ std::string		Cgi::startCgi(Request &request)
 		perror("close 1");
 
 		close(pip[0]);
-				perror("close 2");
-
+		perror("close 2");
 		const char *args[] = {"perl", s, NULL };
 		// set environment variables
 		 execvp("perl", (char **) args);

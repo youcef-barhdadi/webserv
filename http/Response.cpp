@@ -7,15 +7,17 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Response::Response()
+
+
+Response::Response( const Response & src ) : req(src.req)
 {
 }
 
-Response::Response( const Response & src )
+
+
+Response::Response(Request & req ) : req(req)
 {
 }
-
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */

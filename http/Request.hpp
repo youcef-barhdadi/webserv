@@ -16,7 +16,7 @@ class Request
 
 		Request();
 
-		Request( std::string &  src );
+		Request( std::string &  src , int connection_fd);
 		~Request();
 
 		Request &		operator=( Request const & rhs );
@@ -39,7 +39,8 @@ class Request
 		std::string  _allow;
 		std::string  _method;
 		std::string _target;
-		std::string _path;
+		std::string _path;	
+		int connection_fd;
 
 
 

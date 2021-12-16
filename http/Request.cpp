@@ -30,8 +30,11 @@ Request::Request()
 {
 }
 
-Request::Request(  std::string & src )
+Request::Request(  std::string & src  , int connection_fd)
 {
+	// set socket fd 
+	this->connection_fd = connection_fd;
+
  	std::vector<std::string> lines =  split(src, '\n');
 	int i = 0;
 	while (i < lines.size())

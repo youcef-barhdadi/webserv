@@ -12,6 +12,7 @@ class Response
 	public:
 
 		Response();
+		Response(Request & req );
 		Response( Response const & src );
 		~Response();
 
@@ -33,6 +34,8 @@ class Response
 
 		size_t  _size;
 		unsigned int _status;
+
+		Request &req;
 
 
 };
