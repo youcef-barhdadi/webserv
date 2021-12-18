@@ -5,6 +5,7 @@
 # include <string>
 
 #include <map>
+#include <vector>
 
 
 // see this link to see why i peekup this names https://code.tutsplus.com/tutorials/http-headers-for-dummies--net-8039
@@ -33,6 +34,8 @@ class Request
 
 		std::map<std::string, std::string> header;
 
+		bool	getKeepALive();
+
 	private:
 		std::string  _accetpt_languge;
 		std::string _accetpt_charset;
@@ -40,7 +43,8 @@ class Request
 		std::string  _method;
 		std::string _target;
 		std::string _path;	
-		int connection_fd;
+		int 		connection_fd;
+		bool		keepAlive;
 
 
 

@@ -6,20 +6,20 @@
 # include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-
+#include <sys/select.h>
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
 
 
-Response::Response( const Response & src) : req(src.req)
+Response::Response( const Response & src) : request(src.request)
 {
 }
 
 
 
-Response::Response(Request & req ) : req(req)
+Response::Response(Request & req ) : request(req)
 {
 	this->chanked_request = false;
 }
@@ -87,9 +87,10 @@ std::string	getExtension(std::string file)
 } 
 
 
-std::string  Response::Creat_Header(Request & request, std::string resource)
+std::string  Response::Creat_Header()
 {
 	std::string header = "HTTP/1.1 200 OK\n";
+	std::string resource =  request.getPath();
 
 	if (this->_status == 404)
 	{
@@ -138,6 +139,27 @@ long FdGetFileSize(int fd)
 }
 
 
+std::vector<char> Response::servGet(fd_set set)
+{
+	size_t BUFFER_SIZE = 10000;
+	char BUFFER[BUFFER_SIZE];
+	if (this->sended == 0)
+	{
+		std::string header = Creat_Header();
+
+		// this fd is chekcked 
+		write(this->request.getConnectinFD(), header.c_str(), header.size());
+		this->sended = 1;
+		return ;
+	}
+	// i
+	if (FD_ISSET(this-requestedFileFD, &set))
+	{
+		int ret = read(this->requestedFileFD, BUFFER, BUFFER_SIZE -1);
+		BUFFER[ret] = '\0';
+		write(this->request.getConnectinFD(), BUFFER, ret);
+	}
+}
 
 
 std::vector<char> Response::Get(Request  &req, fd_set set)
@@ -146,33 +168,26 @@ std::vector<char> Response::Get(Request  &req, fd_set set)
 	char BUFEFR[BUFFER_SIZE];
 	if (this->chanked_request == false)
 	{
-	 	 this->requestedFileFD = open(this->req.getPath().c_str(), O_RDONLY);
+		this->requestedFileFD = open(this->req.getPath().c_str(), O_RDONLY);
 		this->sizeFile = FdGetFileSize(this->requestedFileFD);
-		// size of file
-
-		assert(this->requestedFileFD > 0);
+		// assert(this->requestedFileFD > 0);
 	}
-	int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
-	assert(ret > 0);
-	BUFEFR[ret] = 0;
-	std::vector<char> req(BUFEFR, BUFEFR + ret);
+	// int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
+	// BUFEFR[ret] = 0;
+	// std::vector<char> req(BUFEFR, BUFEFR + ret);
 
-		// perpr header
-
-	if (this->fileSize > ret && this->req.keepAlive == false)
+	if (this->sended + ret > this->sizeFile   && this->req.getKeepALive() == false)
 	{
 		close(this->requestedFileFD);
 		FD_CLR(this->req.getConnectinFD(), &set);
 	}	
-	// write(this->req.getConnectinFD(), BUFFER_SIZE, BUFEFR)÷
-
 }
 
 
-std::vector<char> Response::Post(Request &req, fd_set set)
-{
+// std::vector<char> Response::Post(Request &req, fd_set set)
+// {
 	
-}
+// }
 
 
 
@@ -240,7 +255,7 @@ std::vector<char>	Response::serv(Request & request,fd_set set)
 	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
 	std::string resource = request.getPath();
 	std::string extension = getExtension(resource);
-	std::cout <<  "extension===>" << extension << std::endl;
+	// std::cout <<  "extension===>" << extension << std::endl;
 	// this means is cgi
 	if (extension == "pl")
 	{
@@ -273,7 +288,7 @@ std::vector<char>	Response::serv(Request & request,fd_set set)
 			file.close();
   		  	std::vector<char> tow= getfileRaw(resource);	
 			this->_size = tow.size();
-			responce = Creat_Header(request, resource);
+			responce = Creat_Header(request);
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
 			return first;

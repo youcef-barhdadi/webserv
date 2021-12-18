@@ -68,40 +68,40 @@ void Socket::Create_server()
 
 void Socket::listen_on()
 {
-    std::cout << "starte listening " << std::endl;
-    this->create_Connection();
-    this->Create_server();
-    std::cout << "servrev  started  hhhhhh" << std::endl;
-    struct sockaddr_in address;
-    socklen_t addrlen;
-    size_t  readlen;
-    char buffer[30000] = {0};
-    int  ret  =   listen(this->_connection, 15);
-    if (ret < 0)
-    {
-        perror("In listen");
-        return ;
-    }
-    while (1)
-    {
-        int new_socket = accept(this->_connection, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-        if (new_socket < 0)
-        {
-            perror("In accept");
-            return ;
-        }
-        readlen = read(new_socket, buffer, 30000);
-        buffer[readlen] =0;
-        std::string copy = std::string(buffer);
-        Request *request = new Request(copy);
-        Response *response = new Response();
-        std::vector<char> array  = response->serv(*request);
-        // std::cout << res << std::endl;
-        char *data  = array.data();
-        write(new_socket,  data,array.size());
-        close(new_socket);
-    }
-    close(this->_connection);
+    // std::cout << "starte listening " << std::endl;
+    // this->create_Connection();
+    // this->Create_server();
+    // std::cout << "servrev  started  hhhhhh" << std::endl;
+    // struct sockaddr_in address;
+    // socklen_t addrlen;
+    // size_t  readlen;
+    // char buffer[30000] = {0};
+    // int  ret  =   listen(this->_connection, 15);
+    // if (ret < 0)
+    // {
+    //     perror("In listen");
+    //     return ;
+    // }
+    // while (1)
+    // {
+    //     int new_socket = accept(this->_connection, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+    //     if (new_socket < 0)
+    //     {
+    //         perror("In accept");
+    //         return ;
+    //     }
+    //     readlen = read(new_socket, buffer, 30000);
+    //     buffer[readlen] =0;
+    //     std::string copy = std::string(buffer);
+    //     Request *request = new Request(copy);
+    //     Response *response = new Response();
+    //     std::vector<char> array  = response->serv(*request);
+    //     // std::cout << res << std::endl;
+    //     char *data  = array.data();
+    //     write(new_socket,  data,array.size());
+    //     close(new_socket);
+    // }
+    clos/e(this->_connection);
 
 
 } 

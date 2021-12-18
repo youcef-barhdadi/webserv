@@ -88,12 +88,8 @@ void	Spinner::run()
 	for (size_t i = 0; i < this->_servers[0]->socket_fd.size(); i++)
 	{	
 			FD_SET(this->_servers[0]->socket_fd[i], &current_socket);
-			// std::cout << this->_servers[0]->socket_fd[i] << std::endl;
 			maxfd = std::max(maxfd, this->_servers[0]->socket_fd[i] );
 	}
-	
-
-
 	while (true)
 	{	
 
@@ -123,7 +119,8 @@ void	Spinner::run()
 					this->_servers[0]->clients[connection_fd] = new_socket;
 						maxfd = std::max(maxfd, (unsigned int)  new_socket );
 				}
-				else {
+				else 
+				{
 
 					if (connection.find(connection_fd) != connection.end())
 					{
@@ -132,8 +129,8 @@ void	Spinner::run()
 						std::string copy = std::string(buffer);
 						Request request(copy, connection_fd);
 						Response response(request);
-						connection.insert(std::make_pair(connection_fd, response));					
-					}					
+						connection.insert(std::make_pair(connection_fd, response));
+					}
 					Response &res = connection.find(connection_fd)->second;
 					std::vector<char> array  = res.serv(request,  ready_socket);				
 					char *data  = array.data();

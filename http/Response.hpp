@@ -25,12 +25,19 @@ class Response
 
 
 		std::string buildResponse();
-		std::string  Creat_Header(Request & request, std::string resource);
+		std::string  Creat_Header();
 
 		void	handlPut(Request & request);
 		std::vector<char> Get(Request  &req, fd_set set);
 
+
+		
+
 	private:
+
+
+
+		std::vector<char> servGet();
 
 		size_t  _size;
 		unsigned int _status;
@@ -41,7 +48,7 @@ class Response
 		 * 	this refernce to the reqtuest object 
 		 */
 
-		Request &req;
+		Request &request;
 		/**
 		 * @brief 
 		 * 	if the resposnse chnaked or not
@@ -53,6 +60,12 @@ class Response
 		 * 		requested file  
 		 */
 		int requestedFileFD;
+
+
+
+		size_t sizeFile;
+
+		size_t	sended;
 
 
 };

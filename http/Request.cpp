@@ -30,6 +30,10 @@ Request::Request()
 {
 }
 
+
+
+
+
 Request::Request(  std::string & src  , int connection_fd)
 {
 	// set socket fd 
@@ -68,6 +72,13 @@ int Request::getConnectinFD()
 {
 	return this->connection_fd;
 
+}
+
+
+
+bool	Request::getKeepALive()
+{
+	return this->keepAlive;
 }
 
 
