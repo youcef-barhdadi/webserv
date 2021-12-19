@@ -14,6 +14,7 @@
 #include <sys/select.h>
 #include <algorithm>
 #include <map>
+#include <assert.h>
 // #include <pair>
 
 
@@ -96,7 +97,7 @@ void	Spinner::run()
 		ready_socket = current_socket;
 		if (select((int)maxfd +1, &ready_socket, NULL, NULL, NULL) < 0)
 		{
-			assert(true);
+			// assert(true);
 			perror("select error");
 			exit(0);
 		}
@@ -122,21 +123,22 @@ void	Spinner::run()
 				else 
 				{
 
-					if (connection.find(connection_fd) != connection.end())
+					if (connection.find(connection_fd) == connection.end())
 					{
 						readlen = read(connection_fd, buffer, 30000);
 						buffer[readlen] = 0;
 						std::string copy = std::string(buffer);
-						Request request(copy, connection_fd);
+						std::cout << "hello" << std::endl;
+						Request  *request   =  new Request(copy, connection_fd);
 						Response response(request);
 						connection.insert(std::make_pair(connection_fd, response));
 					}
 					Response &res = connection.find(connection_fd)->second;
-					std::vector<char> array  = res.serv(request,  ready_socket);				
-					char *data  = array.data();
-					write(connection_fd,  data,array.size());
-					close(connection_fd);
-					FD_CLR(connection_fd, &current_socket);
+					res.serv(ready_socket);				
+					// char *data  = array.data();
+					// write(connection_fd,  data,array.size());
+					// close(connection_fd);
+					// FD_CLR(connection_fd, &current_socket);
 				}
 			}
 		}

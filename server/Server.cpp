@@ -68,14 +68,15 @@ void Server::create_server()
 		address.sin_addr.s_addr= INADDR_ANY;
 		address.sin_port =htons(this->_ports[i]);
 		int ret =  bind(server_fd, (struct sockaddr *)&address , sizeof(address));
-		assert(ret > 0);
 		if (ret < 0)
 		{
 			perror("error ");
+			assert(ret < 0);
 			return ;
 		}
 		 ret = listen(server_fd, 1000);
-		assert(ret > 0);
+		 printf("[%d]\n", ret);
+		assert(ret == 0);
 		if (ret < 0)
 		{
 			perror("error ");

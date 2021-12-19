@@ -1,3 +1,4 @@
+#include <cassert>
 #include "Response.hpp"
 #include <fstream>
 #include <filesystem>
@@ -19,7 +20,7 @@ Response::Response( const Response & src) : request(src.request)
 
 
 
-Response::Response(Request & req ) : request(req)
+Response::Response(Request * req ) : request(req)
 {
 	this->chanked_request = false;
 }
@@ -90,7 +91,7 @@ std::string	getExtension(std::string file)
 std::string  Response::Creat_Header()
 {
 	std::string header = "HTTP/1.1 200 OK\n";
-	std::string resource =  request.getPath();
+	std::string resource =  request->getPath();
 
 	if (this->_status == 404)
 	{
@@ -139,7 +140,8 @@ long FdGetFileSize(int fd)
 }
 
 
-std::vector<char> Response::servGet(fd_set set)
+
+void		 Response::servGet(fd_set set)
 {
 	size_t BUFFER_SIZE = 10000;
 	char BUFFER[BUFFER_SIZE];
@@ -148,46 +150,57 @@ std::vector<char> Response::servGet(fd_set set)
 		std::string header = Creat_Header();
 
 		// this fd is chekcked 
-		write(this->request.getConnectinFD(), header.c_str(), header.size());
+		write(this->request->getConnectinFD(), header.c_str(), header.size());
 		this->sended = 1;
-		return ;
+		return  ;
 	}
 	// i
-	if (FD_ISSET(this-requestedFileFD, &set))
+	if (FD_ISSET(this->requestedFileFD, &set))
 	{
 		int ret = read(this->requestedFileFD, BUFFER, BUFFER_SIZE -1);
 		BUFFER[ret] = '\0';
-		write(this->request.getConnectinFD(), BUFFER, ret);
+		write(this->request->getConnectinFD(), BUFFER, ret);
 	}
 }
 
 
-std::vector<char> Response::Get(Request  &req, fd_set set)
+void	Response::Get(fd_set set)
 {
 	size_t BUFFER_SIZE = 10000;
 	char BUFEFR[BUFFER_SIZE];
+	this->chanked_request = false;
 	if (this->chanked_request == false)
 	{
-		this->requestedFileFD = open(this->req.getPath().c_str(), O_RDONLY);
+		this->requestedFileFD = open(this->request->getPath().c_str(), O_RDONLY);
 		this->sizeFile = FdGetFileSize(this->requestedFileFD);
 		// assert(this->requestedFileFD > 0);
+		std::string header = Creat_Header();
+		std::cout << header << std::endl;
+		// this fd is chekcked 
+		write(this->request->getConnectinFD(), header.c_str(), header.size());
+		return ;
 	}
-	// int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
+	if (FD_ISSET(this->requestedFileFD, &set))
+	{
+		int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
+		assert(ret  > 0);
+		write(this->request->getConnectinFD(), BUFEFR, ret);
+	}
+
+
+
+
 	// BUFEFR[ret] = 0;
 	// std::vector<char> req(BUFEFR, BUFEFR + ret);
 
-	if (this->sended + ret > this->sizeFile   && this->req.getKeepALive() == false)
-	{
-		close(this->requestedFileFD);
-		FD_CLR(this->req.getConnectinFD(), &set);
-	}	
+	// if (this->sended + ret > this->sizeFile   && this->request.getKeepALive() == false)
+	// {
+	// 	close(this->requestedFileFD);
+	// 	FD_CLR(this->request.getConnectinFD(), &set);
+	// }	
 }
 
 
-// std::vector<char> Response::Post(Request &req, fd_set set)
-// {
-	
-// }
 
 
 
@@ -249,63 +262,84 @@ std::vector<char> handlCgiresponse(std::string & str)
 
 
 
-
-std::vector<char>	Response::serv(Request & request,fd_set set)
+void		Response::serv(fd_set set)
 {
-	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
-	std::string resource = request.getPath();
-	std::string extension = getExtension(resource);
-	// std::cout <<  "extension===>" << extension << std::endl;
-	// this means is cgi
-	if (extension == "pl")
+
+	std::string method = this->request->getMethod();
+
+	if (method == "GET")
 	{
-		Cgi cgi;
-		std::string  strtest = cgi.startCgi(request);
-		std::vector<char> test = handlCgiresponse(strtest);
-		// exit(0);
-		return  test;
-	}	
-	if (resource == "/")
-	{
-		resource = "index.html";
+		this->Get(set);
+		return ;
 	}
-	else 
-	{
-		resource.erase(0, 1);
-	}
-	// std::cout << resource << std::endl;
-		std::string  responce;
-		// responce = Creat_Header(request, resource);
-		std::string  str;
-		std::string  body = "";
-		std::streampos size;
-		char* memblock;
-		std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
 
-		if (file.is_open())
-		{
-			this->_status = 200;
-			file.close();
-  		  	std::vector<char> tow= getfileRaw(resource);	
-			this->_size = tow.size();
-			responce = Creat_Header(request);
-  		  	std::vector<char> first(responce.begin(), responce.end());
-			first.insert(first.end(), tow.begin(), tow.end());
-			return first;
 
-		}
-		else {
-			// this means 404
-		this->_status = 404;
-  		  	std::vector<char> tow= getfileRaw("404.html");	
-			this->_size = tow.size();
-			responce = Creat_Header(request, "404.html");
-  		  	std::vector<char> first(responce.begin(), responce.end());
-			first.insert(first.end(), tow.begin(), tow.end());
 
-			return  first;
-		}
-		// exit(0);
+
+
+
+
+
+
+
+
+
+
+
+	// // first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
+	// std::string resource = request.getPath();
+	// std::string extension = getExtension(resource);
+	// // std::cout <<  "extension===>" << extension << std::endl;
+	// // this means is cgi
+	// if (extension == "pl")
+	// {
+	// 	Cgi cgi;
+	// 	std::string  strtest = cgi.startCgi(request);
+	// 	std::vector<char> test = handlCgiresponse(strtest);
+	// 	// exit(0);
+	// 	return  test;
+	// }	
+	// if (resource == "/")
+	// {
+	// 	resource = "index.html";
+	// }
+	// else 
+	// {
+	// 	resource.erase(0, 1);
+	// }
+	// // std::cout << resource << std::endl;
+	// 	std::string  responce;
+	// 	// responce = Creat_Header(request, resource);
+	// 	std::string  str;
+	// 	std::string  body = "";
+	// 	std::streampos size;
+	// 	char* memblock;
+	// 	std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
+
+	// 	if (file.is_open())
+	// 	{
+	// 		this->_status = 200;
+	// 		file.close();
+  	// 	  	std::vector<char> tow= getfileRaw(resource);	
+	// 		this->_size = tow.size();
+	// 		responce = Creat_Header();
+  	// 	  	std::vector<char> first(responce.begin(), responce.end());
+	// 		first.insert(first.end(), tow.begin(), tow.end());
+	// 		return first;
+
+	// 	}
+	// 	else {
+	// 		// this means 404
+	// 	this->_status = 404;
+  	// 	  	std::vector<char> tow= getfileRaw("404.html");	
+	// 		this->_size = tow.size();
+	// 		responce = Creat_Header();
+  	// 	  	std::vector<char> first(responce.begin(), responce.end());
+	// 		first.insert(first.end(), tow.begin(), tow.end());
+
+	// 		return  first;
+	// 	}
+	// 	// exit(0);
 
 
 }

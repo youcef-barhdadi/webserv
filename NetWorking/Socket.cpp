@@ -101,7 +101,7 @@ void Socket::listen_on()
     //     write(new_socket,  data,array.size());
     //     close(new_socket);
     // }
-    clos/e(this->_connection);
+    // clos/e(this->_connection);
 
 
 } 

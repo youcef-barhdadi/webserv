@@ -36,6 +36,9 @@ class Request
 
 		bool	getKeepALive();
 
+
+		std::string		&getMethod();
+
 	private:
 		std::string  _accetpt_languge;
 		std::string _accetpt_charset;

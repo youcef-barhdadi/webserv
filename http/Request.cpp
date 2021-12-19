@@ -1,6 +1,7 @@
 #include "Request.hpp"
 #include <vector>
 #include <sstream>
+#include <cassert>  
 
 
 using namespace std;
@@ -33,12 +34,23 @@ Request::Request()
 
 
 
+bool isValidMethod(std::string str)
+{
+	if (str == "PUT")
+		return true;
+	if (str == "GET")
+		return true;
+	if (str == "POST")
+		return true;
+	return false;
+}
+
 
 Request::Request(  std::string & src  , int connection_fd)
 {
 	// set socket fd 
 	this->connection_fd = connection_fd;
-
+	std::cout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << std::endl;
  	std::vector<std::string> lines =  split(src, '\n');
 	int i = 0;
 	while (i < lines.size())
@@ -48,8 +60,13 @@ Request::Request(  std::string & src  , int connection_fd)
 		// first argument is HTTP Verb  and requested resource
 		if (i == 0)
 		{
+
 			std::vector<std::string> words = split(lines[i], ' ');
 			this->setPath(words[1]);
+			this->_method =  std::string(words[0]);
+			std::cout <<  "=======>" <<  this->_method << std::endl;
+			assert(isValidMethod(this->_method));
+			
 		}
 		else {
 
@@ -81,6 +98,11 @@ bool	Request::getKeepALive()
 	return this->keepAlive;
 }
 
+
+std::string		&Request::getMethod()
+{
+	return this->_method;
+}
 
 
 

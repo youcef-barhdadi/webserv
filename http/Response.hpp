@@ -12,7 +12,7 @@ class Response
 	public:
 
 		Response();
-		Response(Request & req );
+		Response(Request  *req );
 		Response( Response const & src );
 		~Response();
 
@@ -21,14 +21,14 @@ class Response
 
 
 		// this method will do magic 
-		std::vector<char>	serv(Request & request, fd_set set);
+		void		serv(fd_set set);
 
 
 		std::string buildResponse();
-		std::string  Creat_Header();
-
-		void	handlPut(Request & request);
-		std::vector<char> Get(Request  &req, fd_set set);
+		std::string Creat_Header();
+		void		handlPut(Request & request);
+		void		Get(fd_set set);
+		void 		servGet(fd_set set);
 
 
 		
@@ -48,7 +48,7 @@ class Response
 		 * 	this refernce to the reqtuest object 
 		 */
 
-		Request &request;
+		Request *request;
 		/**
 		 * @brief 
 		 * 	if the resposnse chnaked or not
