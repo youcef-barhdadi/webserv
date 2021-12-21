@@ -17,6 +17,8 @@
 #include <assert.h>
 // #include <pair>
 
+#include "../FileDescriptorManager/FileDescriptorManager.hpp"
+
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -83,25 +85,28 @@ void	Spinner::run()
 
 	fd_set  current_socket, ready_socket;
 	FD_ZERO(&current_socket);
+	FileDescriptorManager::Clean();
+
 	this->_servers[0]->create_server();
  	unsigned	int maxfd = 0;
 
 	for (size_t i = 0; i < this->_servers[0]->socket_fd.size(); i++)
 	{	
-			FD_SET(this->_servers[0]->socket_fd[i], &current_socket);
+			// FD_SET(this->_servers[0]->socket_fd[i], &current_socket);
+			FileDescriptorManager::Add(this->_servers[0]->socket_fd[i]);
 			maxfd = std::max(maxfd, this->_servers[0]->socket_fd[i] );
 	}
 	while (true)
 	{	
 
-		ready_socket = current_socket;
+		ready_socket = FileDescriptorManager::fd_set;
 		if (select((int)maxfd +1, &ready_socket, NULL, NULL, NULL) < 0)
 		{
 			// assert(true);
 			perror("select error");
 			exit(0);
 		}
-
+		// FileDe
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
 
@@ -143,6 +148,9 @@ void	Spinner::run()
 			}
 		}
 	}
+
+
+
 	for (size_t i = 0; i < this->_servers.size(); i++)
 	{
 		for (size_t j = 0; j < this->_servers[i]->socket_fd.size(); j++)
