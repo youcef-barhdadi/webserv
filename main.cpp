@@ -3,6 +3,7 @@
 # include "./server/Server.hpp"
 
 
+#include "FileDescriptorManager/FileDescriptorManager.hpp"
 int     main(int argc, char **argv)
 {
 
@@ -11,7 +12,8 @@ int     main(int argc, char **argv)
     Spinner s;
     Server *server = new Server();
     // Server *server = new Server();
-
+// ≈÷= ;
+        FD_ZERO(&FileDescriptorManager::set);
     server->addPort(1334);
     server->addPort(1332);
     server->addPort(1565);

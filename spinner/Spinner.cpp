@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/03 20:16:34 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/03 20:24:33 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ void	Spinner::run()
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
 
-			if (FD_ISSET(connection_fd, &ready_socket))
+			if ( FD_ISSET(connection_fd, &ready_socket))
 			{			
 				// this new connection
 				if (std::count(this->_servers[0]->socket_fd.begin(), this->_servers[0]->socket_fd.end() , connection_fd) )

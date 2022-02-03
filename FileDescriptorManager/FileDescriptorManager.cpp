@@ -1,6 +1,9 @@
 #include <sys/select.h>
 #include "FileDescriptorManager.hpp"
 
+
+fd_set FileDescriptorManager::set;
+
 void  FileDescriptorManager::CLEAN()
 {
         FD_ZERO(&FileDescriptorManager::set);
