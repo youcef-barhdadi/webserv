@@ -4,4 +4,4 @@
 
 
 make:
-	 g++  NetWorking/*.cpp http/*.cpp   spinner/*.cpp   server/*.cpp  cgi/*.cpp   main.cpp -o webserv
+	 g++  utilities/*.cpp server/*.cpp   FileDescriptorManager/FileDescriptorManager.cpp NetWorking/*.cpp http/*.cpp   spinner/*.cpp    cgi/*.cpp   main.cpp -o webserv

@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2021/12/16 02:38:03 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/03 20:16:34 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 #include <sys/select.h>
 #include <algorithm>
 #include <map>
+#include "../FileDescriptorManager/FileDescriptorManager.hpp"
+#include <queue>          // std::queue
+
 // #include <pair>
 
 
@@ -82,18 +85,24 @@ void	Spinner::run()
 
 	fd_set  current_socket, ready_socket;
 	FD_ZERO(&current_socket);
+
+
+	FileDescriptorManager::CLEAN();
+
+	
 	this->_servers[0]->create_server();
  	unsigned	int maxfd = 0;
 
 	for (size_t i = 0; i < this->_servers[0]->socket_fd.size(); i++)
 	{	
-			FD_SET(this->_servers[0]->socket_fd[i], &current_socket);
+			// FD_SET(this->_servers[0]->socket_fd[i], &current_socket);
+			FileDescriptorManager::ADD(this->_servers[0]->socket_fd[i]);
 			maxfd = std::max(maxfd, this->_servers[0]->socket_fd[i] );
 	}
 	while (true)
 	{	
 
-		ready_socket = current_socket;
+		ready_socket = FileDescriptorManager::set;
 		if (select((int)maxfd +1, &ready_socket, NULL, NULL, NULL) < 0)
 		{
 			assert(true);
@@ -106,7 +115,7 @@ void	Spinner::run()
 
 			if (FD_ISSET(connection_fd, &ready_socket))
 			{			
-				
+				// this new connection
 				if (std::count(this->_servers[0]->socket_fd.begin(), this->_servers[0]->socket_fd.end() , connection_fd) )
 				{
 					int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
@@ -115,9 +124,10 @@ void	Spinner::run()
 						perror("in accrpt");
 						exit(0);
 					}
-					FD_SET(new_socket, &current_socket);
-					this->_servers[0]->clients[connection_fd] = new_socket;
-						maxfd = std::max(maxfd, (unsigned int)  new_socket );
+					// FD_SET(new_socket, &current_socket);
+					FileDescriptorManager::ADD(new_socket);
+					// this->_servers[0]->clients[connection_fd] = new_socket;
+					maxfd = std::max(maxfd, (unsigned int)  new_socket );
 				}
 				else 
 				{
@@ -132,11 +142,11 @@ void	Spinner::run()
 						connection.insert(std::make_pair(connection_fd, response));
 					}
 					Response &res = connection.find(connection_fd)->second;
-					std::vector<char> array  = res.serv(request,  ready_socket);				
-					char *data  = array.data();
-					write(connection_fd,  data,array.size());
-					close(connection_fd);
-					FD_CLR(connection_fd, &current_socket);
+					// std::vector<char> array  = res.serv();				
+					// char *data  = array.data();
+					// write(connection_fd,  data,array.size());
+					// close(connection_fd);
+					// FD_CLR(connection_fd, &current_socket);
 				}
 			}
 		}
@@ -155,6 +165,21 @@ void	Spinner::run()
 
 }
 
+
+// void	eventLoop()
+// {
+// 	std::queue<Request> _queue;
+
+
+// 	_queue.push()	
+// }
+
+
+/*
+	event loop
+		incoming con 
+			->
+*/
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
