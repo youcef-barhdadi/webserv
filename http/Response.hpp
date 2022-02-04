@@ -21,7 +21,7 @@ class Response
 
 
 		// this method will do magic 
-		std::vector<char>	serv(Request & request, fd_set set);
+		std::vector<char>	serv();
 
 
 		std::string buildResponse();

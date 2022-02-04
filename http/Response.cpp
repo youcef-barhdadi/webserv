@@ -192,63 +192,63 @@ std::vector<char> handlCgiresponse(std::string & str)
 
 
 
-std::vector<char>	Response::serv(Request & request,fd_set set)
+std::vector<char>	Response::serv()
 {
 	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
-	// std::string resource = request.getPath();
-	// std::string extension = getExtension(resource);
-	// // std::cout <<  "extension===>" << extension << std::endl;
-	// // this means is cgi
-	// if (extension == "pl")
-	// {
-	// 	Cgi cgi;
-	// 	std::string  strtest = cgi.startCgi(request);
-	// 	std::vector<char> test = handlCgiresponse(strtest);
-	// 	// exit(0);
-	// 	return  test;
-	// }	
-	// if (resource == "/")
-	// {
-	// 	resource = "index.html";
-	// }
-	// else 
-	// {
-	// 	resource.erase(0, 1);
-	// }
-	// // std::cout << resource << std::endl;
-	// 	std::string  responce;
-	// 	// responce = Creat_Header(request, resource);
-	// 	std::string  str;
-	// 	std::string  body = "";
-	// 	std::streampos size;
-	// 	char* memblock;
-	// 	std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
-
-	// 	if (file.is_open())
-	// 	{
-	// 		this->_status = 200;
-	// 		file.close();
-  	// 	  	std::vector<char> tow= getfileRaw(resource);	
-	// 		this->_size = tow.size();
-	// 		responce = Creat_Header(request);
-  	// 	  	std::vector<char> first(responce.begin(), responce.end());
-	// 		first.insert(first.end(), tow.begin(), tow.end());
-	// 		return first;
-
-	// 	}
-	// 	else {
-	// 		// this means 404
-	// 	this->_status = 404;
-  	// 	  	std::vector<char> tow= getfileRaw("404.html");	
-	// 		this->_size = tow.size();
-	// 		responce = Creat_Header(request, "404.html");
-  	// 	  	std::vector<char> first(responce.begin(), responce.end());
-	// 		first.insert(first.end(), tow.begin(), tow.end());
-
-	// 		return  first;
-	// 	}
+	std::string resource = request.getPath();
+	std::string extension = getExtension(resource);
+	// std::cout <<  "extension===>" << extension << std::endl;
+	// this means is cgi
+	if (extension == "pl")
+	{
+		Cgi cgi;
+		std::string  strtest = cgi.startCgi(request);
+		std::vector<char> test = handlCgiresponse(strtest);
 		// exit(0);
-		throw std::logic_error("not implemented yet !");
+		return  test;
+	}	
+	if (resource == "/")
+	{
+		resource = "index.html";
+	}
+	else 
+	{
+		resource.erase(0, 1);
+	}
+	// std::cout << resource << std::endl;
+		std::string  responce;
+		// responce = Creat_Header(request, resource);
+		std::string  str;
+		std::string  body = "";
+		std::streampos size;
+		char* memblock;
+		std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
+
+		if (file.is_open())
+		{
+			this->_status = 200;
+			file.close();
+  		  	std::vector<char> tow= getfileRaw(resource);	
+			this->_size = tow.size();
+			responce = Creat_Header();
+  		  	std::vector<char> first(responce.begin(), responce.end());
+			first.insert(first.end(), tow.begin(), tow.end());
+			return first;
+
+		}
+		else {
+			// this means 404
+		this->_status = 404;
+  		  	std::vector<char> tow= getfileRaw("404.html");	
+			this->_size = tow.size();
+			responce = Creat_Header();
+  		  	std::vector<char> first(responce.begin(), responce.end());
+			first.insert(first.end(), tow.begin(), tow.end());
+
+			return  first;
+		}
+		exit(0);
+		// throw std::logic_error("not implemented yet !");
 
 }
 

@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/03 20:24:33 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/04 18:16:18 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,8 @@ void	Spinner::run()
 	{	
 
 		ready_socket = FileDescriptorManager::set;
+
+			std::cout << "strat " << std::endl;
 		if (select((int)maxfd +1, &ready_socket, NULL, NULL, NULL) < 0)
 		{
 			assert(true);
@@ -113,12 +115,16 @@ void	Spinner::run()
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
 
-			if ( FD_ISSET(connection_fd, &ready_socket))
+			if (FD_ISSET(connection_fd, &ready_socket))
 			{			
 				// this new connection
+				std::cout << "connection " << connection_fd << std::endl;
 				if (std::count(this->_servers[0]->socket_fd.begin(), this->_servers[0]->socket_fd.end() , connection_fd) )
 				{
+					std::cout << "accpet " << std::endl;
 					int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
+					std::cout << "new connection " << new_socket  << std::endl;
+					// exit(0);
 					if (new_socket < 0)
 					{
 						perror("in accrpt");
@@ -127,26 +133,30 @@ void	Spinner::run()
 					// FD_SET(new_socket, &current_socket);
 					FileDescriptorManager::ADD(new_socket);
 					// this->_servers[0]->clients[connection_fd] = new_socket;
+					
 					maxfd = std::max(maxfd, (unsigned int)  new_socket );
 				}
 				else 
 				{
 
-					if (connection.find(connection_fd) != connection.end())
+					if (connection.find(connection_fd) == connection.end())
 					{
 						readlen = read(connection_fd, buffer, 30000);
+						std::cout << "enter here" << std::endl;
+						// exit(0);
 						buffer[readlen] = 0;
 						std::string copy = std::string(buffer);
 						Request request(copy, connection_fd);
 						Response response(request);
 						connection.insert(std::make_pair(connection_fd, response));
+						
 					}
 					Response &res = connection.find(connection_fd)->second;
-					// std::vector<char> array  = res.serv();				
-					// char *data  = array.data();
-					// write(connection_fd,  data,array.size());
-					// close(connection_fd);
-					// FD_CLR(connection_fd, &current_socket);
+					std::vector<char> array  = res.serv();				
+					char *data  = array.data();
+					write(connection_fd,  data,array.size());
+					close(connection_fd);
+					FD_CLR(connection_fd, &current_socket);
 				}
 			}
 		}
