@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/05 15:59:10 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/05 17:31:52 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,7 @@ void	Spinner::run()
 					Response &res = responce_queue.front();
 					std::vector<char> array  = res.serv();				
 					char *data  = array.data();
+					std::cout << "data to send" << array.size() << std::endl;;
 					write(connection_fd,  data,array.size());
 					close(connection_fd);
 					if (res.is_finshed == false)

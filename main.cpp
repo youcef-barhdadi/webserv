@@ -16,9 +16,9 @@ int     main(int argc, char **argv)
         FD_ZERO(&FileDescriptorManager::set);
 
         
-    server->addPort(1334);
-    server->addPort(1332);
-    server->addPort(1565);
+    server->addPort(1337);
+    server->addPort(1331);
+    server->addPort(1562);
     std::cout << server->_ports.size() << std::endl;
     s._servers.push_back(server);
 

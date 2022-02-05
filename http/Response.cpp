@@ -108,7 +108,12 @@ std::string  Response::Creat_Header()
 		else if (extetion  == "html")
 		{
 				header += "Content-Type: text/html\n";
-		}else {
+		}
+		else if (extetion == "mp4")
+		{
+			header += "Content-Type: video/mp4\n";
+		}
+		else {
 			header += "Content-Type: text/html\n";
 		}
 
@@ -230,23 +235,26 @@ std::vector<char>	Response::serv()
 		{
 			this->_status = 200;
 			file.close();
-  		  	std::vector<char> tow= getfileRaw(resource);	
+  		  	std::vector<char> tow= getfileRaw(resource);
 			this->_size = tow.size();
+			std::cout << "size is >> " << this->_size << std::endl;
 			responce = Creat_Header();
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
-			return first;
 
+
+
+
+			return first;
 		}
 		else {
 			// this means 404
-		this->_status = 404;
+			this->_status = 404;
   		  	std::vector<char> tow= getfileRaw("404.html");	
 			this->_size = tow.size();
 			responce = Creat_Header();
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
-
 			return  first;
 		}
 		exit(0);

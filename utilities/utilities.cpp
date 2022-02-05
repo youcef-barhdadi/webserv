@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2021/12/21 08:51:07 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/05 18:01:06 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ long FdGetFileSize(int fd)
     return rc == 0 ? stat_buf.st_size : -1;
 }
 
-std::string	getExtension(std::string file)
+std::string	getExtension(std::string file) 
 {
 	std::string str = file.substr(file.find('.')+1);
 
