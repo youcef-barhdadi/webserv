@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/04 18:16:18 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/05 15:59:10 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,12 +81,10 @@ void	Spinner::run()
     size_t  readlen;
 	char buffer[30000] = {0};
 
-	std::map<unsigned long , Response > connection;
-
+	std::map<unsigned long , Request>  unfinshed_request;
+	std::queue<Response>     responce_queue;
 	fd_set  current_socket, ready_socket;
 	FD_ZERO(&current_socket);
-
-
 	FileDescriptorManager::CLEAN();
 
 	
@@ -133,30 +131,50 @@ void	Spinner::run()
 					// FD_SET(new_socket, &current_socket);
 					FileDescriptorManager::ADD(new_socket);
 					// this->_servers[0]->clients[connection_fd] = new_socket;
-					
 					maxfd = std::max(maxfd, (unsigned int)  new_socket );
 				}
 				else 
 				{
 
-					if (connection.find(connection_fd) == connection.end())
+					if (unfinshed_request.find(connection_fd) != unfinshed_request.end())
+					{
+						// readlen = read(connection_fd, buffer, 30000);
+						// std::cout << "enter here" << std::endl;
+						// buffer[readlen] = 0;
+						// std::string copy = std::string(buffer);
+						// Request request(copy, connection_fd);
+						// Response response(request);
+						// unfin÷shed_request.insert(std::make_pair(connection_fd, response));	
+						// responce_queue.push(response);
+					}
+					else
 					{
 						readlen = read(connection_fd, buffer, 30000);
 						std::cout << "enter here" << std::endl;
-						// exit(0);
-						buffer[readlen] = 0;
+						buffer[readlen] = 0;	
 						std::string copy = std::string(buffer);
 						Request request(copy, connection_fd);
+						if (request.is_finshed == false)
+						{
+							unfinshed_request.insert(std::make_pair(connection_fd, request));
+						}
 						Response response(request);
-						connection.insert(std::make_pair(connection_fd, response));
-						
+						responce_queue.push(response);
 					}
-					Response &res = connection.find(connection_fd)->second;
+					Response &res = responce_queue.front();
 					std::vector<char> array  = res.serv();				
 					char *data  = array.data();
 					write(connection_fd,  data,array.size());
 					close(connection_fd);
-					FD_CLR(connection_fd, &current_socket);
+					if (res.is_finshed == false)
+					{
+						responce_queue.pop();
+						responce_queue.push(res);
+					}
+					// else
+					// {
+					FileDescriptorManager::REMOVE(connection_fd);
+					// }
 				}
 			}
 		}

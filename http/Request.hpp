@@ -35,6 +35,7 @@ class Request
 		std::map<std::string, std::string> header;
 
 		bool	getKeepALive();
+		bool		is_finshed;
 
 	private:
 		std::string  _accetpt_languge;

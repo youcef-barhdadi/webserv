@@ -38,7 +38,7 @@ Request::Request(  std::string & src  , int connection_fd)
 {
 	// set socket fd 
 	this->connection_fd = connection_fd;
-
+	this->is_finshed = true;
  	std::vector<std::string> lines =  split(src, '\n');
 	int i = 0;
 	while (i < lines.size())

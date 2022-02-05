@@ -24,6 +24,8 @@ Response::Response( const Response & src) : request(src.request)
 Response::Response(Request & req ) : request(req)
 {
 	this->chanked_request = false;
+
+	this->is_finshed = true;
 }
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------

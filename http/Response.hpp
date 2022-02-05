@@ -32,6 +32,7 @@ class Response
 
 
 		
+		bool  is_finshed;
 
 	private:
 
