@@ -89,6 +89,7 @@ bool    RequestHeader::QueryParamsEmpty(void)
 
 bool    RequestHeader::BodyEmpty(void)
 {
+    std::cout << _raw_body.size() << "###" << std::endl;
     if (_raw_body.empty())
         return true;
     return false;

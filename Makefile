@@ -1,7 +1,7 @@
 
 all:
 	@echo "Compiling"
-	@clang++ server/server.cpp RequestHeaderParser/RequestHeader.cpp utils/utils.cpp
+	@clang++ main.cpp RequestHeaderParser/RequestHeader.cpp utils/utils.cpp -g3
 	@echo "Compiled"
 clean:
 	@echo "Deleting out file"
