@@ -10,11 +10,13 @@
 // 	5. Close the socket
 //
 
-#include <stdio.h>
+#include <iostream>
 #include <sys/socket.h>
-#include <string.h>
+#include <sstream>
+#include <string>
 #include <netinet/in.h>
 #include <unistd.h>
+#include "../RequestHeaderParser/RequestHeader.hpp"
 
 int		main(void)
 {
@@ -53,16 +55,26 @@ int		main(void)
 
 	while (1)
 	{
-		printf("\n@@@@@@@@@@@@@@@@ Waiting for new connection @@@@@@@@@@@@@@@@\n\n");
+		std::cout << "@@@@@@@@@@@@@@@@ Waiting for new connection @@@@@@@@@@@@@@@@" << std::endl;
 		if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
 		{
 			perror("In accept");
 			return 0;
 		}
-
+		std::stringstream	requestSS;
 		char buffer[30000] = {0};
 		valread = read(new_socket, buffer, 30000);
-		printf("%s\n", buffer);
+		std::string str = std::string(buffer);
+		RequestHeader	requestobj(str);
+
+		requestobj.get_full_request();
+		std::cout << "++-++" << std::endl;
+		std::cout << requestobj.get_method() << std::endl;
+		std::cout << requestobj.get_path() << std::endl;
+		std::cout << requestobj.get_version() << std::endl;
+		requestobj.debug_headers();
+		std::cout << requestobj.get_raw_body() << std::endl;
+
 		close(new_socket);
 	}
 	return 0;
