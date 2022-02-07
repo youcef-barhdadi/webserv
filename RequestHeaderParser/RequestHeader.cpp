@@ -8,7 +8,8 @@ RequestHeader::RequestHeader(std::string &request)
 : _full_request(request), _method(), _path(), _protocol_version(0), _raw_body()
 {
     Parse();
-    VerifyParse();
+    ParseQueryParams();
+    ParseVerify();
 }
 
 RequestHeader::~RequestHeader(void)
@@ -47,7 +48,7 @@ void    RequestHeader::Parse(void)
         _raw_body.erase(_raw_body.end() - 1);
 }
 
-void    RequestHeader::VerifyParse(void)
+void    RequestHeader::ParseVerify(void)
 {
     std::string methods[3] = {"GET", "POST", "DELETE"};
     int found = 0;
@@ -56,8 +57,49 @@ void    RequestHeader::VerifyParse(void)
         if (_method == methods[i])
             found = 1;
     
-    if (!found || _headers.find("Host") == _headers.end())
+    if (!found)
         throw RequestError();
+}
+
+void    RequestHeader::ParseQueryParams(void)
+{
+    if (_path.find('?') != std::string::npos)
+    {
+        std::vector<std::string> myvec1 = ft::split(_path, '?');
+        _path = myvec1[0];
+        std::vector<std::string> myvec2 = ft::split(myvec1[1], '&');
+        int n = std::count(myvec1[1].begin(), myvec1[1].end(), '&');
+        if (myvec2.size() != n + 1){
+            throw BadRequest();
+        }
+        for(int i = 0; i < myvec2.size(); i++)
+        {
+            std::vector<std::string> myvec3 = ft::split(myvec2[i], '=');
+            _query_params.insert(std::make_pair(myvec3[0], myvec3[1])); 
+        }
+    }
+}
+
+bool    RequestHeader::QueryParamsEmpty(void)
+{
+    if (!_query_params.size())
+        return true;
+    return false;
+}
+
+bool    RequestHeader::BodyEmpty(void)
+{
+    if (_raw_body.empty())
+        return true;
+    return false;
+}
+void   RequestHeader::debug_query_params(void)
+{
+    std::cout << std::string(20, '-') << "+QUERYPARAMS+" << std::string(20, '-') << std::endl;
+    std::map<std::string, std::string>::iterator it = _query_params.begin();
+    for(; it != _query_params.end(); it++){
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
 }
 
 std::string RequestHeader::get_method(void)
