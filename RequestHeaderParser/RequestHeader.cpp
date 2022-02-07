@@ -5,9 +5,10 @@
 #include "RequestHeader.hpp"
 
 RequestHeader::RequestHeader(std::string &request)
-: _full_request(request), _method(), _path(), _protocol_version(0), _raw_body(), _error(0)
+: _full_request(request), _method(), _path(), _protocol_version(0), _raw_body()
 {
     Parse();
+    VerifyParse();
 }
 
 RequestHeader::~RequestHeader(void)
@@ -23,12 +24,12 @@ void    RequestHeader::Parse(void)
     std::getline(ss, buffer);
     std::vector<std::string> firstline = ft::split(buffer, ' ');
 
-    if (firstline.size() == 3){
-        _method = firstline[0];
-        _path = firstline[1];
-        _protocol_version = stof(ft::split(firstline[2], '/')[1]);
-        _error = 1;
-    }
+    if (firstline.size() != 3)
+        throw RequestError();
+
+    _method = firstline[0];
+    _path = firstline[1];
+    _protocol_version = stof(ft::split(firstline[2], '/')[1]);
 
     while (std::getline(ss, buffer))
     {
@@ -40,12 +41,23 @@ void    RequestHeader::Parse(void)
 
     while (std::getline(ss, buffer))
     {
-        std::cout << "##" << buffer << std::endl;
         _raw_body += buffer + "\n";
-        
-        // std::cout << buffer << std::endl;
     }
-    _raw_body.erase(_raw_body.end() - 1);
+    if (!_raw_body.empty())
+        _raw_body.erase(_raw_body.end() - 1);
+}
+
+void    RequestHeader::VerifyParse(void)
+{
+    std::string methods[3] = {"GET", "POST", "DELETE"};
+    int found = 0;
+
+    for(int i = 0; i < sizeof(methods)/sizeof(std::string); i++)
+        if (_method == methods[i])
+            found = 1;
+    
+    if (!found || _headers.find("Host") == _headers.end())
+        throw RequestError();
 }
 
 std::string RequestHeader::get_method(void)
@@ -60,18 +72,13 @@ std::string RequestHeader::get_path(void)
 
 std::string RequestHeader::get_raw_body(void)
 {
-    std::cout << std::string(42,'*') << "raw_body" << std::string(42,'*') << std::endl;
+    std::cout << std::string(20,'*') << "raw_body" << std::string(20,'*') << std::endl;
     return _raw_body;
 }
 
 float RequestHeader::get_version(void)
 {
     return _protocol_version;
-}
-
-int     RequestHeader::get_error(void)
-{
-    return _error;
 }
 
 void    RequestHeader::debug_headers(void)

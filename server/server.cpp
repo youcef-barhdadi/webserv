@@ -67,14 +67,14 @@ int		main(void)
 		std::string str = std::string(buffer);
 		RequestHeader	requestobj(str);
 
-		requestobj.get_full_request();
+		// requestobj.get_full_request();
 		std::cout << "++-++" << std::endl;
 		std::cout << requestobj.get_method() << std::endl;
 		std::cout << requestobj.get_path() << std::endl;
 		std::cout << requestobj.get_version() << std::endl;
 		requestobj.debug_headers();
 		std::cout << requestobj.get_raw_body() << std::endl;
-
+		write(new_socket, "<h1>oh</h1>\n", 12);
 		close(new_socket);
 	}
 	return 0;

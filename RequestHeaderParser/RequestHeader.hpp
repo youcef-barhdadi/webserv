@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <utility>
+#include <exception>
 #include "../utils/utils.hpp"
 
 class RequestHeader{
@@ -15,14 +16,21 @@ class RequestHeader{
         RequestHeader(std::string &request);
         ~RequestHeader(void);
 
+        class   RequestError : public std::exception{
+            public:
+                virtual const char *what(void) const throw(){
+                    return "RequestError";
+                }
+        };
+
         void    Parse(void);
+        void    VerifyParse(void);
 
         std::string get_method(void);
         std::string get_path(void);
         float       get_version(void);
         void        debug_headers(void);
         std::string get_raw_body(void);
-        int         get_error(void);
 
         void    get_full_request(void);
     private:
@@ -32,5 +40,4 @@ class RequestHeader{
         float               _protocol_version;
         std::map<std::string, std::string> _headers;
         std::string         _raw_body;
-        int                 _error;
 };

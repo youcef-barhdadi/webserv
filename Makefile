@@ -1,6 +1,6 @@
 
 all:
-	@echo "Compiliing"
+	@echo "Compiling"
 	@clang++ server/server.cpp RequestHeaderParser/RequestHeader.cpp utils/utils.cpp
 	@echo "Compiled"
 clean:
