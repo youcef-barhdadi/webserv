@@ -3,6 +3,8 @@
 //
 #pragma once
 
+#include <ctime>
+#include <unistd.h>
 #include <sstream>
 #include <iostream>
 #include <map>
@@ -10,11 +12,12 @@
 #include <utility>
 #include <exception>
 #include <algorithm>
+#include <fstream>
 #include "../utils/utils.hpp"
 
 class RequestHeader{
     public:
-        RequestHeader(std::string &request);
+        RequestHeader(void);
         ~RequestHeader(void);
 
         class   RequestError : public std::exception{
@@ -30,27 +33,36 @@ class RequestHeader{
                 }
         };
 
+        void        Append(std::string &Message);
+
+        bool        HeadersFinished(void);
+        bool        BodyFinished(void);
+        bool        IsFinished(void);
+
         void        Parse(void);
+        void        ParseHeaders(void);
+
         void        ParseVerify(void);
         void        ParseQueryParams(void);
 
         bool        QueryParamsEmpty(void);
-        bool        BodyEmpty(void);
 
         std::string get_method(void);
         std::string get_path(void);
         float       get_version(void);
         void        debug_headers(void);
         void        debug_query_params(void);
-        std::string get_raw_body(void);
 
-        void        get_full_request(void);
+        void        get_buffer(void);
     private:
-        std::string         _full_request;
+        std::string         _buffer;
         std::string         _method;
         std::string         _path;
         float               _protocol_version;
         std::map<std::string, std::string> _headers;
         std::map<std::string, std::string> _query_params;
-        std::string         _raw_body;
+        std::string         _body_filename;
+        size_t              _body_size;
+        bool                _isFinished;
+        bool                _isHeaderParsed;
 };

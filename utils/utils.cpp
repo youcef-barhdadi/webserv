@@ -29,6 +29,31 @@ std::string rtrim(const std::string &s)
 std::string trim(const std::string &s) {
     return rtrim(ltrim(s));
 }
- 
+
+std::string RandString(int len)
+{
+    srand(time(NULL) * getpid());
+    const std::string alphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    std::string str;
+    str.reserve(len);
+
+    for(int i = 0; i < len; ++i){
+        str += alphanum[rand() % (alphanum.size() - 1)];
+    }
+    return str;
+}
+
+size_t     HexToDec(std::string nb)
+{
+    size_t n;
+    std::string tmp;
+    std::stringstream ss;
+
+    ss << nb;
+    ss >> std::hex >> n;
+    
+    return n;
+}
+
 
 }

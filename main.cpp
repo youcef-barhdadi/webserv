@@ -10,8 +10,10 @@
 // 	5. Close the socket
 //
 
+#include <sys/time.h>
 #include <iostream>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <sstream>
 #include <string>
 #include <netinet/in.h>
@@ -22,9 +24,8 @@
 int		main(void)
 {
 	int	server_fd = 0;
-	int	new_socket = 0;
-	long valread = 0;
-	const int PORT = 4242;
+	int valread = 0;
+	const int PORT = 1339;
 	// for ip networking we use struct sockaddr_in
 	struct sockaddr_in	address;
 	int addrlen = sizeof(address);
@@ -35,11 +36,16 @@ int		main(void)
 		perror("cannot create socket");
 		return 0;
 	}
+	fcntl(server_fd, F_SETFL, O_NONBLOCK);
+
 	memset((char *)&address, 0, sizeof(address));
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(PORT);
 
+	int enable = 1;
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+		perror("setsockopt");
 	// bind() assigns a name to an unamed socket
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
@@ -52,47 +58,98 @@ int		main(void)
 		perror("In listen");
 		return 0;
 	}
-	bool	connClosed = false;
-	std::string str("");
+	// fcntl(server_fd, F_SETFL, O_NONBLOCK);
+
+	// fd_set
+	fd_set	current_sockets, ready_sockets;
+
+	FD_ZERO(&current_sockets);
+	FD_SET(server_fd, &current_sockets);
+
+	int maxfd = server_fd + 1;
+	int client_socket=-1;
+
+	struct timeval	_time;
+
+	_time.tv_sec = 10;
+	_time.tv_usec = 0;
+
+	std::cout << "server listening on Port " << PORT << std::endl;
 	while (1)
 	{
-		std::cout << "@@@@@@@@@@@@@@@@ Waiting for new connection @@@@@@@@@@@@@@@@" << std::endl;
-		if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
-		{
-			perror("In accept");
-			return 0;
-		}
-		fcntl(new_socket, F_SETFL, O_NONBLOCK);
-		std::stringstream	requestSS;
-		do{
-			char buffer[1024] = {0};
-			valread = recv(new_socket, buffer, 1024, 0);
-			if(valread == 0){
-				// std::cout << (valread = -1 && errno == EWOULDBLOCK) << std::endl;
-				connClosed = true;
-			}
-			if(valread == -1){
-				std::cout << "ali zaml2" << std::endl;
-				break ;
-			}
-			str.append(buffer);
-			std::cout << "valread " << valread << std::endl;
-			std::cout << "REQUEST\n" << str << std::endl;
-		}while(!connClosed);
-		// RequestHeader	requestobj(str);
+		// because select in destructive
+		ready_sockets = current_sockets;
 
-		// requestobj.get_full_request();
-		// std::cout << std::string(20, '+') << std::endl;
-		// std::cout << requestobj.get_method() << std::endl;
-		// std::cout << requestobj.get_path() << std::endl;
-		// std::cout << requestobj.get_version() << std::endl;
-		// requestobj.debug_headers();
-		// std::cout << requestobj.get_raw_body() << std::endl;
-		// requestobj.debug_query_params();
-		// std::cout << std::string(20, '+') << std::endl;
-		// std::cout << requestobj.BodyEmpty() << std::endl;
-		write(new_socket, "<h1>oh</h1>\n", 12);
-		close(new_socket);
+		if (select(maxfd, &ready_sockets, NULL, NULL, &_time) < 0){
+			perror("select error");
+			exit(1);
+		}
+
+		// now ready_sockets are ready... or not
+
+		for (int i=0; i < maxfd; ++i){
+			if (FD_ISSET(i, &ready_sockets)){
+				if (i == server_fd){
+					// this is a new connection
+					std::cout << "New connection established fd:[" << i << "]" << std::endl;
+					if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
+					{
+						perror("In accept");
+						return 0;
+					}
+					if (client_socket + 1 > maxfd)
+						maxfd = client_socket + 1;
+					// std::cout << "=>" << client_socket << std::endl;
+					// accept the new connection and add to it the fd set to watch current_sockets
+					FD_SET(client_socket, &current_sockets);
+				} else{
+					std::cout << "Existing Connection is ready for i/o fd:[" << i << "]" << std::endl; 
+					// handle connection and remove it from the fd set we're watching
+					RequestHeader	req;
+					
+					while (valread != -1){
+						char buffer[1024] = {0};
+						valread = read(i, buffer, 1024);
+						if (valread != -1){
+							std::string str(buffer);
+							req.Append(str);
+						}
+					}
+
+					std::cout << std::string(40, '+') << std::endl;
+					std::cout << req.get_method() << std::endl;
+					std::cout << req.get_path() << std::endl;
+					std::cout << req.get_version() << std::endl;
+					req.debug_headers();
+					std::cout << std::string(40, '+') << std::endl;
+
+					// sending data
+
+					std::string res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\r\n<h1>Hello World!</h1> <label for=\"myfile\">Select a file:</label><input type=\"file\" id=\"myfile\" name=\"myfile\"> <input type=\"submit\">";
+
+					valread = write (i, res.c_str(), res.size());
+
+					std::cout << (valread == static_cast<int>(res.size())) << std::endl;
+					// removing the socket from current sockets then closing the fd
+					FD_CLR(i, &current_sockets);
+					close(i);
+					valread = 0;
+					if (i == maxfd){
+						while (FD_ISSET(maxfd, &current_sockets) == 0)
+							maxfd--;
+						maxfd++;
+					}
+				}
+			}
+		}
+
 	}
+
+	for (int i = 0; i < maxfd; ++i){
+		if (FD_ISSET(i, &current_sockets))
+			close(i);
+	}
+
+		
 	return 0;
 }

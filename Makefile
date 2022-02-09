@@ -1,7 +1,7 @@
 
 all:
 	@echo "Compiling"
-	@clang++ main.cpp RequestHeaderParser/RequestHeader.cpp utils/utils.cpp -g3
+	@clang++ -Wall -Wextra -Werror -fsanitize=address main.cpp RequestHeaderParser/RequestHeader.cpp utils/utils.cpp
 	@echo "Compiled"
 clean:
 	@echo "Deleting out file"
