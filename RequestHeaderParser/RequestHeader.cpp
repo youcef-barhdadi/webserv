@@ -39,6 +39,8 @@ void    RequestHeader::Append(std::string &Message)
 
             std::getline(ss, buff);
             size_t n = ft::HexToDec(buff);
+            if (buff == "0\r")
+                _isFinished = true;
             while (std::getline(ss, buff) && n > _body_size)
             {
                 ofs << ss;
@@ -54,7 +56,7 @@ void    RequestHeader::Append(std::string &Message)
         _buffer.clear();
         ofs.close();
     }
-    else if (BodyFinished())
+    else if (_headers["Transfer-Encoding"] == "chunked" && BodyFinished())
         _isFinished = true;
 
     if (_isFinished)

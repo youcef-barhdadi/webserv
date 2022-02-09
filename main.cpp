@@ -38,9 +38,11 @@ int		main(void)
 	}
 	fcntl(server_fd, F_SETFL, O_NONBLOCK);
 
+	char arr[4];
+	arr[0] = 0; arr[1] = 0; arr[2] = 0; arr[3] = 0;
 	memset((char *)&address, 0, sizeof(address));
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = htonl(INADDR_ANY);
+	address.sin_addr.s_addr = (*(unsigned int *)arr);
 	address.sin_port = htons(PORT);
 
 	int enable = 1;
@@ -125,7 +127,7 @@ int		main(void)
 
 					// sending data
 
-					std::string res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\r\n<h1>Hello World!</h1> <label for=\"myfile\">Select a file:</label><input type=\"file\" id=\"myfile\" name=\"myfile\"> <input type=\"submit\">";
+					std::string res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\r\n<h1>Hello ZINOUUUBA</h1> <label for=\"myfile\">Select a file:</label><input type=\"file\" id=\"myfile\" name=\"myfile\"> <input type=\"submit\">";
 
 					valread = write (i, res.c_str(), res.size());
 

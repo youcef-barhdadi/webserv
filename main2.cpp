@@ -24,6 +24,7 @@ int		main(void)
 		return 0;
 	}
 	memset((char *)&address, 0, sizeof(address));
+	memset(address.sin_zero, 0, 8);
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(PORT);
