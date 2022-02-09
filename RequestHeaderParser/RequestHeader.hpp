@@ -18,7 +18,9 @@
 class RequestHeader{
     public:
         RequestHeader(void);
+        RequestHeader(RequestHeader const &rhs);
         ~RequestHeader(void);
+        RequestHeader operator= (RequestHeader const &rhs);
 
         class   RequestError : public std::exception{
             public:

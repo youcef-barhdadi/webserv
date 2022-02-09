@@ -127,7 +127,7 @@ int		main(void)
 
 					// sending data
 
-					std::string res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\r\n<h1>Hello ZINOUUUBA</h1> <label for=\"myfile\">Select a file:</label><input type=\"file\" id=\"myfile\" name=\"myfile\"> <input type=\"submit\">";
+					std::string res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\r\n<h1>Hello BIFENZI</h1> <label for=\"myfile\">Select a file:</label><input type=\"file\" id=\"myfile\" name=\"myfile\"> <input type=\"submit\">";
 
 					valread = write (i, res.c_str(), res.size());
 

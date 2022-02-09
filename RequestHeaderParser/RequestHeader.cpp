@@ -16,6 +16,25 @@ RequestHeader::~RequestHeader(void)
 
 }
 
+RequestHeader::RequestHeader(RequestHeader const &rhs)
+{
+    *this = rhs;
+}
+
+RequestHeader   RequestHeader::operator=(RequestHeader const &rhs)
+{
+    _buffer = rhs._buffer;
+    _method = rhs._method;
+    _path = rhs._path;
+    _protocol_version = rhs._protocol_version;
+    _headers = rhs._headers;
+    _query_params = rhs._query_params;
+    _body_filename = rhs._body_filename;
+    _body_size = rhs._body_size;
+    _isFinished = rhs._isFinished;
+    _isHeaderParsed = rhs._isHeaderParsed;
+}
+
 void    RequestHeader::Append(std::string &Message)
 {
     _buffer += Message;
