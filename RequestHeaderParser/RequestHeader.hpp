@@ -20,7 +20,7 @@ class RequestHeader{
         RequestHeader(void);
         RequestHeader(RequestHeader const &rhs);
         ~RequestHeader(void);
-        RequestHeader operator= (RequestHeader const &rhs);
+        RequestHeader &operator= (RequestHeader const &rhs);
 
         class   RequestError : public std::exception{
             public:
@@ -41,13 +41,14 @@ class RequestHeader{
         bool        BodyFinished(void);
         bool        IsFinished(void);
 
-        void        Parse(void);
         void        ParseHeaders(void);
 
         void        ParseVerify(void);
         void        ParseQueryParams(void);
 
         bool        QueryParamsEmpty(void);
+
+		void		req_get(void);
 
         std::string get_method(void);
         std::string get_path(void);
@@ -67,4 +68,9 @@ class RequestHeader{
         size_t              _body_size;
         bool                _isFinished;
         bool                _isHeaderParsed;
+
+		
+
+        //
+        int          _debug;
 };

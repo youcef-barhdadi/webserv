@@ -6,7 +6,7 @@
 
 RequestHeader::RequestHeader(void)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
-, _isFinished(false), _isHeaderParsed(false)
+, _isFinished(false), _isHeaderParsed(false), _debug(0)
 {
 
 }
@@ -17,22 +17,30 @@ RequestHeader::~RequestHeader(void)
 }
 
 RequestHeader::RequestHeader(RequestHeader const &rhs)
+: _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
+, _isFinished(false), _isHeaderParsed(false)
 {
+    // std::cout << "RequestHeader::RequestHeader(Request const &rhs)" << std::endl;
     *this = rhs;
 }
 
-RequestHeader   RequestHeader::operator=(RequestHeader const &rhs)
+RequestHeader   &RequestHeader::operator=(RequestHeader const &rhs)
 {
-    _buffer = rhs._buffer;
-    _method = rhs._method;
-    _path = rhs._path;
-    _protocol_version = rhs._protocol_version;
-    _headers = rhs._headers;
-    _query_params = rhs._query_params;
-    _body_filename = rhs._body_filename;
-    _body_size = rhs._body_size;
-    _isFinished = rhs._isFinished;
-    _isHeaderParsed = rhs._isHeaderParsed;
+    // std::cout << "RequestHeader::operator=" << std::endl;
+    if (this != &rhs){
+        _buffer = rhs._buffer;
+        _method = rhs._method;
+        _path = rhs._path;
+        _protocol_version = rhs._protocol_version;
+        _headers = rhs._headers;
+        _query_params = rhs._query_params;
+        _body_filename = rhs._body_filename;
+        _body_size = rhs._body_size;
+        _isFinished = rhs._isFinished;
+        _isHeaderParsed = rhs._isHeaderParsed;
+    }
+    _debug += 1;
+    return *this;
 }
 
 void    RequestHeader::Append(std::string &Message)
@@ -114,30 +122,6 @@ bool     RequestHeader::IsFinished(void)
     return _isFinished;
 }
 
-void    RequestHeader::Parse(void)
-{
-    std::stringstream   ss(_buffer);
-
-    std::string buffer;
-    std::getline(ss, buffer);
-    std::vector<std::string> firstline = ft::split(buffer, ' ');
-
-    if (firstline.size() != 3)
-        throw RequestError();
-
-    _method = firstline[0];
-    _path = firstline[1];
-    _protocol_version = stof(ft::split(firstline[2], '/')[1]);
-
-    while (std::getline(ss, buffer))
-    {
-        if (buffer == "\r")
-            break;
-        std::vector<std::string> myvec = ft::split(buffer, ':');
-        _headers.insert(std::make_pair(ft::trim(myvec[0]), ft::trim(myvec[1])));
-    }
-}
-
 void       RequestHeader::ParseHeaders(void)
 {
     std::stringstream   ss(_buffer);
@@ -152,6 +136,9 @@ void       RequestHeader::ParseHeaders(void)
     _method = firstline[0];
     _path = firstline[1];
     _protocol_version = stof(ft::split(firstline[2], '/')[1]);
+
+    if (_path == "/")
+        _path = "/index.html";
 
     while (std::getline(ss, buffer))
     {

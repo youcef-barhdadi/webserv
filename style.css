@@ -1,0 +1,22 @@
+.center{
+	margin-left: auto;
+	margin-right: auto;
+}
+
+body{
+	background-color: lightcoral;
+}
+
+header{
+	background-color: lightgreen;
+}
+
+.hamid{
+	border-color: lime;
+}
+
+.vidyo{
+	background-color: mediumblue;
+	border-width: 10;
+	border-color: mediumspringgreen;
+}

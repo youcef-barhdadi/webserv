@@ -5,8 +5,13 @@
 # include "Response.hpp"
 
 Response::Response(RequestHeader const &req)
-: _req(req), _headers(), _body()
+: _req(req), _headers(), _body(), _file_flag(0)
 {
+    // std::cout << "Response::Response" << std::endl;
+    if (!_req.IsFinished()){
+        /* do something */ 
+
+    }
 
 }
 
@@ -15,19 +20,92 @@ Response::~Response(void)
     
 }
 
+std::string Response::extract_extension(void)
+{
+    std::string path = _req.get_path();
+    std::string ext = path.substr(path.find_last_of('.')+1, path.size());
+
+    return ext;
+}
+
+std::string Response::build_response(void)
+{
+    read_raw_file();
+    prepare_headers();
+
+    std::string response;
+    response += _status_line;
+    
+    std::map<std::string, std::string>::iterator it = _headers.begin();
+
+    for(; it != _headers.end(); it++)
+    {
+        response += it->first + ": " + it->second + "\n";
+    }
+
+    // response.insert(response.end() - 1, '\r');
+    response += "\r\n";
+    response += _body;
+
+    return response;
+}
+
 void    Response::prepare_headers(void)
 {
     // temp
-    _headers += "HTML/1.1 200 OK";
+    
+	_status_line += "HTTP/1.1 ";
+
+	if (_file_flag)
+		_status_line += " 404 Not Found\n";
+	else
+		_status_line += " 200 OK\n";
+
+    if (_body.size()){
+		_headers.insert(std::make_pair("Content-Length", std::to_string(_body.size())));
+    	_headers.insert(std::make_pair("Content-Type", "text/"+extract_extension()));
+	}
+
 }
 
-std::vector<char>   Response::read_raw_file(void)
+void  Response::read_raw_file(void)
 {
-    std::ifstream ifs;
-    std::string   path = ".." + _req.get_path();
+    int fd = 0;
+    int ret_read = 0;
+    char buffer[1024] = {0};
+    std::string   path = "." + _req.get_path();
+	std::cout << "Path => " << path << std::endl;
+	std::string		filetoretrieve = ft::RandString(10);
+	std::string		cmd = "ls -l " + path + " | awk -F ' ' '{print $5}' >" + filetoretrieve;
+	std::string		cmd2 = "rm " + filetoretrieve;
+	std::string		buff;
+	size_t		 file_size = 0;
 
+	system(cmd.c_str());
+
+	std::ifstream ifs;
+
+	ifs.open(filetoretrieve, std::ifstream::in);
+	std::getline(ifs, buff);
+
+	file_size = std::stoi(buff);
+
+	system(cmd2.c_str());
+
+	std::cout << "file size " << file_size << std::endl;
     std::cout << path << std::endl;
-    ifs.open("path", std::ifstream::in);
 
-    ifs.close();
+    if ( (fd = open(path.c_str(), O_RDONLY)) < 0){
+        perror("cannot open file");
+		_file_flag = 1;
+    }
+
+
+    while( (ret_read = read(fd, buffer, 1024)) > 0)
+    {
+        std::string buffer2(buffer, ret_read);
+        _body += buffer2;
+    }
+	// std::cerr << "I'm just reading " << _body.size() << std::endl;
+    
 }

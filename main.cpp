@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "RequestHeaderParser/RequestHeader.hpp"
+#include "Response/Response.hpp"
 
 int		main(void)
 {
@@ -126,12 +127,25 @@ int		main(void)
 					std::cout << std::string(40, '+') << std::endl;
 
 					// sending data
+					Response		res(req);
 
-					std::string res = "HTTP/1.1 200 OK\nContent-Type: text/html\n\r\n<h1>Hello BIFENZI</h1> <label for=\"myfile\">Select a file:</label><input type=\"file\" id=\"myfile\" name=\"myfile\"> <input type=\"submit\">";
+					std::string response = res.build_response();
+					std::cout << std::string(40, '-') << std::endl;
+					std::cout << "response weights " << response.size() << " bytes" << std::endl;
+					// std::cout << response.length() << std::endl;
+					// exit(0);
 
-					valread = write (i, res.c_str(), res.size());
+					
+					// valread = dprintf(i,  response.c_str());
+					for (size_t j = 0; j < response.size(); j++){
+						valread = write (i, &response.c_str()[j], 1);
+						if (valread == -1)
+							break;
+					}
 
-					std::cout << (valread == static_cast<int>(res.size())) << std::endl;
+					std::cout << "write returned " << valread << std::endl;
+					std::cout << std::string(40, '-') << std::endl;
+					// std::cout << (valread == static_cast<int>(res.size())) << std::endl;
 					// removing the socket from current sockets then closing the fd
 					FD_CLR(i, &current_sockets);
 					close(i);
