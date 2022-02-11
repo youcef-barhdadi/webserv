@@ -120,8 +120,8 @@ int		main(void)
 					}
 
 					std::cout << std::string(40, '+') << std::endl;
-					std::cout << req.get_method() << std::endl;
-					std::cout << req.get_path() << std::endl;
+					std::cout << req.get_method() << " ";
+					std::cout << req.get_path() << " ";
 					std::cout << req.get_version() << std::endl;
 					req.debug_headers();
 					std::cout << std::string(40, '+') << std::endl;

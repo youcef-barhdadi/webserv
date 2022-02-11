@@ -3,20 +3,12 @@
 	margin-right: auto;
 }
 
-body{
-	background-color: lightcoral;
-}
 
-header{
-	background-color: lightgreen;
-}
-
-.hamid{
-	border-color: lime;
-}
-
-.vidyo{
-	background-color: mediumblue;
-	border-width: 10;
-	border-color: mediumspringgreen;
+html { 
+  background: url(229-westerlund-21.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  opacity: 0.7;
 }

@@ -23,8 +23,10 @@ Response::~Response(void)
 std::string Response::extract_extension(void)
 {
     std::string path = _req.get_path();
-    std::string ext = path.substr(path.find_last_of('.')+1, path.size());
-
+	if (path.find('.') == std::string::npos){
+		return std::string("");
+	}
+	std::string ext = path.substr(path.find_last_of('.')+1, path.size());
     return ext;
 }
 
@@ -53,6 +55,8 @@ std::string Response::build_response(void)
 void    Response::prepare_headers(void)
 {
     // temp
+	std::cout << extract_extension() << std::string(100, '&') << std::endl;
+	// std::cout << std::string(MimeTypes::getType(extract_extension().c_str())) << std::string(100, '-') << std::endl;
     
 	_status_line += "HTTP/1.1 ";
 
@@ -61,9 +65,12 @@ void    Response::prepare_headers(void)
 	else
 		_status_line += " 200 OK\n";
 
+	_headers.insert(std::make_pair("Server", "hexagone42"));
+	// std::cout << "[" << MimeTypes::getType(extract_extension().c_str()) "]"<< std::string(60, '*') << std::endl;
     if (_body.size()){
 		_headers.insert(std::make_pair("Content-Length", std::to_string(_body.size())));
-    	_headers.insert(std::make_pair("Content-Type", "text/"+extract_extension()));
+			if (MimeTypes::getType(extract_extension().c_str()) != 0x0)
+				_headers.insert(std::make_pair("Content-Type", std::string(MimeTypes::getType(extract_extension().c_str()))));
 	}
 
 }
@@ -88,7 +95,12 @@ void  Response::read_raw_file(void)
 	ifs.open(filetoretrieve, std::ifstream::in);
 	std::getline(ifs, buff);
 
-	file_size = std::stoi(buff);
+	try{
+
+		file_size = std::stoi(buff);
+	}catch(...){
+		std::cout << "hadi" << std::endl;
+	}
 
 	system(cmd2.c_str());
 
