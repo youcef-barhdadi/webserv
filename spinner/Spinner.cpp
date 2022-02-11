@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/05 17:31:52 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/08 19:23:10 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <map>
 #include "../FileDescriptorManager/FileDescriptorManager.hpp"
 #include <queue>          // std::queue
-
+#include <fcntl.h>
 // #include <pair>
 
 
@@ -72,6 +72,12 @@ std::ostream &			operator<<( std::ostream & o, Spinner  const & i )
 // 		return a;
 // 	return b;
 // }
+
+
+
+
+
+
 
 
 void	Spinner::run()
@@ -153,6 +159,8 @@ void	Spinner::run()
 						std::cout << "enter here" << std::endl;
 						buffer[readlen] = 0;	
 						std::string copy = std::string(buffer);
+						std::cout << copy << std::endl;
+						// exit(0);
 						Request request(copy, connection_fd);
 						if (request.is_finshed == false)
 						{
@@ -165,8 +173,32 @@ void	Spinner::run()
 					std::vector<char> array  = res.serv();				
 					char *data  = array.data();
 					std::cout << "data to send" << array.size() << std::endl;;
-					write(connection_fd,  data,array.size());
+
+					// int size = array.size();
+					// int offset = 0;
+					// while (true)
+					// {
+					// 			int number = write(connection_fd, data + offset,size);
+					// 			if (number <= 0)
+					// 				break;
+					// 			offset += number;
+					// 			size  -=  number;
+					// }
+					
+				// int fd1 = open("vid.mp4", O_WRONLY);
+			
+				int number = write(connection_fd, data ,array.size());	
+			// number = write(fd1, data ,array.size());	
+
+
+					
+					std::cout << "dat÷a to write " << number << std::endl;
+					
+					perror("dsd");
+					// exit(0);
+					// exit(0);
 					close(connection_fd);
+					// exit(0);
 					if (res.is_finshed == false)
 					{
 						responce_queue.pop();

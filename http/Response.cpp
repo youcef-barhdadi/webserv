@@ -101,6 +101,10 @@ std::string  Response::Creat_Header()
 		{
 			header +=	"Content-Type: image/png\n";
 		}
+		else if (extetion == "jpg")
+		{
+			header +=  "Content-Type: image/jpg\n";
+		}
 		else if (extetion ==  "js")
 		{
 			header += "Content-Type: text/javascript\n";
@@ -195,7 +199,17 @@ std::vector<char> handlCgiresponse(std::string & str)
 }
 
 
+void		serve_chanked()
+{
+	// if the size is bigger the Buffer_size 
 
+
+
+
+
+
+
+}
 
 
 
@@ -233,6 +247,7 @@ std::vector<char>	Response::serv()
 
 		if (file.is_open())
 		{
+
 			this->_status = 200;
 			file.close();
   		  	std::vector<char> tow= getfileRaw(resource);
@@ -241,10 +256,6 @@ std::vector<char>	Response::serv()
 			responce = Creat_Header();
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
-
-
-
-
 			return first;
 		}
 		else {
