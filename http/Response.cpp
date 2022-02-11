@@ -15,17 +15,29 @@
 
 
 
-Response::Response( const Response & src) : request(src.request)
+Response::Response( const Response & rhs)  : request(rhs.request)
 {
+	std::cout << "cpoy " << std::endl;
+	*this= rhs;
 }
 
 
-
-Response::Response(Request & req ) : request(req)
+Response::Response()
 {
-	this->chanked_request = false;
+	this->bytes_sent = 0;
+	this->is_finshed = false;
 
-	this->is_finshed = true;
+
+}
+Response::Response(Request & req ) : request(req)
+// 	// this->chanked_request = false;
+{
+
+// 	// this->is_finshed = true;
+
+
+	this->bytes_sent = 0;
+	this->is_finshed = false;
 }
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -42,10 +54,12 @@ Response::~Response()
 
 Response &				Response::operator=( Response const & rhs )
 {
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	this->response_vec = rhs.response_vec;
+	this->bytes_sent = rhs.bytes_sent;
+	this->_size = rhs._size;
+	this->is_finshed = rhs.is_finshed;
+	this->_status = rhs._status;
+	// this->request = rhs.request;
 	return *this;
 }
 
@@ -216,6 +230,12 @@ void		serve_chanked()
 std::vector<char>	Response::serv()
 {
 	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
+
+
+	if (this->is_finshed == true)
+		return this->response_vec;
+
+
 	std::string resource = request.getPath();
 	std::string extension = getExtension(resource);
 	// std::cout <<  "extension===>" << extension << std::endl;
@@ -256,6 +276,8 @@ std::vector<char>	Response::serv()
 			responce = Creat_Header();
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
+			this->is_finshed = true;
+			this->response_vec = first;
 			return first;
 		}
 		else {
@@ -266,6 +288,8 @@ std::vector<char>	Response::serv()
 			responce = Creat_Header();
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
+			response_vec = first;
+			this->is_finshed= true;
 			return  first;
 		}
 		exit(0);

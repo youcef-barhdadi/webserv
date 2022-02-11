@@ -32,7 +32,12 @@ Request::Request()
 
 
 
-
+Request::Request(Request const &req)
+{
+	this->is_finshed = req.is_finshed;
+	this->keepAlive = req.keepAlive;
+	this->_path = req.getPath();
+}
 
 Request::Request(  std::string & src  , int connection_fd)
 {
@@ -65,6 +70,7 @@ Request::Request(  std::string & src  , int connection_fd)
 		}
 		i++;
 	}
+	this->is_finshed = true;
 }
 
 

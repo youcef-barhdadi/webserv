@@ -34,6 +34,12 @@ class Response
 		
 		bool  is_finshed;
 
+		std::vector<char> response_vec;
+
+
+
+		size_t		bytes_sent;
+
 	private:
 
 
@@ -49,7 +55,7 @@ class Response
 		 * 	this refernce to the reqtuest object 
 		 */
 
-		Request &request;
+		Request request;
 		/**
 		 * @brief 
 		 * 	if the resposnse chnaked or not

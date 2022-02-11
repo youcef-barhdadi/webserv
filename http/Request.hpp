@@ -19,7 +19,7 @@ class Request
 
 		Request( std::string &  src , int connection_fd);
 		~Request();
-
+Request (Request const &req);
 		Request &		operator=( Request const & rhs );
 
 

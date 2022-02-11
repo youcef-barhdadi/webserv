@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/08 19:23:10 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/12 00:14:54 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ void	Spinner::run()
 	char buffer[30000] = {0};
 
 	std::map<unsigned long , Request>  unfinshed_request;
+	std::map<unsigned long , Response>  unfinshed_responce;
 	std::queue<Response>     responce_queue;
 	fd_set  current_socket, ready_socket;
 	FD_ZERO(&current_socket);
@@ -139,75 +140,46 @@ void	Spinner::run()
 					// this->_servers[0]->clients[connection_fd] = new_socket;
 					maxfd = std::max(maxfd, (unsigned int)  new_socket );
 				}
-				else 
+				else
 				{
 
-					if (unfinshed_request.find(connection_fd) != unfinshed_request.end())
-					{
-						// readlen = read(connection_fd, buffer, 30000);
-						// std::cout << "enter here" << std::endl;
-						// buffer[readlen] = 0;
-						// std::string copy = std::string(buffer);
-						// Request request(copy, connection_fd);
-						// Response response(request);
-						// unfin÷shed_request.insert(std::make_pair(connection_fd, response));	
-						// responce_queue.push(response);
-					}
-					else
-					{
-						readlen = read(connection_fd, buffer, 30000);
-						std::cout << "enter here" << std::endl;
-						buffer[readlen] = 0;	
-						std::string copy = std::string(buffer);
-						std::cout << copy << std::endl;
-						// exit(0);
-						Request request(copy, connection_fd);
-						if (request.is_finshed == false)
+		
+						std::map<unsigned long , Request>::iterator iterReq = unfinshed_request.find(connection_fd);
+						std::string copy;
+						if (iterReq == unfinshed_request.end())
 						{
+							readlen = read(connection_fd, buffer, 30000);
+							buffer[readlen] = 0;	
+							copy = std::string(buffer);
+							Request request(copy, connection_fd);
 							unfinshed_request.insert(std::make_pair(connection_fd, request));
 						}
-						Response response(request);
-						responce_queue.push(response);
-					}
-					Response &res = responce_queue.front();
-					std::vector<char> array  = res.serv();				
+					std::map<unsigned long, Response>::iterator iter = unfinshed_responce.find(connection_fd);
+							Response res;
+						if (iter == unfinshed_responce.end())
+						{
+							std::map<unsigned long, Request>::iterator iter = unfinshed_request.find(connection_fd);
+							Response ress(iter->second);
+							
+							res = ress;
+								unfinshed_responce.insert(std::make_pair(connection_fd, res));
+						}
+						else 
+						{
+								res = iter->second;
+							
+						}
+
+					std::vector<char> array  = res.serv();			
 					char *data  = array.data();
 					std::cout << "data to send" << array.size() << std::endl;;
-
-					// int size = array.size();
-					// int offset = 0;
-					// while (true)
-					// {
-					// 			int number = write(connection_fd, data + offset,size);
-					// 			if (number <= 0)
-					// 				break;
-					// 			offset += number;
-					// 			size  -=  number;
-					// }
-					
-				// int fd1 = open("vid.mp4", O_WRONLY);
-			
-				int number = write(connection_fd, data ,array.size());	
-			// number = write(fd1, data ,array.size());	
-
-
-					
-					std::cout << "dat÷a to write " << number << std::endl;
-					
-					perror("dsd");
-					// exit(0);
-					// exit(0);
-					close(connection_fd);
-					// exit(0);
-					if (res.is_finshed == false)
+					res.bytes_sent += write(connection_fd, data +res.bytes_sent ,array.size());
+					std::cout << "=======================dat÷a to write " << res.bytes_sent << "array size " <<   array.size() << std::endl;
+					if (res.bytes_sent == array.size())
 					{
-						responce_queue.pop();
-						responce_queue.push(res);
+						unfinshed_responce.erase(connection_fd);
+						FileDescriptorManager::REMOVE(connection_fd);
 					}
-					// else
-					// {
-					FileDescriptorManager::REMOVE(connection_fd);
-					// }
 				}
 			}
 		}
