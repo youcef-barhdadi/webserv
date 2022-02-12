@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/12 02:52:15 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/12 04:54:33 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,28 +81,33 @@ std::ostream &			operator<<( std::ostream & o, Spinner  const & i )
  *  10050 			150 % 10 == 
  */
 
-
+ #define MB 1e6
 size_t		getsize(size_t size)
 {
-	if (100000  < size )
-		return 100000;
+	if (MB  < size )
+		return MB;
 	return size;
 }
 
 
 
 
-
+void sig_handler(int signo)
+{
+  if (signo == SIGINT)
+    printf("received SIGINT\n");
+} 
 
 void	Spinner::run()
 {
+	// signal(SIGINT, sig_handler);
 	struct sockaddr_in address;
     socklen_t addrlen;
     size_t  readlen;
 	char buffer[30000] = {0};
 
-	std::map<unsigned long , Request>  unfinshed_request;
-	std::map<unsigned long , Response>  unfinshed_responce;
+	std::map<unsigned long , Request *>  unfinshed_request;
+	std::map<unsigned long , Response *>  unfinshed_responce;
 	std::queue<Response>     responce_queue;
 	fd_set  current_socket, ready_socket;
 	fd_set   write_socket;
@@ -146,6 +151,8 @@ void	Spinner::run()
 				{
 					std::cout << "accpet " << std::endl;
 					int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
+					   fcntl(new_socket, F_SETFL, O_NONBLOCK );
+
 					std::cout << "new connection " << new_socket  << std::endl;
 					// exit(0);
 					if (new_socket < 0)
@@ -163,7 +170,7 @@ void	Spinner::run()
 
 							
 		
-						std::map<unsigned long , Request>::iterator iterReq = unfinshed_request.find(connection_fd);
+						std::map<unsigned long , Request*>::iterator iterReq = unfinshed_request.find(connection_fd);
 						std::string copy;
 						if (iterReq == unfinshed_request.end())
 						{
@@ -172,49 +179,58 @@ void	Spinner::run()
 								readlen = read(connection_fd, buffer, 30000);
 								buffer[readlen] = 0;	
 								copy = std::string(buffer);
-								Request request(copy, connection_fd);
+								Request *request = new Request(copy, connection_fd);
 								unfinshed_request.insert(std::make_pair(connection_fd, request));
 								FD_SET(connection_fd, &write_socket);
 								FileDescriptorManager::REMOVE(connection_fd);
 							}
 						}
-						std::map<unsigned long, Response>::iterator iter = unfinshed_responce.find(connection_fd);
-							Response res;
-						if (iter == unfinshed_responce.end())
-						{
-		
-							std::map<unsigned long, Request>::iterator iter = unfinshed_request.find(connection_fd);
-							std::cout <<   "======>" << iter->second.getPath() << std::endl;
-							Response ress(iter->second);
-							res = ress;
-							unfinshed_responce.insert(std::make_pair(connection_fd, res));
-						}
-						else 
-						{
-							res = iter->second;
-						}
 
-				
-					std::vector<char> array  = res.serv();			
-					char *data  = array.data();
-					std::cout << "data to send" << array.size() << std::endl;;
-					std::cout << res.bytes_sent << "-----"  << std::endl;
-					std::cout << getsize(array.size() - res.bytes_sent)  << "===ens" << std::endl;
-					res.bytes_sent += write(connection_fd, data + res.bytes_sent ,getsize(array.size() - res.bytes_sent));
-					perror("dddd");
-					std::cout << "======================= data to write " << res.bytes_sent << "array size " <<   array.size() << std::endl;
-
-					unfinshed_responce.erase(connection_fd);
-					unfinshed_responce.insert(std::make_pair(connection_fd, res));
-					
-					
-					if (res.bytes_sent == array.size())
+					if (FD_ISSET(connection_fd, &current_socket))
 					{
-						std::cout << "end" << std::endl;
-						unfinshed_responce.erase(connection_fd);
-						unfinshed_request.erase(connection_fd);
-						// FileDescriptorManager::REMOVE(connection_fd);
-						FD_CLR(connection_fd, &write_socket);
+										std::map<unsigned long, Response *>::iterator iter = unfinshed_responce.find(connection_fd);
+											Response *res;
+										if (iter == unfinshed_responce.end())
+										{
+						
+											std::map<unsigned long, Request *>::iterator iter = unfinshed_request.find(connection_fd);
+											std::cout <<   "======>" << iter->second->getPath() << std::endl;
+											res =  new  Response(*iter->second);
+											// res = ress;
+											unfinshed_responce.insert(std::make_pair(connection_fd, res));
+										}
+										else 
+										{
+											res = iter->second;
+										}
+
+								
+									std::vector<char> array  = res->serv();			
+									char *data  = array.data();
+									std::cout << "data to send" << array.size() << std::endl;;
+									std::cout << res->bytes_sent << "-----"  << std::endl;
+									std::cout << getsize(array.size() - res->bytes_sent)  << "===ens" << std::endl;
+									signal(SIGPIPE, SIG_IGN);
+									 int ret = write(connection_fd, data + res->bytes_sent ,getsize(array.size() - res->bytes_sent));
+									 signal(SIGPIPE, SIG_DFL);
+									 if (ret > 0)
+									 	res->bytes_sent +=ret;
+									perror("dddd");
+									std::cout <<   "connect_fd" << connection_fd  <<  "<<======================= data to write " << res->bytes_sent << "array size " <<   array.size() << std::endl;
+
+									//unfinshed_responce.erase(connection_fd);
+									//unfinshed_responce.insert(std::make_pair(connection_fd, res));
+									
+									
+									if (res->bytes_sent == array.size())
+									{
+										std::cout << "end" << std::endl;
+										unfinshed_responce.erase(connection_fd);
+										unfinshed_request.erase(connection_fd);
+										// FileDescriptorManager::REMOVE(connection_fd);
+										FD_CLR(connection_fd, &write_socket);
+										FD_CLR(connection_fd, &current_socket);
+									}
 					}
 				}
 			}
