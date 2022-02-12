@@ -40,6 +40,7 @@ class Response
 
 		size_t		bytes_sent;
 
+		Request request;
 	private:
 
 
@@ -55,7 +56,6 @@ class Response
 		 * 	this refernce to the reqtuest object 
 		 */
 
-		Request request;
 		/**
 		 * @brief 
 		 * 	if the resposnse chnaked or not

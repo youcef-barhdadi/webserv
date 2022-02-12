@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/12 00:14:54 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/12 02:52:15 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,20 @@ std::ostream &			operator<<( std::ostream & o, Spinner  const & i )
 // }
 
 
+/**
+ * 	
+ * @brief 
+ *
+ *  10050 			150 % 10 == 
+ */
+
+
+size_t		getsize(size_t size)
+{
+	if (100000  < size )
+		return 100000;
+	return size;
+}
 
 
 
@@ -91,7 +105,9 @@ void	Spinner::run()
 	std::map<unsigned long , Response>  unfinshed_responce;
 	std::queue<Response>     responce_queue;
 	fd_set  current_socket, ready_socket;
+	fd_set   write_socket;
 	FD_ZERO(&current_socket);
+	FD_ZERO(&write_socket);
 	FileDescriptorManager::CLEAN();
 
 	
@@ -104,23 +120,25 @@ void	Spinner::run()
 			FileDescriptorManager::ADD(this->_servers[0]->socket_fd[i]);
 			maxfd = std::max(maxfd, this->_servers[0]->socket_fd[i] );
 	}
+
 	while (true)
 	{	
 
 		ready_socket = FileDescriptorManager::set;
+		current_socket =write_socket;
 
 			std::cout << "strat " << std::endl;
-		if (select((int)maxfd +1, &ready_socket, NULL, NULL, NULL) < 0)
+		if (select((int)maxfd +1, &ready_socket, &current_socket, NULL, NULL) < 0)
 		{
 			assert(true);
 			perror("select error");
 			exit(0);
 		}
 
-		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
+		for (size_t connection_fd = 3; connection_fd < maxfd + 1; connection_fd++)
 		{
 
-			if (FD_ISSET(connection_fd, &ready_socket))
+			if (FD_ISSET(connection_fd, &ready_socket)  || FD_ISSET(connection_fd, &current_socket))
 			{			
 				// this new connection
 				std::cout << "connection " << connection_fd << std::endl;
@@ -143,42 +161,60 @@ void	Spinner::run()
 				else
 				{
 
+							
 		
 						std::map<unsigned long , Request>::iterator iterReq = unfinshed_request.find(connection_fd);
 						std::string copy;
 						if (iterReq == unfinshed_request.end())
 						{
-							readlen = read(connection_fd, buffer, 30000);
-							buffer[readlen] = 0;	
-							copy = std::string(buffer);
-							Request request(copy, connection_fd);
-							unfinshed_request.insert(std::make_pair(connection_fd, request));
+							if (FD_ISSET(connection_fd, &ready_socket))
+							{
+								readlen = read(connection_fd, buffer, 30000);
+								buffer[readlen] = 0;	
+								copy = std::string(buffer);
+								Request request(copy, connection_fd);
+								unfinshed_request.insert(std::make_pair(connection_fd, request));
+								FD_SET(connection_fd, &write_socket);
+								FileDescriptorManager::REMOVE(connection_fd);
+							}
 						}
-					std::map<unsigned long, Response>::iterator iter = unfinshed_responce.find(connection_fd);
+						std::map<unsigned long, Response>::iterator iter = unfinshed_responce.find(connection_fd);
 							Response res;
 						if (iter == unfinshed_responce.end())
 						{
+		
 							std::map<unsigned long, Request>::iterator iter = unfinshed_request.find(connection_fd);
+							std::cout <<   "======>" << iter->second.getPath() << std::endl;
 							Response ress(iter->second);
-							
 							res = ress;
-								unfinshed_responce.insert(std::make_pair(connection_fd, res));
+							unfinshed_responce.insert(std::make_pair(connection_fd, res));
 						}
 						else 
 						{
-								res = iter->second;
-							
+							res = iter->second;
 						}
 
+				
 					std::vector<char> array  = res.serv();			
 					char *data  = array.data();
 					std::cout << "data to send" << array.size() << std::endl;;
-					res.bytes_sent += write(connection_fd, data +res.bytes_sent ,array.size());
-					std::cout << "=======================dat÷a to write " << res.bytes_sent << "array size " <<   array.size() << std::endl;
+					std::cout << res.bytes_sent << "-----"  << std::endl;
+					std::cout << getsize(array.size() - res.bytes_sent)  << "===ens" << std::endl;
+					res.bytes_sent += write(connection_fd, data + res.bytes_sent ,getsize(array.size() - res.bytes_sent));
+					perror("dddd");
+					std::cout << "======================= data to write " << res.bytes_sent << "array size " <<   array.size() << std::endl;
+
+					unfinshed_responce.erase(connection_fd);
+					unfinshed_responce.insert(std::make_pair(connection_fd, res));
+					
+					
 					if (res.bytes_sent == array.size())
 					{
+						std::cout << "end" << std::endl;
 						unfinshed_responce.erase(connection_fd);
-						FileDescriptorManager::REMOVE(connection_fd);
+						unfinshed_request.erase(connection_fd);
+						// FileDescriptorManager::REMOVE(connection_fd);
+						FD_CLR(connection_fd, &write_socket);
 					}
 				}
 			}

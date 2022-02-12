@@ -54,7 +54,7 @@ void Server::create_server()
 	{
 
 		int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-		fcntl(server_fd, F_SETFL, O_NONBLOCK);
+		// fcntl(server_fd, F_SETFL, O_NONBLOCK);
 		assert((server_fd > 0));
 		if (server_fd < 0)
 		{
@@ -75,7 +75,7 @@ void Server::create_server()
 			perror("error ");
 			return ;
 		}
-		 ret = listen(server_fd, 1000);
+		 ret = listen(server_fd, 10000);
 		assert(ret == 0);
 		if (ret < 0)
 		{

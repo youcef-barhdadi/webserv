@@ -15,7 +15,7 @@
 
 
 
-Response::Response( const Response & rhs)  : request(rhs.request)
+Response::Response( const Response & rhs)
 {
 	std::cout << "cpoy " << std::endl;
 	*this= rhs;
@@ -54,11 +54,12 @@ Response::~Response()
 
 Response &				Response::operator=( Response const & rhs )
 {
-	this->response_vec = rhs.response_vec;
+	this->response_vec.insert(this->response_vec.begin(), rhs.response_vec.begin(), rhs.response_vec.end());// =  rhs.response_vec;
 	this->bytes_sent = rhs.bytes_sent;
 	this->_size = rhs._size;
 	this->is_finshed = rhs.is_finshed;
 	this->_status = rhs._status;
+	this->request.setPath(rhs.request.getPath());
 	// this->request = rhs.request;
 	return *this;
 }
