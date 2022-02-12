@@ -68,14 +68,23 @@ void Server::create_server()
 		address.sin_addr.s_addr= INADDR_ANY;
 		address.sin_port =htons(this->_ports[i]);
 		int ret =  bind(server_fd, (struct sockaddr *)&address , sizeof(address));
+<<<<<<< HEAD
+=======
+		std::cout <<  "this ->" << ret << std::endl;
+		assert(ret == 0);
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
 		if (ret < 0)
 		{
 			perror("error ");
 			assert(ret < 0);
 			return ;
 		}
+<<<<<<< HEAD
 		 ret = listen(server_fd, 1000);
 		 printf("[%d]\n", ret);
+=======
+		 ret = listen(server_fd, 10000);
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
 		assert(ret == 0);
 		if (ret < 0)
 		{

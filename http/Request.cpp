@@ -33,6 +33,7 @@ Request::Request()
 
 
 
+<<<<<<< HEAD
 
 bool isValidMethod(std::string str)
 {
@@ -45,12 +46,24 @@ bool isValidMethod(std::string str)
 	return false;
 }
 
+=======
+Request::Request(Request const &req)
+{
+	this->is_finshed = req.is_finshed;
+	this->keepAlive = req.keepAlive;
+	this->_path = req.getPath();
+}
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
 
 Request::Request(  std::string & src  , int connection_fd)
 {
 	// set socket fd 
 	this->connection_fd = connection_fd;
+<<<<<<< HEAD
 	std::cout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << std::endl;
+=======
+	this->is_finshed = true;
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
  	std::vector<std::string> lines =  split(src, '\n');
 	int i = 0;
 	while (i < lines.size())
@@ -82,6 +95,7 @@ Request::Request(  std::string & src  , int connection_fd)
 		}
 		i++;
 	}
+	this->is_finshed = true;
 }
 
 

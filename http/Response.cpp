@@ -8,21 +8,41 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/select.h>
+
+#include "../utilities/utilities.hpp"
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
 
 
-Response::Response( const Response & src) : request(src.request)
+Response::Response( const Response & rhs)
 {
+	std::cout << "cpoy " << std::endl;
+	*this= rhs;
 }
 
 
-
-Response::Response(Request * req ) : request(req)
+Response::Response()
 {
-	this->chanked_request = false;
+	this->bytes_sent = 0;
+	this->is_finshed = false;
+
+
+<<<<<<< HEAD
+Response::Response(Request * req ) : request(req)
+=======
+}
+Response::Response(Request & req ) : request(req)
+// 	// this->chanked_request = false;
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
+{
+
+// 	// this->is_finshed = true;
+
+
+	this->bytes_sent = 0;
+	this->is_finshed = false;
 }
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -39,10 +59,13 @@ Response::~Response()
 
 Response &				Response::operator=( Response const & rhs )
 {
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	this->response_vec.insert(this->response_vec.begin(), rhs.response_vec.begin(), rhs.response_vec.end());// =  rhs.response_vec;
+	this->bytes_sent = rhs.bytes_sent;
+	this->_size = rhs._size;
+	this->is_finshed = rhs.is_finshed;
+	this->_status = rhs._status;
+	this->request.setPath(rhs.request.getPath());
+	// this->request = rhs.request;
 	return *this;
 }
 
@@ -58,15 +81,6 @@ std::ostream &			operator<<( std::ostream & o, Response const & i )
 */
 
 
-int getSizeOfile(std::string file) {
-   std::ifstream in_file(file, std::ios::binary);
-   in_file.seekg(0, std::ios::end);
-   int file_size = in_file.tellg();
-	in_file.close();
-
-	return file_size;
-}
-
 
 
 void	Response::handlPut(Request & request)
@@ -80,12 +94,6 @@ void	Response::handlPut(Request & request)
 
 
 
-std::string	getExtension(std::string file)
-{
-	std::string str = file.substr(file.find('.')+1);
-
-	return str;
-} 
 
 
 std::string  Response::Creat_Header()
@@ -113,6 +121,10 @@ std::string  Response::Creat_Header()
 		{
 			header +=	"Content-Type: image/png\n";
 		}
+		else if (extetion == "jpg")
+		{
+			header +=  "Content-Type: image/jpg\n";
+		}
 		else if (extetion ==  "js")
 		{
 			header += "Content-Type: text/javascript\n";
@@ -120,7 +132,12 @@ std::string  Response::Creat_Header()
 		else if (extetion  == "html")
 		{
 				header += "Content-Type: text/html\n";
-		}else {
+		}
+		else if (extetion == "mp4")
+		{
+			header += "Content-Type: video/mp4\n";
+		}
+		else {
 			header += "Content-Type: text/html\n";
 		}
 
@@ -131,6 +148,7 @@ std::string  Response::Creat_Header()
 }
 
 
+<<<<<<< HEAD
 
 long FdGetFileSize(int fd)
 {
@@ -162,10 +180,35 @@ void		 Response::servGet(fd_set set)
 		write(this->request->getConnectinFD(), BUFFER, ret);
 	}
 }
+=======
+// std::vector<char> Response::servGet(fd_set set)
+// {
+// 	// size_t BUFFER_SIZE = 10000;
+// 	// char BUFFER[BUFFER_SIZE];
+// 	// if (this->sended == 0)
+// 	// {
+// 	// 	std::string header = Creat_Header();
+
+// 	// 	// this fd is chekcked 
+// 	// 	write(this->request.getConnectinFD(), header.c_str(), header.size());
+// 	// 	this->sended = 1;
+// 	// 	return ;
+// 	// }
+// 	// // i
+// 	// if (FD_ISSET(this-requestedFileFD, &set))
+// 	// {
+// 	// 	int ret = read(this->requestedFileFD, BUFFER, BUFFER_SIZE -1);
+// 	// 	BUFFER[ret] = '\0';
+// 	// 	write(this->request.getConnectinFD(), BUFFER, ret);
+// 	// }
+// 	throw std::logic_error("not implmented!");
+// }
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
 
 
 void	Response::Get(fd_set set)
 {
+<<<<<<< HEAD
 	size_t BUFFER_SIZE = 10000;
 	char BUFEFR[BUFFER_SIZE];
 	this->chanked_request = false;
@@ -208,35 +251,31 @@ void	Response::Get(fd_set set)
 
 
 
+=======
+	// size_t BUFFER_SIZE = 10000;
+	// char BUFEFR[BUFFER_SIZE];
+	// if (this->chanked_request == false)
+	// {
+	// 	this->requestedFileFD = open(this->req.getPath().c_str(), O_RDONLY);
+	// 	this->sizeFile = FdGetFileSize(this->requestedFileFD);
+	// 	// assert(this->requestedFileFD > 0);
+	// }
+	// // int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
+	// // BUFEFR[ret] = 0;
+	// // std::vector<char> req(BUFEFR, BUFEFR + ret);
 
+	// if (this->sended + ret > this->sizeFile   && this->req.getKeepALive() == false)
+	// {
+	// 	close(this->requestedFileFD);
+	// 	FD_CLR(this->req.getConnectinFD(), &set);
+	// }	
 
-
-
-
-
-std::vector<char> getfileRaw(std::string file)
-{
-	std::ifstream iffile(file,  std::ios::in|std::ios::binary|std::ios::ate);
-	std::streampos size;
-	char* memblock;
-	int sizee;
-	// stup
-	std::vector<char> oo;
-
-	if (iffile.is_open())
-	{
-		size = iffile.tellg();
-		sizee = size;
-		memblock = new char [sizee];
-		iffile.seekg (0, std::ios::beg);
-		iffile.read (memblock, size);
-		iffile.close();
-		std::vector<char> ret(memblock, memblock+sizee);
-		return ret;
-	}
-	return oo;
-
+	throw std::logic_error("not implemented!");
 }
+
+
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
+
 
 
 
@@ -259,19 +298,60 @@ std::vector<char> handlCgiresponse(std::string & str)
 }
 
 
+void		serve_chanked()
+{
+	// if the size is bigger the Buffer_size 
 
 
 
+
+
+
+<<<<<<< HEAD
 void		Response::serv(fd_set set)
 {
 
 	std::string method = this->request->getMethod();
 
 	if (method == "GET")
+=======
+
+}
+
+
+
+std::vector<char>	Response::serv()
+{
+	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
+
+
+	if (this->is_finshed == true)
+		return this->response_vec;
+
+
+	std::string resource = request.getPath();
+	std::string extension = getExtension(resource);
+	// std::cout <<  "extension===>" << extension << std::endl;
+	// this means is cgi
+	if (extension == "pl")
+	{
+		Cgi cgi;
+		std::string  strtest = cgi.startCgi(request);
+		std::vector<char> test = handlCgiresponse(strtest);
+		// exit(0);
+		return  test;
+	}	
+	if (resource == "/")
+	{
+		resource = "index.html";
+	}
+	else 
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
 	{
 		this->Get(set);
 		return ;
 	}
+<<<<<<< HEAD
 
 
 
@@ -341,6 +421,46 @@ void		Response::serv(fd_set set)
 	// 	}
 	// 	// exit(0);
 
+=======
+	// std::cout << resource << std::endl;
+		std::string  responce;
+		// responce = Creat_Header(request, resource);
+		std::string  str;
+		std::string  body = "";
+		std::streampos size;
+		char* memblock;
+		std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
+
+		if (file.is_open())
+		{
+
+			this->_status = 200;
+			file.close();
+  		  	std::vector<char> tow= getfileRaw(resource);
+			this->_size = tow.size();
+			std::cout << "size is >> " << this->_size << std::endl;
+			responce = Creat_Header();
+  		  	std::vector<char> first(responce.begin(), responce.end());
+			first.insert(first.end(), tow.begin(), tow.end());
+			this->is_finshed = true;
+			this->response_vec = first;
+			return first;
+		}
+		else {
+			// this means 404
+			this->_status = 404;
+  		  	std::vector<char> tow= getfileRaw("404.html");	
+			this->_size = tow.size();
+			responce = Creat_Header();
+  		  	std::vector<char> first(responce.begin(), responce.end());
+			first.insert(first.end(), tow.begin(), tow.end());
+			response_vec = first;
+			this->is_finshed= true;
+			return  first;
+		}
+		exit(0);
+		// throw std::logic_error("not implemented yet !");
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
 
 }
 

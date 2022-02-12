@@ -19,7 +19,7 @@ class Request
 
 		Request( std::string &  src , int connection_fd);
 		~Request();
-
+Request (Request const &req);
 		Request &		operator=( Request const & rhs );
 
 
@@ -35,6 +35,7 @@ class Request
 		std::map<std::string, std::string> header;
 
 		bool	getKeepALive();
+		bool		is_finshed;
 
 
 		std::string		&getMethod();

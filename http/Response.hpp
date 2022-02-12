@@ -21,7 +21,11 @@ class Response
 
 
 		// this method will do magic 
+<<<<<<< HEAD
 		void		serv(fd_set set);
+=======
+		std::vector<char>	serv();
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
 
 
 		std::string buildResponse();
@@ -32,7 +36,15 @@ class Response
 
 
 		
+		bool  is_finshed;
 
+		std::vector<char> response_vec;
+
+
+
+		size_t		bytes_sent;
+
+		Request request;
 	private:
 
 
@@ -48,7 +60,10 @@ class Response
 		 * 	this refernce to the reqtuest object 
 		 */
 
+<<<<<<< HEAD
 		Request *request;
+=======
+>>>>>>> 6391303bb264aa78e96bc2b5bd0b764103bdc343
 		/**
 		 * @brief 
 		 * 	if the resposnse chnaked or not

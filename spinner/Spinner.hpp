@@ -2,6 +2,7 @@
 # define SPINNER_HPP
 
 # include <iostream>
+#include <fstream>
 # include <string>
 # include "../server/Server.hpp"
 #include "../http/Request.hpp"
