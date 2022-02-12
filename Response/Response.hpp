@@ -8,7 +8,7 @@
 # include <stdlib.h>
 # include <memory>
 # include "../RequestHeaderParser/RequestHeader.hpp"
-# include "../MimeTypes/MimeTypes.h"
+# include "MimeTypes/MimeTypes.h"
 
 
 class Response{

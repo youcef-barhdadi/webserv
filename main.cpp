@@ -2,6 +2,8 @@
 //	server.c 02/02/2022 ztaouil
 //
 
+// Exercices page 64.
+
 // Programming with TCP/IP sockers
 // 	1. Create the socket with socket() system call.
 // 	2. Identify the socket with bind().
@@ -11,6 +13,7 @@
 //
 
 #include <sys/time.h>
+#include <arpa/inet.h>
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/select.h>
@@ -39,11 +42,9 @@ int		main(void)
 	}
 	fcntl(server_fd, F_SETFL, O_NONBLOCK);
 
-	char arr[4];
-	arr[0] = 0; arr[1] = 0; arr[2] = 0; arr[3] = 0;
 	memset((char *)&address, 0, sizeof(address));
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = (*(unsigned int *)arr);
+	address.sin_addr.s_addr = inet_addr("0.0.0.0");
 	address.sin_port = htons(PORT);
 
 	int enable = 1;
@@ -131,12 +132,12 @@ int		main(void)
 
 					std::string response = res.build_response();
 					std::cout << std::string(40, '-') << std::endl;
+					// std::cout << response << std::endl;
 					std::cout << "response weights " << response.size() << " bytes" << std::endl;
 					// std::cout << response.length() << std::endl;
 					// exit(0);
 
 					
-					// valread = dprintf(i,  response.c_str());
 					for (size_t j = 0; j < response.size(); j++){
 						valread = write (i, &response.c_str()[j], 1);
 						if (valread == -1)

@@ -1,4 +1,4 @@
-// unix network programming page 44 Unix Standards
+// unix network programming page 61 Unix Standards
 //
 //
 
@@ -55,13 +55,12 @@ std::string Response::build_response(void)
 void    Response::prepare_headers(void)
 {
     // temp
-	std::cout << extract_extension() << std::string(100, '&') << std::endl;
 	// std::cout << std::string(MimeTypes::getType(extract_extension().c_str())) << std::string(100, '-') << std::endl;
     
 	_status_line += "HTTP/1.1 ";
 
 	if (_file_flag)
-		_status_line += " 404 Not Found\n";
+		_status_line += "404 Not Found\n";
 	else
 		_status_line += " 200 OK\n";
 
@@ -81,7 +80,6 @@ void  Response::read_raw_file(void)
     int ret_read = 0;
     char buffer[1024] = {0};
     std::string   path = "." + _req.get_path();
-	std::cout << "Path => " << path << std::endl;
 	std::string		filetoretrieve = ft::RandString(10);
 	std::string		cmd = "ls -l " + path + " | awk -F ' ' '{print $5}' >" + filetoretrieve;
 	std::string		cmd2 = "rm " + filetoretrieve;
@@ -104,8 +102,6 @@ void  Response::read_raw_file(void)
 
 	system(cmd2.c_str());
 
-	std::cout << "file size " << file_size << std::endl;
-    std::cout << path << std::endl;
 
     if ( (fd = open(path.c_str(), O_RDONLY)) < 0){
         perror("cannot open file");
