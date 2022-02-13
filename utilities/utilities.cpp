@@ -6,12 +6,37 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/05 18:01:06 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/13 17:14:06 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utilities.hpp"
 
+
+
+
+std::vector<char>	getRange(std::string file, size_t start, size_t end)
+{
+	if (start == 0 && end ==0)
+		return (getfileRaw(file));
+	std::ifstream iffile(file,  std::ios::in|std::ios::binary|std::ios::ate);
+	std::streampos size;
+	char* memblock;
+	int sizee;
+	std::vector<char>   empty;
+	if (iffile.is_open())
+	{
+		size = end - start;
+		sizee = size;
+		memblock = new char [sizee];
+		iffile.seekg (start, std::ios::beg);
+		iffile.read (memblock, size);
+		iffile.close();
+		std::vector<char> ret(memblock, memblock+sizee);
+		return ret;
+	}
+    return empty;	
+}
 
 
 

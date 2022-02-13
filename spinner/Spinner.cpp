@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/12 02:52:15 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/13 16:44:15 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,8 +84,8 @@ std::ostream &			operator<<( std::ostream & o, Spinner  const & i )
 
 size_t		getsize(size_t size)
 {
-	if (100000  < size )
-		return 100000;
+	if (1000000  < size )
+		return 1000000;
 	return size;
 }
 
