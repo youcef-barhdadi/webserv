@@ -7,13 +7,13 @@
 # include <fcntl.h>
 # include <stdlib.h>
 # include <memory>
-# include "../RequestHeaderParser/RequestHeader.hpp"
+# include "../Request/Request.hpp"
 # include "MimeTypes/MimeTypes.h"
 
 
 class Response{
 public:
-	Response(RequestHeader const &req);
+	Response(Request const &req);
 	~Response(void);
 
 	void				prepare_headers(void);
@@ -23,9 +23,12 @@ public:
 
 	std::string			build_response(void);
 
+	std::string			Get(void);
+	std::string			Post(void);
+	std::string			Delete(void);
 
 private:
-	RequestHeader   _req;
+	Request   _req;
 	std::string _status_line;
 	std::map<std::string, std::string>  _headers;
 

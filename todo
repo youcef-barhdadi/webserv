@@ -1,1 +1,16 @@
 - query params are posted to a file i just need them in a memory
+
+server config:
+	host
+	port
+	server_name
+	default error pages path
+	max client body size
+	routes:
+		accepted HTTP methods for the route
+		HTTP redirection
+		root
+		autoindex
+		cgi.
+
+	

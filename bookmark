@@ -1,0 +1,9 @@
+/ Unix Network Programming
+
+- Page 68 TCP Output
+- Current Page 82
+
+Chapter 2 exercices page 73.
+
+
+// The successful return from write to a TCP socket only tells us that we can reuse our application buffer. i.e every byte was copied to send buffer in the kernel.

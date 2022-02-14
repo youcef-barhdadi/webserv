@@ -1,32 +1,32 @@
 //
-//  RequestHeader.cpp   7 feb 2020  ztaouil
+//  Request.cpp   7 feb 2020  ztaouil
 //
 
-#include "RequestHeader.hpp"
+#include "Request.hpp"
 
-RequestHeader::RequestHeader(void)
+Request::Request(void)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
 , _isFinished(false), _isHeaderParsed(false), _debug(0)
 {
 
 }
 
-RequestHeader::~RequestHeader(void)
+Request::~Request(void)
 {
 
 }
 
-RequestHeader::RequestHeader(RequestHeader const &rhs)
+Request::Request(Request const &rhs)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
 , _isFinished(false), _isHeaderParsed(false)
 {
-    // std::cout << "RequestHeader::RequestHeader(Request const &rhs)" << std::endl;
+    // std::cout << "Request::Request(Request const &rhs)" << std::endl;
     *this = rhs;
 }
 
-RequestHeader   &RequestHeader::operator=(RequestHeader const &rhs)
+Request   &Request::operator=(Request const &rhs)
 {
-    // std::cout << "RequestHeader::operator=" << std::endl;
+    // std::cout << "Request::operator=" << std::endl;
     if (this != &rhs){
         _buffer = rhs._buffer;
         _method = rhs._method;
@@ -43,7 +43,7 @@ RequestHeader   &RequestHeader::operator=(RequestHeader const &rhs)
     return *this;
 }
 
-void    RequestHeader::Append(std::string &Message)
+void    Request::Append(std::string &Message)
 {
     _buffer += Message;
 
@@ -88,11 +88,11 @@ void    RequestHeader::Append(std::string &Message)
 
     if (_isFinished)
     {
-        ParseVerify();
+        VerifyRequest();
     }
 }
 
-bool    RequestHeader::HeadersFinished(void)
+bool    Request::HeadersFinished(void)
 {
     std::stringstream ss(_buffer);
     std::string buffer;
@@ -108,7 +108,7 @@ bool    RequestHeader::HeadersFinished(void)
     return cond;
 }
 
-bool    RequestHeader::BodyFinished(void)
+bool    Request::BodyFinished(void)
 {
     size_t content_length = 0;
     if (_headers.find("Content-Length") != _headers.end())
@@ -117,12 +117,12 @@ bool    RequestHeader::BodyFinished(void)
     return content_length <= _body_size;
 }
 
-bool     RequestHeader::IsFinished(void)
+bool     Request::IsFinished(void)
 {
     return _isFinished;
 }
 
-void       RequestHeader::ParseHeaders(void)
+void       Request::ParseHeaders(void)
 {
     std::stringstream   ss(_buffer);
 
@@ -157,9 +157,9 @@ void       RequestHeader::ParseHeaders(void)
         _buffer.erase(_buffer.end() - 1);
 }
 
-void    RequestHeader::ParseVerify(void)
+void    Request::VerifyRequest(void)
 {
-    // std::cout << "RequestHeader::ParseVerify" << std::endl;
+    // std::cout << "Request::ParseVerify" << std::endl;
     std::string methods[3] = {"GET", "POST", "DELETE"};
     int found = 0;
 
@@ -168,10 +168,10 @@ void    RequestHeader::ParseVerify(void)
             found = 1;
     
     if (!found)
-        throw RequestError();
+		throw RequestError();
 }
 
-void    RequestHeader::ParseQueryParams(void)
+void    Request::ParseQueryParams(void)
 {
     if (_path.find('?') != std::string::npos)
     {
@@ -190,14 +190,14 @@ void    RequestHeader::ParseQueryParams(void)
     }
 }
 
-bool    RequestHeader::QueryParamsEmpty(void)
+bool    Request::QueryParamsEmpty(void)
 {
     if (!_query_params.size())
         return true;
     return false;
 }
 
-void   RequestHeader::debug_query_params(void)
+void   Request::debug_query_params(void)
 {
     std::cout << std::string(20, '-') << "+QUERYPARAMS+" << std::string(20, '-') << std::endl;
     std::map<std::string, std::string>::iterator it = _query_params.begin();
@@ -206,22 +206,22 @@ void   RequestHeader::debug_query_params(void)
     }
 }
 
-std::string RequestHeader::get_method(void)
+std::string Request::get_method(void)
 {
     return _method;
 }
 
-std::string RequestHeader::get_path(void)
+std::string Request::get_path(void)
 {
     return _path;
 }
 
-float RequestHeader::get_version(void)
+float Request::get_version(void)
 {
     return _protocol_version;
 }
 
-void    RequestHeader::debug_headers(void)
+void    Request::debug_headers(void)
 {
     std::map<std::string, std::string>::iterator it = _headers.begin();
 
@@ -230,7 +230,7 @@ void    RequestHeader::debug_headers(void)
     }
 }
 
-void    RequestHeader::get_buffer(void)
+void    Request::get_buffer(void)
 {
     std::cout << _buffer << std::endl;
 }

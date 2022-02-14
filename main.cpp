@@ -22,7 +22,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "RequestHeaderParser/RequestHeader.hpp"
+#include "Request/Request.hpp"
 #include "Response/Response.hpp"
 
 int		main(void)
@@ -44,7 +44,7 @@ int		main(void)
 
 	memset((char *)&address, 0, sizeof(address));
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr("0.0.0.0");
+	address.sin_addr.s_addr = inet_addr("127.0.0.1");
 	address.sin_port = htons(PORT);
 
 	int enable = 1;
@@ -109,7 +109,7 @@ int		main(void)
 				} else{
 					std::cout << "Existing Connection is ready for i/o fd:[" << i << "]" << std::endl; 
 					// handle connection and remove it from the fd set we're watching
-					RequestHeader	req;
+					Request	req;
 					
 					while (valread != -1){
 						char buffer[1024] = {0};
@@ -125,6 +125,7 @@ int		main(void)
 					std::cout << req.get_path() << " ";
 					std::cout << req.get_version() << std::endl;
 					req.debug_headers();
+					req.debug_query_params();
 					std::cout << std::string(40, '+') << std::endl;
 
 					// sending data

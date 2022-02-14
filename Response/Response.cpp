@@ -1,15 +1,15 @@
-// unix network programming page 61 Unix Standards
+//
 //
 //
 
 # include "Response.hpp"
 
-Response::Response(RequestHeader const &req)
+Response::Response(Request const &req)
 : _req(req), _headers(), _body(), _file_flag(0)
 {
     // std::cout << "Response::Response" << std::endl;
     if (!_req.IsFinished()){
-        /* do something */ 
+        /* request is not finished do something */ 
 
     }
 
@@ -32,6 +32,22 @@ std::string Response::extract_extension(void)
 
 std::string Response::build_response(void)
 {
+	std::string	(Response::*fptr[3])(void) = {&Response::Get, &Response::Post, &Response::Delete};
+	std::string	methods[] = {"Get", "Post", "Delete"};
+	std::string	method = _req.get_method();
+
+	(void)fptr;
+	// std::string result = this->
+	// for (int i = 0; i < 3; i++)
+	// {
+	// 	if (!method.compare(methods[i]))
+	// 		return (*fptr[i])()
+	// }
+	return Get();
+}
+
+std::string	Response::Get(void)
+{
     read_raw_file();
     prepare_headers();
 
@@ -50,6 +66,17 @@ std::string Response::build_response(void)
     response += _body;
 
     return response;
+}
+
+std::string	Response::Post(void)
+{
+
+	return "";
+}
+
+std::string Response::Delete(void)
+{
+	return "";
 }
 
 void    Response::prepare_headers(void)
@@ -84,23 +111,24 @@ void  Response::read_raw_file(void)
 	std::string		cmd = "ls -l " + path + " | awk -F ' ' '{print $5}' >" + filetoretrieve;
 	std::string		cmd2 = "rm " + filetoretrieve;
 	std::string		buff;
-	size_t		 file_size = 0;
 
-	system(cmd.c_str());
+	// size_t		 file_size = 0;
 
-	std::ifstream ifs;
+	// system(cmd.c_str());
 
-	ifs.open(filetoretrieve, std::ifstream::in);
-	std::getline(ifs, buff);
+	// std::ifstream ifs;
 
-	try{
+	// ifs.open(filetoretrieve, std::ifstream::in);
+	// std::getline(ifs, buff);
 
-		file_size = std::stoi(buff);
-	}catch(...){
-		std::cout << "hadi" << std::endl;
-	}
+	// try{
 
-	system(cmd2.c_str());
+	// 	file_size = std::stoi(buff);
+	// }catch(...){
+	// 	std::cout << "hadi" << std::endl;
+	// }
+
+	// system(cmd2.c_str());
 
 
     if ( (fd = open(path.c_str(), O_RDONLY)) < 0){

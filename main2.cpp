@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "RequestHeaderParser/RequestHeader.hpp"
+#include "RequestParser/Request.hpp"
 
 int		main(void)
 {
@@ -54,7 +54,7 @@ int		main(void)
         char buffer[1024] = {0};
         valread = read(new_socket, buffer, 1024);
 		std::string str(buffer);
-		RequestHeader	requestobj;
+		Request	requestobj;
 
 
         requestobj.Append(str);

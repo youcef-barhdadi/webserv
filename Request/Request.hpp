@@ -1,5 +1,5 @@
 //
-//  RequestHeader.hpp   7 feb 2020  ztaouil
+//  Request.hpp   7 feb 2020  ztaouil
 //
 #pragma once
 
@@ -15,12 +15,12 @@
 #include <fstream>
 #include "../utils/utils.hpp"
 
-class RequestHeader{
+class Request{
     public:
-        RequestHeader(void);
-        RequestHeader(RequestHeader const &rhs);
-        ~RequestHeader(void);
-        RequestHeader &operator= (RequestHeader const &rhs);
+        Request(void);
+        Request(Request const &rhs);
+        ~Request(void);
+        Request &operator= (Request const &rhs);
 
         class   RequestError : public std::exception{
             public:
@@ -43,12 +43,10 @@ class RequestHeader{
 
         void        ParseHeaders(void);
 
-        void        ParseVerify(void);
+        void        VerifyRequest(void);
         void        ParseQueryParams(void);
 
         bool        QueryParamsEmpty(void);
-
-		void		req_get(void);
 
         std::string get_method(void);
         std::string get_path(void);
@@ -68,6 +66,8 @@ class RequestHeader{
         size_t              _body_size;
         bool                _isFinished;
         bool                _isHeaderParsed;
+
+		
 
 		
 
