@@ -1,58 +1,78 @@
-#ifndef REQUEST_HPP
-# define REQUEST_HPP
+//
+#pragma once
 
-# include <iostream>
-# include <string>
-
+#include <ctime>
+#include <unistd.h>
+#include <sstream>
+#include <iostream>
 #include <map>
 #include <vector>
-
-
-// see this link to see why i peekup this names https://code.tutsplus.com/tutorials/http-headers-for-dummies--net-8039
-
-class Request
-{
-
-	public:
-
-		Request();
-
-		Request( std::string &  src , int connection_fd);
-		~Request();
-Request (Request const &req);
-		Request &		operator=( Request const & rhs );
-
-
-		void Parser();
-
-
-		std::string  getPath() const;
-		void	setPath(std::string path);
-
-
-		int getConnectinFD();
-
-		std::map<std::string, std::string> header;
-
-		bool	getKeepALive();
-		bool		is_finshed;
-
-	private:
-		std::string  _accetpt_languge;
-		std::string _accetpt_charset;
-		std::string  _allow;
-		std::string  _method;
-		std::string _target;
-		std::string _path;	
-		int 		connection_fd;
-		bool		keepAlive;
+#include <utility>
+#include <exception>
+#include <algorithm>
+#include <fstream>
+#include "../utilities/utilities.hpp"
 
 
 
+class Request{
+    public:
+        Request(void);
+        Request(Request const &rhs);
+        ~Request(void);
+        Request &operator= (Request const &rhs);
 
+        class   RequestError : public std::exception{
+            public:
+                virtual const char *what(void) const throw(){
+                    return "RequestError";
+                }
+        };
+        class   BadRequest : public std::exception{
+            public:
+                virtual const char *what(void) const throw(){
+                    return "BadRequest";
+                }
+        };
+
+        void        Append(std::string &Message);
+
+        bool        HeadersFinished(void);
+        bool        BodyFinished(void);
+        bool        IsFinished(void);
+
+        void        ParseHeaders(void);
+
+        void        VerifyRequest(void);
+        void        ParseQueryParams(void);
+
+        bool        QueryParamsEmpty(void);
+
+        std::string get_method(void) const;
+        std::string get_path(void) const; 
+        float       get_version(void);
+        void        debug_headers(void);
+        void        debug_query_params(void);
+		void		set_path(std::string path);
+		std::string	get_body_filename(void);
+
+        void        get_buffer(void);
+    private:
+        std::string         _buffer;
+        std::string         _method;
+        std::string         _path;
+        float               _protocol_version;
+        std::map<std::string, std::string> _headers;
+        std::map<std::string, std::string> _query_params;
+        std::string         _body_filename;
+        size_t              _body_size;
+        bool                _isFinished;
+        bool                _isHeaderParsed;
+
+		
+
+		
+
+        //
+        int          _debug;
 };
-
-std::ostream &			operator<<( std::ostream & o, Request const & i );
-std::vector<std::string> split (const std::string &s, char delim);
-
-#endif /* ********************************************************* REQUEST_H */

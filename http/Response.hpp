@@ -4,7 +4,8 @@
 # include <iostream>
 # include <string>
 # include  "./Request.hpp"
-#include <vector>
+# include <vector>
+# include "../MimeTypes/MimeTypes.h"
 
 class Response
 {
@@ -29,6 +30,13 @@ class Response
 
 		void	handlPut(Request & request);
 		std::vector<char> Get(Request  &req, fd_set set);
+
+
+
+		std::vector<char>	 POST();
+		std::vector<char>	 GET();
+		std::vector<char>	 DELETE();
+		std::vector<char>	 CGI();
 
 
 		

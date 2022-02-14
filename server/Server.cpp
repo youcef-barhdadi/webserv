@@ -54,7 +54,12 @@ void Server::create_server()
 	{
 
 		int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-		// fcntl(server_fd, F_SETFL, O_NONBLOCK);
+
+
+		int enable = 1;
+		if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+			perror("setsockopt");
+		fcntl(server_fd, F_SETFL, O_NONBLOCK);
 		assert((server_fd > 0));
 		if (server_fd < 0)
 		{

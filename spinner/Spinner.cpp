@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/13 16:44:15 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/14 21:45:32 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,7 +172,8 @@ void	Spinner::run()
 								readlen = read(connection_fd, buffer, 30000);
 								buffer[readlen] = 0;	
 								copy = std::string(buffer);
-								Request request(copy, connection_fd);
+								Request request;
+								request.Append(copy);
 								unfinshed_request.insert(std::make_pair(connection_fd, request));
 								FD_SET(connection_fd, &write_socket);
 								FileDescriptorManager::REMOVE(connection_fd);
@@ -184,9 +185,13 @@ void	Spinner::run()
 						{
 		
 							std::map<unsigned long, Request>::iterator iter = unfinshed_request.find(connection_fd);
-							std::cout <<   "======>" << iter->second.getPath() << std::endl;
+							std::cout <<   "====;;;==>" << iter->second.get_method() << std::endl;
 							Response ress(iter->second);
+							std::cout <<   "====;;;==>" << ress.request.get_method() << std::endl;
+
 							res = ress;
+							std::cout <<   "====;;;==>" << res.request.get_method() << std::endl;
+
 							unfinshed_responce.insert(std::make_pair(connection_fd, res));
 						}
 						else 
@@ -194,7 +199,7 @@ void	Spinner::run()
 							res = iter->second;
 						}
 
-				
+					std::cout << "["<< res.request.get_method() << "]["<< res.request.get_path() +"]" << std::endl;
 					std::vector<char> array  = res.serv();			
 					char *data  = array.data();
 					std::cout << "data to send" << array.size() << std::endl;;

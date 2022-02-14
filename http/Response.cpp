@@ -1,4 +1,3 @@
-#include "Response.hpp"
 #include <fstream>
 #include <filesystem>
 #include <vector>
@@ -7,8 +6,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/select.h>
-
+#include "Response.hpp"
 #include "../utilities/utilities.hpp"
+#include <cstring>
+#include <stdio.h>
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -59,8 +60,8 @@ Response &				Response::operator=( Response const & rhs )
 	this->_size = rhs._size;
 	this->is_finshed = rhs.is_finshed;
 	this->_status = rhs._status;
-	this->request.setPath(rhs.request.getPath());
-	// this->request = rhs.request;
+	// this->request.set_path(rhs.request.get_path());
+	this->request = rhs.request;
 	return *this;
 }
 
@@ -94,7 +95,7 @@ void	Response::handlPut(Request & request)
 std::string  Response::Creat_Header()
 {
 	std::string header = "HTTP/1.1 200 OK\n";
-	std::string resource =  request.getPath();
+	std::string resource =  request.get_path();
 
 	if (this->_status == 404)
 	{
@@ -103,42 +104,26 @@ std::string  Response::Creat_Header()
 		header += "\n\n";
 		return header;
 	}
+	else if (this->_status == 201)	
+	{
+		header = "HTTP/1.1 201 Created\n";
+		header += "Location: " + this->request.get_path();
+		header += "\nContent-Length: "+ std::to_string(0);
+
+		header += "\n\r\n";
+		return header;
+	}
 	else if (this->_status == 200)
 	{
 		std::string extetion = getExtension(resource);
 		std::cout  << extetion << std::endl;
 	
-		if (extetion == "css")
-		{
-			header += "Content-Type: text/css\n";
-		}
-		else if (extetion == "png")
-		{
-			header +=	"Content-Type: image/png\n";
-		}
-		else if (extetion == "jpg")
-		{
-			header +=  "Content-Type: image/jpg\n";
-		}
-		else if (extetion ==  "js")
-		{
-			header += "Content-Type: text/javascript\n";
-		}
-		else if (extetion  == "html")
-		{
-				header += "Content-Type: text/html\n";
-		}
-		else if (extetion == "mp4")
-		{
-			header += "Content-Type: video/mp4\n";
-		}
-		else {
-			header += "Content-Type: text/html\n";
-		}
+		header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
 
 		header += "Content-Length: "+ std::to_string(this->_size);
 		header += "\n\n";
 	}
+	std::cout << header << std::endl;
 	return header;
 }
 
@@ -167,28 +152,28 @@ std::string  Response::Creat_Header()
 // }
 
 
-std::vector<char> Response::Get(Request  &req, fd_set set)
-{
-	// size_t BUFFER_SIZE = 10000;
-	// char BUFEFR[BUFFER_SIZE];
-	// if (this->chanked_request == false)
-	// {
-	// 	this->requestedFileFD = open(this->req.getPath().c_str(), O_RDONLY);
-	// 	this->sizeFile = FdGetFileSize(this->requestedFileFD);
-	// 	// assert(this->requestedFileFD > 0);
-	// }
-	// // int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
-	// // BUFEFR[ret] = 0;
-	// // std::vector<char> req(BUFEFR, BUFEFR + ret);
+// std::vector<char> Response::Get(Request  &req, fd_set set)
+// {
+// 	// size_t BUFFER_SIZE = 10000;
+// 	// char BUFEFR[BUFFER_SIZE];
+// 	// if (this->chanked_request == false)
+// 	// {
+// 	// 	this->requestedFileFD = open(this->req.getPath().c_str(), O_RDONLY);
+// 	// 	this->sizeFile = FdGetFileSize(this->requestedFileFD);
+// 	// 	// assert(this->requestedFileFD > 0);
+// 	// }
+// 	// // int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
+// 	// // BUFEFR[ret] = 0;
+// 	// // std::vector<char> req(BUFEFR, BUFEFR + ret);
 
-	// if (this->sended + ret > this->sizeFile   && this->req.getKeepALive() == false)
-	// {
-	// 	close(this->requestedFileFD);
-	// 	FD_CLR(this->req.getConnectinFD(), &set);
-	// }	
+// 	// if (this->sended + ret > this->sizeFile   && this->req.getKeepALive() == false)
+// 	// {
+// 	// 	close(this->requestedFileFD);
+// 	// 	FD_CLR(this->req.getConnectinFD(), &set);
+// 	// }	
 
-	throw std::logic_error("not implemented!");
-}
+// 	throw std::logic_error("not implemented!");
+// }
 
 
 
@@ -217,30 +202,49 @@ std::vector<char> handlCgiresponse(std::string & str)
 void		serve_chanked()
 {
 	// if the size is bigger the Buffer_size 
-
-
-
-
-
-
-
 }
 
 
 
-std::vector<char>	Response::serv()
+std::vector<char>	 Response::POST()
+{	
+		std::string head_str;
+	std::string upload_dir = "upload";	// config map["image"]
+	// get path to uploading
+	std::string body_path = request.get_body_filename();
+	// copy 
+	std::cout << body_path << std::endl;
+	 rename( body_path.c_str() , (upload_dir + request.get_path()).c_str());
+	this->_status = 201;
+	head_str = Creat_Header();
+	std::vector<char> resp_vec(head_str.begin(), head_str.end());
+	return resp_vec;
+}
+
+/*
+POST /upload/hamid.jpg 
+
+location /upload root: /var/www
+
+
+/var/www/hamod
+*/
+
+std::vector<char>	 Response::GET()
 {
-	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
-
-
-	if (this->is_finshed == true)
+if (this->is_finshed == true)
 		return this->response_vec;
 
 
-	std::string resource = request.getPath();
+	std::string resource = request.get_path();
 	std::string extension = getExtension(resource);
-	// std::cout <<  "extension===>" << extension << std::endl;
-	// this means is cgi
+
+
+
+
+
+
+
 	if (extension == "pl")
 	{
 		Cgi cgi;
@@ -293,10 +297,55 @@ std::vector<char>	Response::serv()
 			this->is_finshed= true;
 			return  first;
 		}
-		exit(0);
 		// throw std::logic_error("not implemented yet !");
 
 }
+
+std::vector<char>	 Response::DELETE()
+{
+	std::vector<char> t;
+
+	return t;
+}
+
+std::vector<char>	 Response::CGI()
+{
+	std::vector<char> t;
+
+
+	return t;
+}
+
+std::vector<char>	Response::serv()
+{
+	std::cout << "oo" << request.get_method() << std::endl;
+	
+	if (this->request.get_method() ==  "POST")
+	{
+	 return 	POST();
+
+	}
+	else if (this->request.get_method() == "GET")
+	{
+		return GET();
+	}
+
+	std::cout << "error" << std::endl;
+	exit(1337);
+}
+
+
+
+
+
+
+// std::vector<char>	Response::serv()
+// {
+// 	// first we need to check if this file exist and resolve the hole path if the path like this "/v1/prodcut/imags/dilodo1337.jpg" 
+
+
+	
+// }
 
 
 /*

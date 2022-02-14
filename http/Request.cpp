@@ -1,147 +1,250 @@
+//
+//  Request.cpp   7 feb 2020  ztaouil
+//
+
 #include "Request.hpp"
-#include <vector>
-#include <sstream>
 
+Request::Request(void)
+: _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
+, _isFinished(false), _isHeaderParsed(false), _debug(0)
+{
 
-using namespace std;
+}
 
-// funcation that i will use 
+Request::~Request(void)
+{
 
-vector<string> split (const string &s, char delim) {
-    vector<string> result;
-    stringstream ss (s);
-    string item;
+}
 
-    while (getline (ss, item, delim)) {
-        result.push_back (item);
+Request::Request(Request const &rhs)
+: _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
+, _isFinished(false), _isHeaderParsed(false)
+{
+    // std::cout << "Request::Request(Request const &rhs)" << std::endl;
+    *this = rhs;
+
+}
+
+Request   &Request::operator=(Request const &rhs)
+{
+    // std::cout << "Request::operator=" << std::endl;
+    if (this != &rhs){
+        _buffer = rhs._buffer;
+        _method = rhs._method;
+        _path = rhs._path;
+        _protocol_version = rhs._protocol_version;
+        _headers = rhs._headers;
+        _query_params = rhs._query_params;
+        _body_filename = rhs._body_filename;
+        _body_size = rhs._body_size;
+        _isFinished = rhs._isFinished;
+        _isHeaderParsed = rhs._isHeaderParsed;
     }
 
-    return result;
+    _debug += 1;
+    return *this;
 }
 
-
-
-
-/*
-** ------------------------------- CONSTRUCTOR --------------------------------
-*/
-
-Request::Request()
+void    Request::Append(std::string &Message)
 {
+    _buffer += Message;
+
+    if (_isHeaderParsed == false && HeadersFinished()){
+        ParseHeaders();
+        ParseQueryParams();
+        _isHeaderParsed = true;
+    }
+
+    if (_isHeaderParsed && _headers.find("Content-Length") != _headers.end() && std::stoi(_headers["Content-Length"]) > 0)
+    {
+        _body_filename = RandString(30);
+        std::ofstream ofs (_body_filename, std::ofstream::out);
+        if (_headers["Transfer-Encoding"] == "chunked")
+        {
+            // I am supposing that the second and nth request contains only the body.
+
+            std::stringstream ss(_buffer);
+            std::string buff;
+
+            std::getline(ss, buff);
+            size_t n = HexToDec(buff);
+            if (buff == "0\r")
+                _isFinished = true;
+            while (std::getline(ss, buff) && n > _body_size)
+            {
+                ofs << ss;
+                n += buff.size();
+                if (n > _body_size)
+                    ofs << "\n";
+            }
+        }else{
+            ofs << _buffer;
+            _body_size += _buffer.size();
+            std::cout << "==>" << _body_size << std::endl;
+        }
+        _buffer.clear();
+        ofs.close();
+    }
+    else if (_headers["Transfer-Encoding"] == "chunked" && BodyFinished())
+        _isFinished = true;
+
+    if (_isFinished)
+    {
+        VerifyRequest();
+    }
 }
 
-
-
-Request::Request(Request const &req)
+bool    Request::HeadersFinished(void)
 {
-	this->is_finshed = req.is_finshed;
-	this->keepAlive = req.keepAlive;
-	this->_path = req.getPath();
+    std::stringstream ss(_buffer);
+    std::string buffer;
+    bool cond(false);
+
+    while (std::getline(ss, buffer))
+    {
+        if (buffer == "\r"){
+            cond = true;
+            break;
+        }
+    }
+    return cond;
 }
 
-Request::Request(  std::string & src  , int connection_fd)
+bool    Request::BodyFinished(void)
 {
-	// set socket fd 
-	this->connection_fd = connection_fd;
-	this->is_finshed = true;
- 	std::vector<std::string> lines =  split(src, '\n');
-	int i = 0;
-	while (i < lines.size())
-	{
-		// cout <<  "==>>>>>>>" << lines[i] << endl;
+    size_t content_length = 0;
+    if (_headers.find("Content-Length") != _headers.end())
+        content_length = std::stoi(_headers["Content-Length"]);        
 
-		// first argument is HTTP Verb  and requested resource
-		if (i == 0)
-		{
-			std::vector<std::string> words = split(lines[i], ' ');
-			this->setPath(words[1]);
-		}
-		else {
-
-			if ( lines[i].find(' ')  !=std::string::npos)
-			{
-				std::string  first = lines[i].substr(0, lines[i].find(' '));
-				first.pop_back();
-				std::string  tow = lines[i].substr(lines[i].find(' '));
-				this->header.insert(pair<std::string, std::string>( first, tow));
-				  std::map<std::string, std::string>::iterator it;
-				it = this->header.find(first);
-			}
-		}
-		i++;
-	}
-	this->is_finshed = true;
+    return content_length <= _body_size;
 }
 
-
-int Request::getConnectinFD()
+bool     Request::IsFinished(void)
 {
-	return this->connection_fd;
-
+    return _isFinished;
 }
 
-
-
-bool	Request::getKeepALive()
+void       Request::ParseHeaders(void)
 {
-	return this->keepAlive;
+    std::stringstream   ss(_buffer);
+
+    std::string buffer;
+    std::getline(ss, buffer);
+    std::vector<std::string> firstline = split(buffer, ' ');
+
+    if (firstline.size() != 3)
+        throw RequestError();
+
+    _method = firstline[0];
+	std::cout << _method << "]]]]\n";
+    _path = firstline[1];
+    _protocol_version = stof(split(firstline[2], '/')[1]);
+
+    if (_path == "/")
+        _path = "/index.html";
+
+    while (std::getline(ss, buffer))
+    {
+        if (buffer == "\r")
+            break;
+        std::vector<std::string> myvec = split(buffer, ':');
+        _headers.insert(std::make_pair(trim(myvec[0]), trim(myvec[1])));
+    }
+
+    _buffer.clear();
+    while (std::getline(ss, buffer))
+    {
+        _buffer += buffer + "\n";
+    }
+    if (!_buffer.empty())
+        _buffer.erase(_buffer.end() - 1);
 }
 
-
-
-
-
-
-/*
-** -------------------------------- DESTRUCTOR --------------------------------
-*/
-
-Request::~Request()
+void    Request::VerifyRequest(void)
 {
+    // std::cout << "Request::ParseVerify" << std::endl;
+    std::string methods[3] = {"GET", "POST", "DELETE"};
+    int found = 0;
+
+    for(int i = 0; i < static_cast<int>(sizeof(methods)/sizeof(std::string)); i++)
+        if (_method == methods[i])
+            found = 1;
+    
+    if (!found)
+		throw RequestError();
 }
 
-
-/*
-** --------------------------------- OVERLOAD ---------------------------------
-*/
-
-Request &				Request::operator=( Request const & rhs )
+void    Request::ParseQueryParams(void)
 {
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
-	return *this;
+    if (_path.find('?') != std::string::npos)
+    {
+        std::vector<std::string> myvec1 = split(_path, '?');
+        _path = myvec1[0];
+        std::vector<std::string> myvec2 = split(myvec1[1], '&');
+        size_t n = std::count(myvec1[1].begin(), myvec1[1].end(), '&');
+        if (myvec2.size() != n + 1){
+            throw BadRequest();
+        }
+        for(size_t i = 0; i < myvec2.size(); i++)
+        {
+            std::vector<std::string> myvec3 = split(myvec2[i], '=');
+            _query_params.insert(std::make_pair(myvec3[0], myvec3[1])); 
+        }
+    }
 }
 
-std::ostream &			operator<<( std::ostream & o, Request const & i )
+bool    Request::QueryParamsEmpty(void)
 {
-	//o << "Value = " << i.getValue();
-	return o;
+    if (!_query_params.size())
+        return true;
+    return false;
 }
 
-
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
-
-
-/*
-** --------------------------------- ACCESSOR ---------------------------------
-*/
-
-
-
-std::string  Request::getPath() const
+void   Request::debug_query_params(void)
 {
-	return this->_path;
+    std::cout << std::string(20, '-') << "+QUERYPARAMS+" << std::string(20, '-') << std::endl;
+    std::map<std::string, std::string>::iterator it = _query_params.begin();
+    for(; it != _query_params.end(); it++){
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
 }
 
-
-void	 Request::setPath(std::string path)
+std::string Request::get_method(void) const
 {
-	this->_path = path;
+    return _method;
+}
+
+std::string Request::get_path(void) const
+{
+    return _path;
+}
+
+float Request::get_version(void)
+{
+    return _protocol_version;
+}
+
+void    Request::debug_headers(void)
+{
+    std::map<std::string, std::string>::iterator it = _headers.begin();
+
+    for(; it != _headers.end(); it++){
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+}
+
+void    Request::get_buffer(void)
+{
+    std::cout << _buffer << std::endl;
 }
 
 
-/* ************************************************************************** */
+void		Request::set_path(std::string path)
+{
+		this->_path = path;
+}
+
+std::string	Request::get_body_filename(void)
+{
+	return _body_filename;
+}
