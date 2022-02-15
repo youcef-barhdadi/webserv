@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/15 22:36:59 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/15 22:42:11 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,35 +169,38 @@ void	Spinner::run()
 								unfinshed_request.insert(std::make_pair(connection_fd, request));
 								FD_SET(connection_fd, &write_socket);
 								FileDescriptorManager::REMOVE(connection_fd);
+								continue ;  // one read or write per cycle
 							}
-							continue ;
 						}
-						std::map<unsigned long, Response *>::iterator iter = unfinshed_responce.find(connection_fd);
-						Response *res;
-						if (iter == unfinshed_responce.end())
+						if (FD_ISSET(connection_fd, &write_socket))
 						{
-							std::map<unsigned long, Request *>::iterator iter = unfinshed_request.find(connection_fd);
-							res  =  new Response(iter->second);
-							unfinshed_responce.insert(std::make_pair(connection_fd, res));
-						}
-						else 
-						{
-							res = iter->second;
-						}
+							std::map<unsigned long, Response *>::iterator iter = unfinshed_responce.find(connection_fd);
+							Response *res;
+							if (iter == unfinshed_responce.end())
+							{
+								std::map<unsigned long, Request *>::iterator iter = unfinshed_request.find(connection_fd);
+								res  =  new Response(iter->second);
+								unfinshed_responce.insert(std::make_pair(connection_fd, res));
+							}
+							else 
+							{
+								res = iter->second;
+							}
 
-					std::vector<char> array  = res->serv();			
-					char *data  = array.data();
-					signal(SIGPIPE, SIG_IGN);
-					res->bytes_sent += write(connection_fd, data + res->bytes_sent ,getsize(array.size() - res->bytes_sent));
-					signal(SIGPIPE, SIG_DFL);
-			
-					if (res->bytes_sent == array.size())
-					{
-						std::cout << "end" << std::endl;
-						unfinshed_responce.erase(connection_fd);
-						unfinshed_request.erase(connection_fd);
-						FD_CLR(connection_fd, &write_socket);
-					}
+							std::vector<char> array  = res->serv();			
+							char *data  = array.data();
+							signal(SIGPIPE, SIG_IGN);
+							res->bytes_sent += write(connection_fd, data + res->bytes_sent ,getsize(array.size() - res->bytes_sent));
+							signal(SIGPIPE, SIG_DFL);
+				
+							if (res->bytes_sent == array.size())
+							{
+								std::cout << "end" << std::endl;
+								unfinshed_responce.erase(connection_fd);
+								unfinshed_request.erase(connection_fd);
+								FD_CLR(connection_fd, &write_socket);
+							}
+						}
 				}
 			}
 		}
