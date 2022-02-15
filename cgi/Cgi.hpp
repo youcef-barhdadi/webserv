@@ -18,7 +18,7 @@ class Cgi
 
 		Cgi &		operator=( Cgi const & rhs );
 		
-		std::string	 startCgi(Request &request);
+		std::string	 startCgi(Request *request);
 
 
 	private:

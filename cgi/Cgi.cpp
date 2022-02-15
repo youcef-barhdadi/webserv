@@ -54,7 +54,7 @@ std::ostream &			operator<<( std::ostream & o, Cgi const & i )
 */
 
 
-std::string		Cgi::startCgi(Request &request)
+std::string		Cgi::startCgi(Request *request)
 {	
 	
 		int pip[2];
@@ -74,7 +74,7 @@ std::string		Cgi::startCgi(Request &request)
 
 	if (pid == 0)
 	{
-		std::string new_stg = request.get_path().erase(0,1);
+		std::string new_stg = request->get_path().erase(0,1);
 		std::cout <<new_stg << std::endl;
 		const char *s =new_stg.c_str();
 		// dup2(fd, 1);

@@ -30,13 +30,13 @@ Response::Response()
 
 
 }
-Response::Response(Request & req ) : request(req)
+Response::Response(Request * req )
 // 	// this->chanked_request = false;
 {
 
 // 	// this->is_finshed = true;
 
-
+	this->request = req;
 	this->bytes_sent = 0;
 	this->is_finshed = false;
 }
@@ -95,7 +95,7 @@ void	Response::handlPut(Request & request)
 std::string  Response::Creat_Header()
 {
 	std::string header = "HTTP/1.1 200 OK\n";
-	std::string resource =  request.get_path();
+	std::string resource =  request->get_path();
 
 	if (this->_status == 404)
 	{
@@ -107,7 +107,7 @@ std::string  Response::Creat_Header()
 	else if (this->_status == 201)	
 	{
 		header = "HTTP/1.1 201 Created\n";
-		header += "Location: " + this->request.get_path();
+		header += "Location: " + this->request->get_path();
 		header += "\nContent-Length: "+ std::to_string(0);
 
 		header += "\n\r\n";
@@ -211,10 +211,10 @@ std::vector<char>	 Response::POST()
 		std::string head_str;
 	std::string upload_dir = "upload";	// config map["image"]
 	// get path to uploading
-	std::string body_path = request.get_body_filename();
+	std::string body_path = request->get_body_filename();
 	// copy 
 	std::cout << body_path << std::endl;
-	 rename( body_path.c_str() , (upload_dir + request.get_path()).c_str());
+	 rename( body_path.c_str() , (upload_dir + request->get_path()).c_str());
 	this->_status = 201;
 	head_str = Creat_Header();
 	std::vector<char> resp_vec(head_str.begin(), head_str.end());
@@ -236,7 +236,7 @@ if (this->is_finshed == true)
 		return this->response_vec;
 
 
-	std::string resource = request.get_path();
+	std::string resource = request->get_path();
 	std::string extension = getExtension(resource);
 
 
@@ -317,15 +317,13 @@ std::vector<char>	 Response::CGI()
 }
 
 std::vector<char>	Response::serv()
-{
-	std::cout << "oo" << request.get_method() << std::endl;
-	
-	if (this->request.get_method() ==  "POST")
+{	
+	if (this->request->get_method() ==  "POST")
 	{
 	 return 	POST();
 
 	}
-	else if (this->request.get_method() == "GET")
+	else if (this->request->get_method() == "GET")
 	{
 		return GET();
 	}

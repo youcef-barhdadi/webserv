@@ -13,7 +13,7 @@ class Response
 	public:
 
 		Response();
-		Response(Request & req );
+		Response(Request  *req );
 		Response( Response const & src );
 		~Response();
 
@@ -48,7 +48,7 @@ class Response
 
 		size_t		bytes_sent;
 
-		Request request;
+		Request *request;
 	private:
 
 
