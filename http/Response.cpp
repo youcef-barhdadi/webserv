@@ -88,6 +88,14 @@ void	Response::handlPut(Request & request)
 }
 
 
+std::vector<char>	 AUTOINDEX(std::string path)
+{
+		if(isDirectory(path))
+		{
+			
+		}
+}
+
 
 
 

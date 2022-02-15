@@ -37,6 +37,7 @@ class Response
 		std::vector<char>	 GET();
 		std::vector<char>	 DELETE();
 		std::vector<char>	 CGI();
+		std::vector<char>	 AUTOINDEX(std::string );
 
 
 		

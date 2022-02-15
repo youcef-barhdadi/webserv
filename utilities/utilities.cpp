@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utilities.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/14 20:57:32 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/15 22:57:16 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,4 +140,34 @@ size_t     HexToDec(std::string nb)
     ss >> std::hex >> n;
     
     return n;
+}
+
+
+
+
+
+bool isDirectory(std::string path) {
+   struct stat statbuf;
+   if (stat(path.cs_str(), &statbuf) != 0)
+       return 0;
+   return S_ISDIR(statbuf.st_mode);
+}
+
+
+std::vector<FileInfo>	file_to_list(std::string path)
+{
+
+	struct dirent *info;
+	std::vector<FileInfo>	list;
+
+	dir = opendir(filename);
+	while ((info = readdir(dir)))
+	{
+			FileInfo info;
+			info.filename = info->d_name;
+			vector.push_back(info);
+	}
+
+	closedir(dir);
+	return list;
 }
