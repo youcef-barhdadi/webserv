@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/15 22:45:44 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/16 22:55:46 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ void	Spinner::run()
     socklen_t addrlen;
     size_t  readlen;
 	char buffer[30000] = {0};
+   struct timeval      timeout;
 
 	std::map<unsigned long , Request*>  unfinshed_request;
 	std::map<unsigned long , Response*>  unfinshed_responce;
@@ -111,23 +112,33 @@ void	Spinner::run()
 	FileDescriptorManager::CLEAN();
 
 	
-	this->_servers[0]->create_server();
- 	unsigned	int maxfd = 0;
 
-	for (size_t i = 0; i < this->_servers[0]->socket_fd.size(); i++)
+	for(size_t i=0; i < this->_servers.size(); i++)
+	{
+		this->_servers[i]->create_server();
+	}
+	
+ 	unsigned	int maxfd = 0;
+	std::vector<unsigned int> listOfFd;
+	for (size_t i = 0; i < this->_servers.size(); i++)
 	{	
-			// FD_SET(this->_servers[0]->socket_fd[i], &current_socket);
-			FileDescriptorManager::ADD(this->_servers[0]->socket_fd[i]);
-			maxfd = std::max(maxfd, this->_servers[0]->socket_fd[i] );
+		for(size_t j = 0; j < this->_servers[i]->socket_fd.size(); j++)
+		{
+			FileDescriptorManager::ADD(this->_servers[i]->socket_fd[j]);
+
+			listOfFd.push_back(this->_servers[i]->socket_fd[j]);
+			maxfd = std::max(maxfd, this->_servers[i]->socket_fd[j] );
+		}		
 	}
 
+	std::cout << "size of " << listOfFd.size() << std::endl;
 	while (true)
-	{	
+	{
+		   timeout.tv_sec  =10;
+   			timeout.tv_usec = 0;
 
 		ready_socket = FileDescriptorManager::set;
-		current_socket =write_socket;
-
-			std::cout << "strat " << std::endl;
+		current_socket = write_socket;
 		if (select((int)maxfd +1, &ready_socket, &current_socket, NULL, NULL) < 0)
 		{
 			assert(true);
@@ -135,15 +146,17 @@ void	Spinner::run()
 			exit(0);
 		}
 
+		std::cout << "select return " << std::endl;
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
-
+					
 			if (FD_ISSET(connection_fd, &ready_socket)  || FD_ISSET(connection_fd, &current_socket))
-			{			
+			{
 				// this new connection
-				if (std::count(this->_servers[0]->socket_fd.begin(), this->_servers[0]->socket_fd.end() , connection_fd) )
+				if (std::count(listOfFd.begin(), listOfFd.end() , connection_fd) )
 				{
 					int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
+					fcntl(new_socket, F_SETFL, O_NONBLOCK);
 					if (new_socket < 0)
 					{
 						perror("in accrpt");
@@ -154,7 +167,7 @@ void	Spinner::run()
 				}
 				else
 				{
-
+						std::cout << "connection " << connection_fd << std::endl;
 						std::map<unsigned long , Request*>::iterator iterReq = unfinshed_request.find(connection_fd);
 						std::string copy;
 						if (iterReq == unfinshed_request.end())
@@ -162,13 +175,24 @@ void	Spinner::run()
 							if (FD_ISSET(connection_fd, &ready_socket))
 							{
 								readlen = read(connection_fd, buffer, 30000);
-								buffer[readlen] = 0;	
+								if (readlen == 0 || readlen == -1)
+								{	
+									close(connection_fd);
+									// exit(0);
+									FileDescriptorManager::REMOVE(connection_fd);
+									continue ;
+								}else
+									buffer[readlen] = 0;	
 								copy = std::string(buffer);
 								Request *request = new Request();
 								request->Append(copy);
+								// {÷
+								// if (request->IsFinished())
+									FD_SET(connection_fd, &write_socket);
+									// FileDescriptorManager::REMOVE(connection_fd);
+								// }															
 								unfinshed_request.insert(std::make_pair(connection_fd, request));
-								FD_SET(connection_fd, &write_socket);
-								FileDescriptorManager::REMOVE(connection_fd);
+
 								continue ;  // one read or write per cycle
 							}
 						}
@@ -189,9 +213,27 @@ void	Spinner::run()
 
 							std::vector<char> array  = res->serv();			
 							char *data  = array.data();
-							signal(SIGPIPE, SIG_IGN);
-							res->bytes_sent += write(connection_fd, data + res->bytes_sent ,getsize(array.size() - res->bytes_sent));
-							signal(SIGPIPE, SIG_DFL);
+							// signal(SIGPIPE, SIG_IGN);
+							int writing = 0;
+							errno = 0;
+
+							writing= write(connection_fd, data + res->bytes_sent ,getsize(array.size() - res->bytes_sent));
+							std::cout <<connection_fd << std::endl;
+							perror("hello ");
+							// signal(SIGPIPE, SIG_DFL);
+							if ( writing == 0 || writing == -1)
+							{
+								close(connection_fd);
+								close(connection_fd);
+								FD_CLR(connection_fd, &write_socket);
+								unfinshed_responce.erase(connection_fd);
+								FileDescriptorManager::REMOVE(connection_fd);
+	
+								unfinshed_request.erase(connection_fd);
+							}
+							
+							 std::cout << "=="  << writing << std::endl;
+							res->bytes_sent += writing;
 				
 							if (res->bytes_sent == array.size())
 							{
@@ -199,6 +241,8 @@ void	Spinner::run()
 								unfinshed_responce.erase(connection_fd);
 								unfinshed_request.erase(connection_fd);
 								FD_CLR(connection_fd, &write_socket);
+								FileDescriptorManager::REMOVE(connection_fd);
+								close(connection_fd);
 							}
 						}
 				}

@@ -1,24 +1,21 @@
-#ifndef CONFIG_HPP
-# define CONFIG_HPP
+//
+//
+//
 
-# include <iostream>
-# include <string>
+#pragma once
 
-class Config
-{
+#include "../server/Server.hpp"
+#include "../utilities/utilities.hpp"
+#include <fstream>
 
+class Config{
 	public:
+		Config(void);
+		~Config(void);
 
-		Config();
-		Config( Config const & src );
-		~Config();
+		void	Parse(std::string filename);
 
-		Config &		operator=( Config const & rhs );
-
+		std::vector<Server> &get_servers(void);
 	private:
-
+		std::vector<Server> _servers;
 };
-
-std::ostream &			operator<<( std::ostream & o, Config const & i );
-
-#endif /* ********************************************************** CONFIG_H */

@@ -353,8 +353,8 @@ std::vector<char>	Response::serv()
 			return  AUTOINDEX(this->request->get_path()); 
 		return GET();
 	}
-
-	std::cout << "error" << std::endl;
+	std::cout << "error >> " << std::endl;
+		// return GET();
 	exit(1337);
 }
 
