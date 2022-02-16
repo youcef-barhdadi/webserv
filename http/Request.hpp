@@ -13,6 +13,9 @@
 #include <fstream>
 #include "../utilities/utilities.hpp"
 
+#include "../server/Server.hpp"
+
+
 
 
 class Request{
@@ -57,6 +60,10 @@ class Request{
 		std::string	get_body_filename(void);
 
         void        get_buffer(void);
+
+        void        set_server(Server *server);
+
+        Server       *_server;
     private:
         std::string         _buffer;
         std::string         _method;

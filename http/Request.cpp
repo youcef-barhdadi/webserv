@@ -248,3 +248,11 @@ std::string	Request::get_body_filename(void)
 {
 	return _body_filename;
 }
+
+
+
+
+void      Request::set_server(Server *server)
+{
+    
+}

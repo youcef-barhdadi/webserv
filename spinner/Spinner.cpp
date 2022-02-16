@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/16 22:55:46 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/16 23:03:54 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,12 @@ size_t		getsize(size_t size)
 
 
 
+
+
+void		parseKeepAlive(std::string str)
+{
+	
+}
 
 
 void	Spinner::run()

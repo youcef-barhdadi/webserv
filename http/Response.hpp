@@ -49,7 +49,8 @@ class Response
 
 		size_t		bytes_sent;
 
-		Request *request;
+		Request	*request;
+
 	private:
 
 

@@ -343,6 +343,7 @@ std::vector<char>	 Response::CGI()
 
 std::vector<char>	Response::serv()
 {
+	this->request->debug_headers();
 	if (this->request->get_method() ==  "POST")
 	{
 	 	return 	POST();
