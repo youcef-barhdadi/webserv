@@ -147,7 +147,14 @@ void  Response::read_raw_file(void)
     
 }
 
+/*
+	url /kapouet root to /var/www
+
+	if url /kapiet/toto/pouet is /var/www/toto/pouet
+*/
+
 void				Response::verifyRequest(void)
 {
-	_servers[0].debug();
+	std::string req_path = _req.get_path();
+	
 }
