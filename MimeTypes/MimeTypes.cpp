@@ -10,6 +10,7 @@ const char* MimeTypes::getType(const char * extension)  {
     extension++;
   }
 
+
   int min = 0;
   int max = (sizeof(types) / sizeof(*types) - 1);
 
@@ -26,7 +27,7 @@ const char* MimeTypes::getType(const char * extension)  {
     }
   }
 
-  return NULL;
+  return "text/plain";
 }
 
 const char* MimeTypes::getExtension(const char * type, int skip)  {

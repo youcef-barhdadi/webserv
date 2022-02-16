@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:09 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/15 22:55:22 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/16 00:11:14 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,20 @@
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
-
 # include <vector>
 # include <sstream>
 # include <string>
 # include <ctime>
 # include <unistd.h>
-
+#include <sys/types.h>
+#include <dirent.h>
 
 
 typedef struct ss{
-    bool    isDir;
-    std::string fileName;
-    long    date;
+    bool                 isDir;
+    std::string         fileName;
+    std::string         date;
+    std::string         size;
 }   FileInfo;
 
 
@@ -55,3 +56,4 @@ size_t     HexToDec(std::string nb);
 
 
 bool isDirectory(std::string path);
+std::vector<FileInfo>	getListOfFiles(std::string path);

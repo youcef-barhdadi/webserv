@@ -88,12 +88,36 @@ void	Response::handlPut(Request & request)
 }
 
 
-std::vector<char>	 AUTOINDEX(std::string path)
+std::vector<char>  Response::AUTOINDEX(std::string path)
 {
+		std::string body = "<html lang='en'>\n<head>\n<title>Document</title>\n</head>\n<body>\n<h1>Index OF "+ path+ " </h1>\n<br>\n<table width=\"100%\">\n";
+		std::string  header;
+			std::string s = path[0] == '/' ? path.erase(0,1) : path; 
 		if(isDirectory(path))
 		{
-			
+				std::vector<FileInfo> fileInfoList = getListOfFiles(path);
+
+
+				for(size_t i = 0; i < fileInfoList.size(); i++)
+				{
+					std::string td = "<tr><td width=\"50%\"> <a href=\"/"+ s + "/"+ fileInfoList[i].fileName +"\"> "+fileInfoList[i].fileName + "</a></td>"  ;
+					body+= td;
+						td  = "<td width=\"25%\">"+ fileInfoList[i].date + "</td>"  ;
+						body += td;
+						td = "<td width=\"25%\">"+ (fileInfoList[i].size)+"</td></tr>"  ;
+						body += td;
+
+				}
+				body +=  "</tbale></body></html>";
 		}
+
+		header = "HTTP/1.1 200 Ok\n";
+		header += "Content-Length: "+ std::to_string(body.size());
+		header += "\n\n";
+		header += body;
+		std::cout << header << std::endl;
+		std::vector<char> resp(header.begin(), header.end());
+		return resp;
 }
 
 
@@ -108,6 +132,7 @@ std::string  Response::Creat_Header()
 	if (this->_status == 404)
 	{
 		header = "HTTP/1.1  404 Not found \n";
+		std::cout <<  "size " << this->_size << std::endl;
 		header += "Content-Length: "+ std::to_string(this->_size);
 		header += "\n\n";
 		return header;
@@ -126,6 +151,7 @@ std::string  Response::Creat_Header()
 		std::string extetion = getExtension(resource);
 		std::cout  << extetion << std::endl;
 	
+		std::cout << "extetion.c_str() . "  << extetion.c_str() << std::endl;
 		header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
 
 		header += "Content-Length: "+ std::to_string(this->_size);
@@ -240,19 +266,10 @@ location /upload root: /var/www
 
 std::vector<char>	 Response::GET()
 {
-if (this->is_finshed == true)
+	if (this->is_finshed == true)
 		return this->response_vec;
-
-
 	std::string resource = request->get_path();
 	std::string extension = getExtension(resource);
-
-
-
-
-
-
-
 	if (extension == "pl")
 	{
 		Cgi cgi;
@@ -325,14 +342,15 @@ std::vector<char>	 Response::CGI()
 }
 
 std::vector<char>	Response::serv()
-{	
+{
 	if (this->request->get_method() ==  "POST")
 	{
-	 return 	POST();
-
+	 	return 	POST();
 	}
 	else if (this->request->get_method() == "GET")
 	{
+		if (isDirectory(this->request->get_path()))
+			return  AUTOINDEX(this->request->get_path()); 
 		return GET();
 	}
 

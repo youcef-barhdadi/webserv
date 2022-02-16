@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/15 22:57:16 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/16 01:23:36 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,28 +146,76 @@ size_t     HexToDec(std::string nb)
 
 
 
+
+
+std::string get_time(time_t unix_timestamp)
+{
+char time_buf[80];
+struct tm ts;
+ts = *localtime(&unix_timestamp);
+strftime(time_buf, sizeof(time_buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
+
+	return std::string(time_buf);
+}
+
+std::string	readable_fs(double size/*in bytes*/) {
+    int i = 0;
+	char buf[30];
+    const char* units[] = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+    while (size > 1024) {
+        size /= 1024;
+        i++;
+    }
+    sprintf(buf, "%.*f %s", i, size, units[i]);
+    return  std::string(buf);
+}
+
+
 bool isDirectory(std::string path) {
+
+	
    struct stat statbuf;
-   if (stat(path.cs_str(), &statbuf) != 0)
+
+   		std::string s = path[0] == '/' ? path.erase(0,1) : path; 
+   if (stat(s.c_str(), &statbuf) != 0)
        return 0;
    return S_ISDIR(statbuf.st_mode);
 }
 
 
-std::vector<FileInfo>	file_to_list(std::string path)
+std::vector<FileInfo>	getListOfFiles(std::string path)
 {
 
 	struct dirent *info;
 	std::vector<FileInfo>	list;
-
-	dir = opendir(filename);
+	DIR *dir;
+	std::string s = path[0] == '/' ? path.erase(0,1) : path; 
+	dir = opendir(s.c_str());
 	while ((info = readdir(dir)))
 	{
-			FileInfo info;
-			info.filename = info->d_name;
-			vector.push_back(info);
+			FileInfo obj;
+			obj.fileName = info->d_name;
+			obj.isDir = isDirectory(obj.fileName);
+			struct stat result;
+			if(stat(obj.fileName.c_str(), &result)==0)
+			{
+				obj.date = get_time(result.st_mtime);
+				obj.size =  readable_fs(result.st_size);
+
+			}
+			list.push_back(obj);
 	}
 
 	closedir(dir);
 	return list;
 }
+
+// int main()
+// {
+// 		std::vector<FileInfo>		 list = getListOfFiles(".");
+
+// 		for (int i = 0; i < list.size(); i++)
+// 		{
+// 			std::cout << list[i].fileName << " " << list[i].isDir  <<  " "  <<  list[i].date <<  " "  <<  list[i].size <<  std::endl;
+// 		}
+// }
