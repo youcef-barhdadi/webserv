@@ -64,13 +64,18 @@ void    Request::Append(std::string &Message)
             std::stringstream ss(_buffer);
             std::string buff;
 
+			std::cout << std::string(100, '+') << std::endl;
+			std::cout << _buffer << std::endl;
+			std::cout << std::string(100, '+') << std::endl;
             std::getline(ss, buff);
+			std::cout << std::string(60, '=') << buff << std::endl;
             size_t n = ft::HexToDec(buff);
             if (buff == "0\r")
                 _isFinished = true;
-            while (std::getline(ss, buff) && n > _body_size)
+            while (n > _body_size && std::getline(ss, buff))
             {
-                ofs << ss;
+				std::cout << std::string(60, '=') << buff << std::endl;
+                ofs << buff;
                 n += buff.size();
                 if (n > _body_size)
                     ofs << "\n";

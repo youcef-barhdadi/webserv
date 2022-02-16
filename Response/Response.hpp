@@ -9,12 +9,15 @@
 # include <memory>
 # include "../Request/Request.hpp"
 # include "MimeTypes/MimeTypes.h"
+# include "../Server/Config.hpp"
 
 
 class Response{
 public:
-	Response(Request const &req);
+	Response(Request const &req, std::vector<Server> &servers);
 	~Response(void);
+
+	void				verifyRequest(void);
 
 	void				prepare_headers(void);
 
@@ -36,4 +39,5 @@ private:
 	std::string  _body;
 
 	int			_file_flag;
+	std::vector<Server> &_servers;
 };

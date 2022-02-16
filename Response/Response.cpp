@@ -4,14 +4,15 @@
 
 # include "Response.hpp"
 
-Response::Response(Request const &req)
-: _req(req), _headers(), _body(), _file_flag(0)
+Response::Response(Request const &req, std::vector<Server> &servers)
+: _req(req), _headers(), _body(), _file_flag(0), _servers(servers)
 {
     // std::cout << "Response::Response" << std::endl;
     if (!_req.IsFinished()){
         /* request is not finished do something */ 
 
     }
+	verifyRequest();
 
 }
 
@@ -144,4 +145,9 @@ void  Response::read_raw_file(void)
     }
 	// std::cerr << "I'm just reading " << _body.size() << std::endl;
     
+}
+
+void				Response::verifyRequest(void)
+{
+	_servers[0].debug();
 }

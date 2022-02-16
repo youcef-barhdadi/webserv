@@ -25,8 +25,16 @@
 #include "Request/Request.hpp"
 #include "Response/Response.hpp"
 
-int		main(void)
+int		main(int ac, char **av)
 {
+	if (ac != 2)
+		return 1;
+	Config config;
+	std::string config_file = std::string(av[1]);
+
+	config.Parse(config_file);
+
+	std::vector<Server> servers = config.get_servers();
 	int	server_fd = 0;
 	int valread = 0;
 	const int PORT = 1339;
@@ -129,7 +137,7 @@ int		main(void)
 					std::cout << std::string(40, '+') << std::endl;
 
 					// sending data
-					Response		res(req);
+					Response		res(req, servers);
 
 					std::string response = res.build_response();
 					std::cout << std::string(40, '-') << std::endl;

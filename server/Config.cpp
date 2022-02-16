@@ -35,10 +35,12 @@ jump:
 			Server			serverbuff;
 			buffer = buffer.substr(1, buffer.size()-2);
 			serverbuff.set_server_name(buffer);
-			while(std::getline(ifs, buffer) && buffer[0]!='[' && buffer[buffer.size()-1]!=']')
+			while(std::getline(ifs, buffer))
 			{
 				if (buffer[0] == '#' || !buffer.size())
 					continue ;
+				if (buffer[0]=='[' && buffer[buffer.size()-1]==']')
+					break ;
 				buffer = buffer.substr(0, buffer.find('#'));
 				std::vector<std::string> vec = ft::split(buffer, ' ');
 
@@ -134,7 +136,7 @@ jump:
 					// redirect location
 					serverbuff.set_locations(loc);
 				}
-				std::cout << buffer << "[" << buffer.size() << "]" << std::endl;
+				// std::cout << buffer << "[" << buffer.size() << "]" << std::endl;
 			}
 			_servers.push_back(serverbuff);
 			if (buffer.size() > 2 && buffer[0] == '[' && buffer[buffer.size()-1] == ']')
