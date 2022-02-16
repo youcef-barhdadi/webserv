@@ -8,7 +8,7 @@
 # include <stdlib.h>
 # include <memory>
 # include "../Request/Request.hpp"
-# include "MimeTypes/MimeTypes.hpp"
+# include "MimeTypes/MimeTypes.h"
 # include "../Server/Config.hpp"
 
 
