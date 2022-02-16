@@ -44,7 +44,7 @@ int		main(void)
 
 	memset((char *)&address, 0, sizeof(address));
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr("127.0.0.1");
+	address.sin_addr.s_addr = inet_addr("0.0.0.0");
 	address.sin_port = htons(PORT);
 
 	int enable = 1;
