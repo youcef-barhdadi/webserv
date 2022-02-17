@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/16 23:03:54 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/17 22:52:51 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,12 +192,13 @@ void	Spinner::run()
 								copy = std::string(buffer);
 								Request *request = new Request();
 								request->Append(copy);
-								// {÷
-								// if (request->IsFinished())
+								if (request->IsFinished() == true)
+								{
+									unfinshed_request.insert(std::make_pair(connection_fd, request));
 									FD_SET(connection_fd, &write_socket);
-									// FileDescriptorManager::REMOVE(connection_fd);
-								// }															
-								unfinshed_request.insert(std::make_pair(connection_fd, request));
+									FileDescriptorManager::REMOVE(connection_fd);
+								}else 														
+									unfinshed_request.insert(std::make_pair(connection_fd, request));
 
 								continue ;  // one read or write per cycle
 							}
@@ -219,14 +220,14 @@ void	Spinner::run()
 
 							std::vector<char> array  = res->serv();			
 							char *data  = array.data();
-							// signal(SIGPIPE, SIG_IGN);
 							int writing = 0;
 							errno = 0;
+							signal(SIGPIPE, SIG_IGN);
 
 							writing= write(connection_fd, data + res->bytes_sent ,getsize(array.size() - res->bytes_sent));
+							signal(SIGPIPE, SIG_DFL);
 							std::cout <<connection_fd << std::endl;
 							perror("hello ");
-							// signal(SIGPIPE, SIG_DFL);
 							if ( writing == 0 || writing == -1)
 							{
 								close(connection_fd);
@@ -243,12 +244,18 @@ void	Spinner::run()
 				
 							if (res->bytes_sent == array.size())
 							{
-								std::cout << "end" << std::endl;
 								unfinshed_responce.erase(connection_fd);
 								unfinshed_request.erase(connection_fd);
-								FD_CLR(connection_fd, &write_socket);
-								FileDescriptorManager::REMOVE(connection_fd);
-								close(connection_fd);
+								if (res->request->HasHeader("Connection", "keep-alive") == false)
+								{
+									FD_CLR(connection_fd, &write_socket);
+									FileDescriptorManager::REMOVE(connection_fd);
+									close(connection_fd);
+								}else {
+																		FileDescriptorManager::ADD(connection_fd);
+									FD_CLR(connection_fd, &write_socket);
+
+								}
 							}
 						}
 				}

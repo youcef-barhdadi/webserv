@@ -42,8 +42,7 @@ class Request{
 
         bool        HeadersFinished(void);
         bool        BodyFinished(void);
-        bool        IsFinished(void);
-
+        bool        IsFinished(void) const;
         void        ParseHeaders(void);
 
         void        VerifyRequest(void);
@@ -62,6 +61,9 @@ class Request{
         void        get_buffer(void);
 
         void        set_server(Server *server);
+
+
+        bool        HasHeader(std::string header,  std::string value);
 
         Server       *_server;
     private:

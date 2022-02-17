@@ -18,7 +18,7 @@ Request::~Request(void)
 
 Request::Request(Request const &rhs)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
-, _isFinished(false), _isHeaderParsed(false)
+, _isFinished(rhs.IsFinished()), _isHeaderParsed(false)
 {
     // std::cout << "Request::Request(Request const &rhs)" << std::endl;
     *this = rhs;
@@ -85,7 +85,7 @@ void    Request::Append(std::string &Message)
         _buffer.clear();
         ofs.close();
     }
-    else if (_headers["Transfer-Encoding"] == "chunked" && BodyFinished())
+    else if (_headers["Transfer-Encoding"] != "chunked" && BodyFinished())
         _isFinished = true;
 
     if (_isFinished)
@@ -119,7 +119,7 @@ bool    Request::BodyFinished(void)
     return content_length <= _body_size;
 }
 
-bool     Request::IsFinished(void)
+bool     Request::IsFinished(void) const
 {
     return _isFinished;
 }
@@ -255,4 +255,16 @@ std::string	Request::get_body_filename(void)
 void      Request::set_server(Server *server)
 {
     
+}
+
+
+bool        Request::HasHeader(std::string header,  std::string value)
+{
+    std::map<std::string, std::string>::iterator iter = this->_headers.find(header);
+
+    if (iter == this->_headers.end())
+        return false;
+    if (iter->second == value)
+        return true;
+    return false;
 }
