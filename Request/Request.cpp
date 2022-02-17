@@ -142,8 +142,8 @@ void       Request::ParseHeaders(void)
     _path = firstline[1];
     _protocol_version = stof(ft::split(firstline[2], '/')[1]);
 
-    if (_path == "/")
-        _path = "/index.html";
+    // if (_path == "/")
+    //     _path = "/index.html";
 
     while (std::getline(ss, buffer))
     {
@@ -239,3 +239,15 @@ void    Request::get_buffer(void)
 {
     std::cout << _buffer << std::endl;
 }
+
+
+/*
+	config 
+
+	loc /student1
+	loc /student1/student2
+
+
+	
+
+*/

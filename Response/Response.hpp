@@ -14,7 +14,7 @@
 
 class Response{
 public:
-	Response(Request const &req, std::vector<Server> &servers);
+	Response(Request const &req, Server const &servers);
 	~Response(void);
 
 	void				verifyRequest(void);
@@ -39,5 +39,5 @@ private:
 	std::string  _body;
 
 	int			_file_flag;
-	std::vector<Server> &_servers;
+	Server const &_servers;
 };

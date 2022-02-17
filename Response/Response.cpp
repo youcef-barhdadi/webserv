@@ -4,7 +4,7 @@
 
 # include "Response.hpp"
 
-Response::Response(Request const &req, std::vector<Server> &servers)
+Response::Response(Request const &req, Server const &servers)
 : _req(req), _headers(), _body(), _file_flag(0), _servers(servers)
 {
     // std::cout << "Response::Response" << std::endl;
@@ -151,6 +151,8 @@ void  Response::read_raw_file(void)
 	url /kapouet root to /var/www
 
 	if url /kapiet/toto/pouet is /var/www/toto/pouet
+
+	check fir
 */
 
 void				Response::verifyRequest(void)
