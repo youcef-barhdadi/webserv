@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/17 22:52:51 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/17 23:02:57 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ void	Spinner::run()
     socklen_t addrlen;
     size_t  readlen;
 	char buffer[30000] = {0};
-   struct timeval      timeout;
+   	struct timeval      timeout;
 
 	std::map<unsigned long , Request*>  unfinshed_request;
 	std::map<unsigned long , Response*>  unfinshed_responce;
@@ -123,7 +123,6 @@ void	Spinner::run()
 	{
 		this->_servers[i]->create_server();
 	}
-	
  	unsigned	int maxfd = 0;
 	std::vector<unsigned int> listOfFd;
 	for (size_t i = 0; i < this->_servers.size(); i++)
@@ -184,7 +183,6 @@ void	Spinner::run()
 								if (readlen == 0 || readlen == -1)
 								{	
 									close(connection_fd);
-									// exit(0);
 									FileDescriptorManager::REMOVE(connection_fd);
 									continue ;
 								}else

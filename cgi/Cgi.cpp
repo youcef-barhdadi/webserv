@@ -108,8 +108,6 @@ std::string		Cgi::startCgi(Request *request)
 		}
 		std::cout << str<< std::endl;
 		return str;
-
-
 }
 
 
