@@ -162,58 +162,6 @@ std::string  Response::Creat_Header()
 }
 
 
-// std::vector<char> Response::servGet(fd_set set)
-// {
-// 	// size_t BUFFER_SIZE = 10000;
-// 	// char BUFFER[BUFFER_SIZE];
-// 	// if (this->sended == 0)
-// 	// {
-// 	// 	std::string header = Creat_Header();
-
-// 	// 	// this fd is chekcked 
-// 	// 	write(this->request.getConnectinFD(), header.c_str(), header.size());
-// 	// 	this->sended = 1;
-// 	// 	return ;
-// 	// }
-// 	// // i
-// 	// if (FD_ISSET(this-requestedFileFD, &set))
-// 	// {
-// 	// 	int ret = read(this->requestedFileFD, BUFFER, BUFFER_SIZE -1);
-// 	// 	BUFFER[ret] = '\0';
-// 	// 	write(this->request.getConnectinFD(), BUFFER, ret);
-// 	// }
-// 	throw std::logic_error("not implmented!");
-// }
-
-
-// std::vector<char> Response::Get(Request  &req, fd_set set)
-// {
-// 	// size_t BUFFER_SIZE = 10000;
-// 	// char BUFEFR[BUFFER_SIZE];
-// 	// if (this->chanked_request == false)
-// 	// {
-// 	// 	this->requestedFileFD = open(this->req.getPath().c_str(), O_RDONLY);
-// 	// 	this->sizeFile = FdGetFileSize(this->requestedFileFD);
-// 	// 	// assert(this->requestedFileFD > 0);
-// 	// }
-// 	// // int ret = read(this->requestedFileFD, &BUFEFR, BUFFER_SIZE);
-// 	// // BUFEFR[ret] = 0;
-// 	// // std::vector<char> req(BUFEFR, BUFEFR + ret);
-
-// 	// if (this->sended + ret > this->sizeFile   && this->req.getKeepALive() == false)
-// 	// {
-// 	// 	close(this->requestedFileFD);
-// 	// 	FD_CLR(this->req.getConnectinFD(), &set);
-// 	// }	
-
-// 	throw std::logic_error("not implemented!");
-// }
-
-
-
-
-
-
 std::vector<char> handlCgiresponse(std::string & str)
 {
 
@@ -302,7 +250,6 @@ std::vector<char>	 Response::GET()
 			file.close();
   		  	std::vector<char> tow= getfileRaw(resource);
 			this->_size = tow.size();
-			std::cout << "size is >> " << this->_size << std::endl;
 			responce = Creat_Header();
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
@@ -310,7 +257,8 @@ std::vector<char>	 Response::GET()
 			this->response_vec = first;
 			return first;
 		}
-		else {
+		else 
+		{
 			// this means 404
 			this->_status = 404;
   		  	std::vector<char> tow= getfileRaw("404.html");	
@@ -344,11 +292,15 @@ std::vector<char>	 Response::CGI()
 std::vector<char>	Response::serv()
 {
 	std::vector<struct location>  loc = this->request->_server->_locations;
+
+	for(size_t i = 0;  i < loc.size(); i++)
+	{
+		std::cout << "location" << loc[i].url <<  "======"<< loc[i].redirect.first  << " " << loc[i].redirect.second << std::endl;
+	}
+
 	this->request->debug_headers();
 	if (this->request->get_method() ==  "POST")
-	{
 	 	return 	POST();
-	}
 	else if (this->request->get_method() == "GET")
 	{
 		if (isDirectory(this->request->get_path()))
