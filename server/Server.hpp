@@ -52,10 +52,10 @@ class Server{
 
 		std::string _host;
 		std::vector<unsigned int>	socket_fd;
+		std::vector<location> _locations;
     private:
 		std::string			_server_name;
 		std::vector<int>		_ports;
 		std::vector<error_pages> _error_pages;
 		size_t	_client_body_size;
-		std::vector<location> _locations;
 };

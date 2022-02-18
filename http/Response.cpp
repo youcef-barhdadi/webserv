@@ -343,6 +343,7 @@ std::vector<char>	 Response::CGI()
 
 std::vector<char>	Response::serv()
 {
+	std::vector<struct location>  loc = this->request->_server->_locations;
 	this->request->debug_headers();
 	if (this->request->get_method() ==  "POST")
 	{

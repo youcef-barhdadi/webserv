@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/18 01:06:21 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/18 01:10:28 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,8 +205,10 @@ void	Spinner::run()
 									unfinshed_request.insert(std::make_pair(connection_fd, request));
 									FD_SET(connection_fd, &write_socket);
 									FileDescriptorManager::REMOVE(connection_fd);
-								}else 														
+								}else
+								{ 														
 									unfinshed_request.insert(std::make_pair(connection_fd, request));
+								}
 
 								continue ;  // one read or write per cycle
 							}
@@ -258,11 +260,13 @@ void	Spinner::run()
 								{
 									FD_CLR(connection_fd, &write_socket);
 									FileDescriptorManager::REMOVE(connection_fd);
+									socketfd_connectionfd.erase(connection_fd);
 									close(connection_fd);
 								}else {
 									std::cout << "Connection Closed "  << std::endl;
 									FileDescriptorManager::ADD(connection_fd);
 									FD_CLR(connection_fd, &write_socket);
+									
 		
 								}
 							}
