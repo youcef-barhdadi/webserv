@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/18 01:10:28 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/18 08:08:06 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,12 +130,12 @@ void	Spinner::run()
 	std::vector<unsigned int> listOfFd;
 	for (size_t i = 0; i < this->_servers.size(); i++)
 	{	
-		for(size_t j = 0; j < this->_servers[i]->socket_fd.size(); j++)
+		for(size_t j = 0; j < this->_servers[i]->get_socket_fd().size(); j++)
 		{
-			FileDescriptorManager::ADD(this->_servers[i]->socket_fd[j]);
-			serverMap.insert(std::make_pair(this->_servers[i]->socket_fd[j], this->_servers[i]));
-			listOfFd.push_back(this->_servers[i]->socket_fd[j]);
-			maxfd = std::max(maxfd, this->_servers[i]->socket_fd[j]);
+			FileDescriptorManager::ADD(this->_servers[i]->get_socket_fd()[j]);
+			serverMap.insert(std::make_pair(this->_servers[i]->get_socket_fd()[j], this->_servers[i]));
+			listOfFd.push_back(this->_servers[i]->get_socket_fd()[j]);
+			maxfd = std::max(maxfd, this->_servers[i]->get_socket_fd()[j]);
 			
 		}		
 	}
@@ -249,7 +249,7 @@ void	Spinner::run()
 								unfinshed_request.erase(connection_fd);
 							}
 							
-							 std::cout << "=="  << writing << std::endl;
+							//  std::cout << "=="  << writing << std::endl;
 							res->bytes_sent += writing;
 				
 							if (res->bytes_sent == array.size())
@@ -277,9 +277,9 @@ void	Spinner::run()
 	}
 	for (size_t i = 0; i < this->_servers.size(); i++)
 	{
-		for (size_t j = 0; j < this->_servers[i]->socket_fd.size(); j++)
+		for (size_t j = 0; j < this->_servers[i]->get_socket_fd().size(); j++)
 		{
-			close(this->_servers[0]->socket_fd[0]);
+			close(this->_servers[i]->get_socket_fd()[j]);
 		}
 		
 	}

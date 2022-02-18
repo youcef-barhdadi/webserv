@@ -1,6 +1,6 @@
 // # include "./NetWorking/Socket.hpp"
 # include "./spinner/Spinner.hpp"
-# include "./server/Server.hpp"
+# include "./Server/Server.hpp"
 # include  "./config/Config.hpp"
 
 
@@ -22,7 +22,7 @@ int     main(int ac, char **av)
     Spinner s;
 
 	for(size_t i = 0; i < servers.size(); i++){
-		std::cout << std::endl;
+		// std::cout << std::endl;
 		servers[i].debug();
         s._servers.push_back(&servers[i]);
 		

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utilities.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/16 01:23:36 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/18 06:51:02 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,8 +175,10 @@ bool isDirectory(std::string path) {
 
 	
    struct stat statbuf;
+   if (path == "/")
+	return true;
 
-   		std::string s = path[0] == '/' ? path.erase(0,1) : path; 
+   	std::string s = path[0] == '/' ? path.erase(0,1) : path; 
    if (stat(s.c_str(), &statbuf) != 0)
        return 0;
    return S_ISDIR(statbuf.st_mode);

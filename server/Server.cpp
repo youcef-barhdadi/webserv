@@ -88,7 +88,7 @@ void Server::create_server()
 			perror("error");
 			exit(0);
 		}
-		this->socket_fd.push_back(server_fd);
+		this->_socket_fd.push_back(server_fd);
 		struct  sockaddr_in address;
 		memset((char *)&address, 0, sizeof(address));
 		address.sin_family = AF_INET;
@@ -110,4 +110,35 @@ void Server::create_server()
 			return ;
 		}
 	}
+}
+
+
+std::vector<unsigned int>	&Server::get_socket_fd(void)
+{
+	return _socket_fd;
+}
+
+std::string					&Server::get_host(void)
+{
+	return _host;
+}
+std::vector<location>		&Server::get_locations(void)
+{
+	return _locations;
+}
+std::string					&Server::get_server_name(void)
+{
+	return _server_name;
+}
+std::vector<int>			&Server::get_ports(void)
+{
+	return _ports;
+}
+std::vector<error_pages>	&Server::get_error_pages(void)
+{
+	return _error_pages;
+}
+size_t						&Server::get_client_body_size(void)
+{
+	return _client_body_size;
 }

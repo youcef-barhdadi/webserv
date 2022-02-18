@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../server/Server.hpp"
+#include "../Server/Server.hpp"
 #include "../utilities/utilities.hpp"
 #include <fstream>
 

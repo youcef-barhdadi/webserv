@@ -136,7 +136,7 @@ jump:
 					// redirect location
 					serverbuff.set_locations(loc);
 				}
-				std::cout << buffer << "[" << buffer.size() << "]" << std::endl;
+				// std::cout << buffer << "[" << buffer.size() << "]" << std::endl;
 
 			}
 			_servers.push_back(serverbuff);

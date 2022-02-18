@@ -136,12 +136,11 @@ void       Request::ParseHeaders(void)
         throw RequestError();
 
     _method = firstline[0];
-	std::cout << _method << "]]]]\n";
     _path = firstline[1];
     _protocol_version = stof(split(firstline[2], '/')[1]);
 
-    if (_path == "/")
-        _path = "/index.html";
+    // if (_path == "/")
+    //     _path = "/index.html";
 
     while (std::getline(ss, buffer))
     {
@@ -262,7 +261,7 @@ bool        Request::HasHeader(std::string header,  std::string value)
 
     if (iter == this->_headers.end())
         return false;
-    std::cout << iter->first << " .====={"  << iter->second << "}" << std::endl;
+    // std::cout << iter->first << " .====={"  << iter->second << "}" << std::endl;
     if (iter->second == value)
         return true;
     return false;

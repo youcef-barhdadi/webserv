@@ -6,6 +6,7 @@
 # include  "./Request.hpp"
 # include <vector>
 # include "../MimeTypes/MimeTypes.h"
+# include <algorithm>
 
 class Response
 {
@@ -26,7 +27,7 @@ class Response
 
 
 		std::string buildResponse();
-		std::string  Creat_Header();
+		std::string  Create_Header();
 
 		void	handlPut(Request & request);
 		std::vector<char> Get(Request  &req, fd_set set);
@@ -40,7 +41,14 @@ class Response
 		std::vector<char>	 AUTOINDEX(std::string str);
 
 
+		void				find_location(void);
+		void				find_index_file(void);
 		
+
+		bool				check_methods();
+	
+		std::string		get_errorpage(int status);
+
 		bool  is_finshed;
 
 		std::vector<char> response_vec;
@@ -53,12 +61,12 @@ class Response
 
 	private:
 
-
-
-		std::vector<char> servGet();
-
+		std::vector<char> _403_error();
+		std::vector<char> _405_error();
+	
 		size_t  _size;
 		unsigned int _status;
+		std::string _indexFile;
 
 
 		/**
@@ -83,6 +91,10 @@ class Response
 		size_t sizeFile;
 
 		size_t	sended;
+
+		struct location *_mylocation;
+
+
 
 
 };

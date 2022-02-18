@@ -18,7 +18,6 @@
 
 Response::Response( const Response & rhs)
 {
-	std::cout << "cpoy " << std::endl;
 	*this= rhs;
 }
 
@@ -27,8 +26,8 @@ Response::Response()
 {
 	this->bytes_sent = 0;
 	this->is_finshed = false;
-
-
+	this->_mylocation = NULL;
+	this->_indexFile = "";
 }
 Response::Response(Request * req )
 // 	// this->chanked_request = false;
@@ -39,6 +38,8 @@ Response::Response(Request * req )
 	this->request = req;
 	this->bytes_sent = 0;
 	this->is_finshed = false;
+	this->_indexFile = "";
+		// this->_mylocation = 
 }
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -62,6 +63,8 @@ Response &				Response::operator=( Response const & rhs )
 	this->_status = rhs._status;
 	// this->request.set_path(rhs.request.get_path());
 	this->request = rhs.request;
+	this->_mylocation = rhs._mylocation;
+	this->_indexFile = rhs._indexFile;
 	return *this;
 }
 
@@ -115,7 +118,7 @@ std::vector<char>  Response::AUTOINDEX(std::string path)
 		header += "Content-Length: "+ std::to_string(body.size());
 		header += "\n\n";
 		header += body;
-		std::cout << header << std::endl;
+		// std::cout << header << std::endl;
 		std::vector<char> resp(header.begin(), header.end());
 		return resp;
 }
@@ -124,7 +127,7 @@ std::vector<char>  Response::AUTOINDEX(std::string path)
 
 
 
-std::string  Response::Creat_Header()
+std::string  Response::Create_Header()
 {
 	std::string header = "HTTP/1.1 200 OK\n";
 	std::string resource =  request->get_path();
@@ -149,15 +152,17 @@ std::string  Response::Creat_Header()
 	else if (this->_status == 200)
 	{
 		std::string extetion = getExtension(resource);
-		std::cout  << extetion << std::endl;
+		// std::cout  << extetion << std::endl;
 	
-		std::cout << "extetion.c_str() . "  << extetion.c_str() << std::endl;
+		// std::cout << "extetion.c_str() . "  << extetion.c_str() << std::endl;
 		header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
 
 		header += "Content-Length: "+ std::to_string(this->_size);
 		header += "\n\n";
 	}
-	std::cout << header << std::endl;
+	// else if (this->_status == 403)
+		
+	// std::cout << header << std::endl;
 	return header;
 }
 
@@ -195,10 +200,10 @@ std::vector<char>	 Response::POST()
 	// get path to uploading
 	std::string body_path = request->get_body_filename();
 	// copy 
-	std::cout << body_path << std::endl;
+	// std::cout << body_path << std::endl;
 	 rename( body_path.c_str() , (upload_dir + request->get_path()).c_str());
 	this->_status = 201;
-	head_str = Creat_Header();
+	head_str = Create_Header();
 	std::vector<char> resp_vec(head_str.begin(), head_str.end());
 	return resp_vec;
 }
@@ -236,7 +241,7 @@ std::vector<char>	 Response::GET()
 	}
 	// std::cout << resource << std::endl;
 		std::string  responce;
-		// responce = Creat_Header(request, resource);
+		// responce = Createe_Header(request, resource);
 		std::string  str;
 		std::string  body = "";
 		std::streampos size;
@@ -250,7 +255,7 @@ std::vector<char>	 Response::GET()
 			file.close();
   		  	std::vector<char> tow= getfileRaw(resource);
 			this->_size = tow.size();
-			responce = Creat_Header();
+			responce = Create_Header();
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
 			this->is_finshed = true;
@@ -263,7 +268,7 @@ std::vector<char>	 Response::GET()
 			this->_status = 404;
   		  	std::vector<char> tow= getfileRaw("404.html");	
 			this->_size = tow.size();
-			responce = Creat_Header();
+			responce = Create_Header();
   		  	std::vector<char> first(responce.begin(), responce.end());
 			first.insert(first.end(), tow.begin(), tow.end());
 			response_vec = first;
@@ -289,22 +294,90 @@ std::vector<char>	 Response::CGI()
 	return t;
 }
 
+
+std::string		Response::get_errorpage(int status)
+{
+	std::vector<error_pages> err_pages = this->request->_server->get_error_pages();
+	std::string			path = "";
+	
+	for (size_t i = 0; i < err_pages.size(); i++)
+	{
+		if (std::count(err_pages[i].status_codes.begin(), err_pages[i].status_codes.end(), status) != 0)
+		{
+			path = err_pages[i].root;
+			break;
+		}
+	}
+	return path;
+	
+}
+
+
+std::vector<char> Response::_403_error()
+{
+	std::cout << get_errorpage(403) << std::endl;
+
+
+	std::string l = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\nContent-Length: 106\n\r\n<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>";
+	std::vector<char> res_vec(l.begin(), l.end());
+
+	return res_vec;
+}
+
+std::vector<char> Response::_405_error()
+{
+	std::string path =  get_errorpage(405);
+	std::string header = "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/html\n";
+	if (path.size() == 0)
+	{
+		std::string ll = "Content-Length: 125\n\r\n<html><head><title>405 Method Not Allowed</title></head><body><center><h1>405  Method Not Allowed</h1></center></body></html>";
+		std::string l = header + ll;
+		std::vector<char> res_vec(l.begin(), l.end());
+		return res_vec;
+	}
+	std::vector<char> file_vec = getfileRaw(path + "/405.html");
+
+	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
+
+	std::vector<char> return_vec(header.begin(), header.end());
+
+	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
+	return return_vec;
+	
+}
+
+
+bool				Response::check_methods()
+{
+	return  std::count(_mylocation->methods.begin(), _mylocation->methods.end() , this->request->get_method()) != 0;
+}
+
 std::vector<char>	Response::serv()
 {
-	std::vector<struct location>  loc = this->request->_server->_locations;
+	this->find_location();
+	this->find_index_file();
+	
 
-	for(size_t i = 0;  i < loc.size(); i++)
+	if (!check_methods())
 	{
-		std::cout << "location" << loc[i].url <<  "======"<< loc[i].redirect.first  << " " << loc[i].redirect.second << std::endl;
+		std::cout << "methodd" << std::endl;
+		return _405_error();
 	}
 
-	this->request->debug_headers();
+	std::cout << "index file: " << _indexFile << std::endl;
 	if (this->request->get_method() ==  "POST")
 	 	return 	POST();
 	else if (this->request->get_method() == "GET")
 	{
-		if (isDirectory(this->request->get_path()))
-			return  AUTOINDEX(this->request->get_path()); 
+		if (isDirectory(this->request->get_path())   && _indexFile.size() != 0)
+		{
+			request->set_path(request->get_path() + _indexFile);
+			return GET();
+		}
+		else if (isDirectory(this->request->get_path())  && this->_mylocation->autoindex)
+			return AUTOINDEX(this->request->get_path());
+		else if (isDirectory(this->request->get_path()))
+			return _403_error();
 		return GET();
 	}
 	std::cout << "error >> " << std::endl;
@@ -312,9 +385,46 @@ std::vector<char>	Response::serv()
 	exit(1337);
 }
 
+void				Response::find_location(void)
+{
+	std::vector<struct location>  loc = this->request->_server->get_locations();
+	std::string req_path = request->get_path();
+	std::cout << "request path: " <<  request->get_path() << std::endl;
+	int location_index = 0;
+	std::string matched_location = "";
 
+	for(size_t i = 0;  i < loc.size(); i++)
+	{
+		int ret = req_path.find(loc[i].url);
+		if (ret != std::string::npos && ret == 0){
+			if (loc[i].url.length() > matched_location.length()){
+				matched_location = loc[i].url;
+				location_index  = i;
+			}
+		}
+	}
+	this->_mylocation = &this->request->_server->get_locations()[location_index];
 
+	// std::cout << "matched_location = " << matched_location << " | with index = " << location_index << std::endl;
+}
 
+void				Response::find_index_file(void)
+{
+	std::string root_file = _mylocation->root;
+
+	for (size_t i = 0; i < _mylocation->index.size(); i++)
+	{
+		int fd = 0;
+		std::string absolute_path = root_file + "/" + _mylocation->index[i];
+		fd = open(absolute_path.c_str(), O_RDONLY);
+		if (fd > 0)
+		{
+			_indexFile = _mylocation->index[i];
+			close(fd);
+			break ;
+		}
+	}
+}
 
 
 // std::vector<char>	Response::serv()

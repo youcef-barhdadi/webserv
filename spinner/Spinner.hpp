@@ -4,7 +4,7 @@
 # include <iostream>
 #include <fstream>
 # include <string>
-# include "../server/Server.hpp"
+# include "../Server/Server.hpp"
 #include "../http/Request.hpp"
 #include "../http/Response.hpp"
 #include <unistd.h>
