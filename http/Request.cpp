@@ -80,7 +80,7 @@ void    Request::Append(std::string &Message)
         }else{
             ofs << _buffer;
             _body_size += _buffer.size();
-            std::cout << "==>" << _body_size << std::endl;
+            // std::cout << "==>" << _body_size << std::endl;
         }
         _buffer.clear();
         ofs.close();
@@ -250,20 +250,19 @@ std::string	Request::get_body_filename(void)
 }
 
 
-
-
 void      Request::set_server(Server *server)
 {
-    
+   this->_server = server;
 }
-
 
 bool        Request::HasHeader(std::string header,  std::string value)
 {
     std::map<std::string, std::string>::iterator iter = this->_headers.find(header);
 
+
     if (iter == this->_headers.end())
         return false;
+    std::cout << iter->first << " .====={"  << iter->second << "}" << std::endl;
     if (iter->second == value)
         return true;
     return false;

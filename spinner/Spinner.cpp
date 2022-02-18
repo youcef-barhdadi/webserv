@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/17 23:02:57 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/02/18 01:06:21 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,9 @@ void	Spinner::run()
 	FD_ZERO(&write_socket);
 	FileDescriptorManager::CLEAN();
 
+	std::map<unsigned long, Server *> serverMap;
+	std::map<unsigned long,  unsigned long > socketfd_connectionfd;
+
 	
 
 	for(size_t i=0; i < this->_servers.size(); i++)
@@ -130,9 +133,10 @@ void	Spinner::run()
 		for(size_t j = 0; j < this->_servers[i]->socket_fd.size(); j++)
 		{
 			FileDescriptorManager::ADD(this->_servers[i]->socket_fd[j]);
-
+			serverMap.insert(std::make_pair(this->_servers[i]->socket_fd[j], this->_servers[i]));
 			listOfFd.push_back(this->_servers[i]->socket_fd[j]);
-			maxfd = std::max(maxfd, this->_servers[i]->socket_fd[j] );
+			maxfd = std::max(maxfd, this->_servers[i]->socket_fd[j]);
+			
 		}		
 	}
 
@@ -161,12 +165,14 @@ void	Spinner::run()
 				if (std::count(listOfFd.begin(), listOfFd.end() , connection_fd) )
 				{
 					int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
+					
 					fcntl(new_socket, F_SETFL, O_NONBLOCK);
 					if (new_socket < 0)
 					{
 						perror("in accrpt");
 						exit(0);
 					}
+					socketfd_connectionfd.insert(std::make_pair(new_socket, connection_fd));
 					FileDescriptorManager::ADD(new_socket);
 					maxfd = std::max(maxfd, (unsigned int)  new_socket);
 				}
@@ -189,6 +195,10 @@ void	Spinner::run()
 									buffer[readlen] = 0;	
 								copy = std::string(buffer);
 								Request *request = new Request();
+								//get the server 
+								 unsigned long socket_fd =  socketfd_connectionfd[connection_fd];
+								 request->set_server(serverMap[socket_fd]);
+								
 								request->Append(copy);
 								if (request->IsFinished() == true)
 								{
@@ -250,9 +260,10 @@ void	Spinner::run()
 									FileDescriptorManager::REMOVE(connection_fd);
 									close(connection_fd);
 								}else {
-																		FileDescriptorManager::ADD(connection_fd);
+									std::cout << "Connection Closed "  << std::endl;
+									FileDescriptorManager::ADD(connection_fd);
 									FD_CLR(connection_fd, &write_socket);
-
+		
 								}
 							}
 						}
