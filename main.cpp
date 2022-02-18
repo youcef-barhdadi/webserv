@@ -1,7 +1,7 @@
 // # include "./NetWorking/Socket.hpp"
-# include "./spinner/Spinner.hpp"
+# include "./Spinner/Spinner.hpp"
 # include "./Server/Server.hpp"
-# include  "./config/Config.hpp"
+# include  "./Config/Config.hpp"
 
 
 #include "FileDescriptorManager/FileDescriptorManager.hpp"

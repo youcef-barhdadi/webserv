@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/18 08:08:06 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/18 11:16:21 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,7 @@ void	Spinner::run()
 					fcntl(new_socket, F_SETFL, O_NONBLOCK);
 					if (new_socket < 0)
 					{
-						perror("in accrpt");
+						perror("in accept");
 						exit(0);
 					}
 					socketfd_connectionfd.insert(std::make_pair(new_socket, connection_fd));
