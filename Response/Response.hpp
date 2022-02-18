@@ -39,5 +39,5 @@ private:
 	std::string  _body;
 
 	int			_file_flag;
-	Server const &_servers;
+	Server const &_server;
 };

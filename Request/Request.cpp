@@ -64,17 +64,17 @@ void    Request::Append(std::string &Message)
             std::stringstream ss(_buffer);
             std::string buff;
 
-			std::cout << std::string(100, '+') << std::endl;
-			std::cout << _buffer << std::endl;
-			std::cout << std::string(100, '+') << std::endl;
+			// std::cout << std::string(100, '+') << std::endl;
+			// std::cout << _buffer << std::endl;
+			// std::cout << std::string(100, '+') << std::endl;
             std::getline(ss, buff);
-			std::cout << std::string(60, '=') << buff << std::endl;
+			// std::cout << std::string(60, '=') << buff << std::endl;
             size_t n = ft::HexToDec(buff);
             if (buff == "0\r")
                 _isFinished = true;
             while (n > _body_size && std::getline(ss, buff))
             {
-				std::cout << std::string(60, '=') << buff << std::endl;
+				// std::cout << std::string(60, '=') << buff << std::endl;
                 ofs << buff;
                 n += buff.size();
                 if (n > _body_size)
@@ -83,7 +83,7 @@ void    Request::Append(std::string &Message)
         }else{
             ofs << _buffer;
             _body_size += _buffer.size();
-            std::cout << "==>" << _body_size << std::endl;
+            // std::cout << "==>" << _body_size << std::endl;
         }
         _buffer.clear();
         ofs.close();

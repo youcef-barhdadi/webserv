@@ -5,7 +5,7 @@
 # include "Response.hpp"
 
 Response::Response(Request const &req, Server const &servers)
-: _req(req), _headers(), _body(), _file_flag(0), _servers(servers)
+: _req(req), _headers(), _body(), _file_flag(0), _server(servers)
 {
     // std::cout << "Response::Response" << std::endl;
     if (!_req.IsFinished()){
@@ -157,6 +157,8 @@ void  Response::read_raw_file(void)
 
 void				Response::verifyRequest(void)
 {
-	std::string req_path = _req.get_path();
-	
+
+	std::cout << _req.get_method() << std::endl;	
+
+	std::cout << _server._locations[0].methods[0] << std::endl;
 }

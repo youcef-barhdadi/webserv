@@ -27,8 +27,8 @@ struct location{
 	void init(void){
 		autoindex = 0;
 		redirect.first = 0;
-		cgi.first =0;
-		upload.first=0;
+		cgi.first = 0;
+		upload.first = 0;
 	}
 };
 
@@ -46,7 +46,7 @@ class Server{
 		void	set_locations(struct location &location);
 
 		void	debug(void);
-    private:
+    // private:
 		std::string			_server_name;
 		std::string _host;
 		std::vector<int>		_port;

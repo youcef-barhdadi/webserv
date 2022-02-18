@@ -128,19 +128,19 @@ int		main(int ac, char **av)
 						}
 					}
 
-					std::cout << std::string(40, '+') << std::endl;
+					std::cout << std::string(80, '+') << std::endl;
 					std::cout << req.get_method() << " ";
 					std::cout << req.get_path() << " ";
 					std::cout << req.get_version() << std::endl;
 					req.debug_headers();
 					req.debug_query_params();
-					std::cout << std::string(40, '+') << std::endl;
+					std::cout << std::string(80, '+') << std::endl;
 
 					// sending data
-					Response		res(req, servers);
+					Response		res(req, servers[0]);
 
 					std::string response = res.build_response();
-					std::cout << std::string(40, '-') << std::endl;
+					std::cout << std::string(80, '-') << std::endl;
 					// std::cout << response << std::endl;
 					std::cout << "response weights " << response.size() << " bytes" << std::endl;
 					// std::cout << response.length() << std::endl;
@@ -154,7 +154,7 @@ int		main(int ac, char **av)
 					}
 
 					std::cout << "write returned " << valread << std::endl;
-					std::cout << std::string(40, '-') << std::endl;
+					std::cout << std::string(80, '-') << std::endl;
 					// std::cout << (valread == static_cast<int>(res.size())) << std::endl;
 					// removing the socket from current sockets then closing the fd
 					FD_CLR(i, &current_sockets);
