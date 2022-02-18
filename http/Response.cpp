@@ -92,7 +92,7 @@ std::vector<char>  Response::AUTOINDEX(std::string path)
 {
 		std::string body = "<html lang='en'>\n<head>\n<title>Document</title>\n</head>\n<body>\n<h1>Index OF "+ path+ " </h1>\n<br>\n<table width=\"100%\">\n";
 		std::string  header;
-			std::string s = path[0] == '/' ? path.erase(0,1) : path; 
+		std::string s = path[0] == '/' ? path.erase(0,1) : path; 
 		if(isDirectory(path))
 		{
 				std::vector<FileInfo> fileInfoList = getListOfFiles(path);
