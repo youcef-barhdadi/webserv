@@ -8,8 +8,6 @@ SRCS =	Utilities/Utilities.cpp\
 		\
 		FileDescriptorManager/FileDescriptorManager.cpp\
 		\
-		Networking/Socket.cpp\
-		\
 		Spinner/Spinner.cpp\
 		\
 		Config/Config.cpp\
@@ -29,8 +27,6 @@ SRCS =	Utilities/Utilities.cpp\
 OBJS =	Utilities.o\
 		\
 		FileDescriptorManager.o\
-		\
-		Socket.o\
 		\
 		Spinner.o\
 		\
