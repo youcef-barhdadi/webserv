@@ -22,8 +22,7 @@ int     main(int ac, char **av)
     Spinner s;
 
 	for(size_t i = 0; i < servers.size(); i++){
-		// std::cout << std::endl;
-		servers[i].debug();
+		// servers[i].debug();
         s._servers.push_back(&servers[i]);
 		
 	}

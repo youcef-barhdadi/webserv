@@ -5,7 +5,7 @@
 # include <string>
 #include <sys/types.h>
 #include <unistd.h>
-#include "../http/Request.hpp"
+#include "../Http/Request.hpp"
 
 class Cgi
 {
@@ -13,7 +13,6 @@ class Cgi
 	public:
 
 		Cgi();
-		Cgi( Cgi const & src );
 		~Cgi();
 
 		Cgi &		operator=( Cgi const & rhs );
@@ -24,7 +23,5 @@ class Cgi
 	private:
 
 };
-
-std::ostream &			operator<<( std::ostream & o, Cgi const & i );
 
 #endif /* ************************************************************* CGI_H */

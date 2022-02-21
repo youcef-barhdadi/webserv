@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "../http/Request.hpp"
-#include "../http/Response.hpp"
+#include "../Http/Request.hpp"
+#include "../Http/Response.hpp"
 
      #include <sys/types.h>
 

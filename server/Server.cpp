@@ -70,11 +70,11 @@ void	Server::debug(void)
 
 void Server::create_server()
 {
-	for (int i = 0; i <  this->_ports.size(); i++)
+	for (size_t i = 0; i <  this->_ports.size(); i++)
 	{
-		int n;
-		unsigned int m = sizeof(n);
-		int fdsocket;
+		// int n;
+		// unsigned int m = sizeof(n);
+		// int fdsocket;
 
 		int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 

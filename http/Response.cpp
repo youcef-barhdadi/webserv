@@ -1,13 +1,13 @@
 #include <fstream>
 #include <filesystem>
 #include <vector>
-#include "../cgi/Cgi.hpp"
+#include "../Cgi/Cgi.hpp"
 # include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/select.h>
 #include "Response.hpp"
-#include "../utilities/utilities.hpp"
+#include "../Utilities/Utilities.hpp"
 #include <cstring>
 #include <stdio.h>
 /*
@@ -66,28 +66,6 @@ Response &				Response::operator=( Response const & rhs )
 	this->_mylocation = rhs._mylocation;
 	this->_indexFile = rhs._indexFile;
 	return *this;
-}
-
-std::ostream &			operator<<( std::ostream & o, Response const & i )
-{
-	//o << "Value = " << i.getValue();
-	return o;
-}
-
-
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
-
-
-
-
-void	Response::handlPut(Request & request)
-{
-
-
-
-	
 }
 
 
@@ -195,7 +173,7 @@ void		serve_chanked()
 
 std::vector<char>	 Response::POST()
 {	
-		std::string head_str;
+	std::string head_str;
 	std::string upload_dir = "upload";	// config map["image"]
 	// get path to uploading
 	std::string body_path = request->get_body_filename();
@@ -245,7 +223,6 @@ std::vector<char>	 Response::GET()
 		std::string  str;
 		std::string  body = "";
 		std::streampos size;
-		char* memblock;
 		std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
 
 		if (file.is_open())
@@ -395,7 +372,7 @@ void				Response::find_location(void)
 
 	for(size_t i = 0;  i < loc.size(); i++)
 	{
-		int ret = req_path.find(loc[i].url);
+		size_t ret = req_path.find(loc[i].url);
 		if (ret != std::string::npos && ret == 0){
 			if (loc[i].url.length() > matched_location.length()){
 				matched_location = loc[i].url;

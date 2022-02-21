@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../Server/Server.hpp"
-#include "../utilities/utilities.hpp"
+#include "../Utilities/Utilities.hpp"
 #include <fstream>
 
 class Config{

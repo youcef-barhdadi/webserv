@@ -22,14 +22,13 @@ class Response
 
 
 
-		// this method will do magic 
+		// this method will do magic MAGIC
 		std::vector<char>	serv();
 
 
 		std::string buildResponse();
 		std::string  Create_Header();
 
-		void	handlPut(Request & request);
 		std::vector<char> Get(Request  &req, fd_set set);
 
 
@@ -47,58 +46,31 @@ class Response
 
 		bool				check_methods();
 	
-		std::string		get_errorpage(int status);
-
-		bool  is_finshed;
-
+		std::string			get_errorpage(int status);
 		std::vector<char> response_vec;
-
-
 
 		size_t		bytes_sent;
 
+		bool  is_finshed;
 		Request	*request;
-
 	private:
-
 		std::vector<char> _403_error();
 		std::vector<char> _405_error();
-	
+
 		size_t  _size;
 		unsigned int _status;
 		std::string _indexFile;
-
-
-		/**
-		 * @brief 
-		 * 	this refernce to the reqtuest object 
-		 */
-
-		/**
-		 * @brief 
-		 * 	if the resposnse chnaked or not
-		 */
+//	if the resposnse chanked or not
 		bool		chanked_request; 
-
-		/**
-		 * @brief 
-		 * 		requested file  
-		 */
+// 		requested file  
 		int requestedFileFD;
-
-
-
 		size_t sizeFile;
-
 		size_t	sended;
-
 		struct location *_mylocation;
 
 
 
 
 };
-
-std::ostream &			operator<<( std::ostream & o, Response const & i );
 
 #endif /* ******************************************************** RESPONSE_H */

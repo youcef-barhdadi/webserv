@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/18 11:16:21 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/21 22:06:34 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,69 +15,20 @@
 #include <algorithm>
 #include <map>
 #include "../FileDescriptorManager/FileDescriptorManager.hpp"
-#include <queue>          // std::queue
+#include <queue>         
 #include <fcntl.h>
-// #include <pair>
 
-
-/*
-** ------------------------------- CONSTRUCTOR --------------------------------
-*/
 
 Spinner ::Spinner ()
 {
 }
-
-Spinner ::Spinner ( const Spinner  & src )
-{
-}
-
-
-/*
-** -------------------------------- DESTRUCTOR --------------------------------
-*/
 
 Spinner ::~Spinner ()
 {
 }
 
 
-/*
-** --------------------------------- OVERLOAD ---------------------------------
-*/
-
-Spinner  &				Spinner ::operator=( Spinner  const & rhs )
-{
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
-	return *this;
-}
-
-std::ostream &			operator<<( std::ostream & o, Spinner  const & i )
-{
-	//o << "Value = " << i.getValue();
-	return o;
-}
-
-
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
-
-// int max(int a, int b)
-// {
-// 	if (a > b)
-// 		return a;
-// 	return b;
-// }
-
-
 /**
- * 	
- * @brief 
- *
  *  10050 			150 % 10 == 
  */
 
@@ -90,13 +41,9 @@ size_t		getsize(size_t size)
 }
 
 
-
-
-
-
 void		parseKeepAlive(std::string str)
 {
-	
+	(void)str;
 }
 
 
@@ -104,7 +51,7 @@ void	Spinner::run()
 {
 	struct sockaddr_in address;
     socklen_t addrlen;
-    size_t  readlen;
+    int  readlen;
 	char buffer[30000] = {0};
    	struct timeval      timeout;
 
@@ -140,22 +87,29 @@ void	Spinner::run()
 		}		
 	}
 
+	timeout.tv_sec  = 10;
+	timeout.tv_usec = 0;
 	std::cout << "size of " << listOfFd.size() << std::endl;
+	/* printing to stdout the ports the server listening on*/
+	std::cout << "server listening on ports: ";
+	for(size_t i = 0; i < _servers.size(); i++){
+		for(size_t j = 0; j < _servers[i]->get_ports().size(); j++)
+			std::cout << _servers[i]->get_ports()[j] << " ";
+	}
+	std::cout << std::endl;
 	while (true)
 	{
-		   timeout.tv_sec  =10;
-   			timeout.tv_usec = 0;
 
 		ready_socket = FileDescriptorManager::set;
 		current_socket = write_socket;
-		if (select((int)maxfd +1, &ready_socket, &current_socket, NULL, NULL) < 0)
+		if (select((int)maxfd +1, &ready_socket, &current_socket, NULL, &timeout) < 0)
 		{
 			assert(true);
 			perror("select error");
 			exit(0);
 		}
 
-		std::cout << "select return " << std::endl;
+		std::cout << "select returns" << std::endl;
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
 					
@@ -304,10 +258,3 @@ void	Spinner::run()
 		incoming con 
 			->
 */
-
-/*
-** --------------------------------- ACCESSOR ---------------------------------
-*/
-
-
-/* ************************************************************************** */

@@ -5,8 +5,8 @@
 #include <fstream>
 # include <string>
 # include "../Server/Server.hpp"
-#include "../http/Request.hpp"
-#include "../http/Response.hpp"
+#include "../Http/Request.hpp"
+#include "../Http/Response.hpp"
 #include <unistd.h>
 
 class Spinner 
@@ -15,7 +15,6 @@ class Spinner
 	public:
 
 		Spinner ();
-		Spinner ( Spinner  const & src );
 		~Spinner ();
 
 		Spinner  &		operator=( Spinner  const & rhs );
@@ -27,6 +26,5 @@ class Spinner
 
 };
 
-std::ostream &			operator<<( std::ostream & o, Spinner  const & i );
 
 #endif /* ******************************************************** SPINNER _H */

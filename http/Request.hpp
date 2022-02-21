@@ -11,7 +11,7 @@
 #include <exception>
 #include <algorithm>
 #include <fstream>
-#include "../utilities/utilities.hpp"
+#include "../Utilities/Utilities.hpp"
 
 #include "../Server/Server.hpp"
 

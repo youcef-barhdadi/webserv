@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "../utilities/utilities.hpp"
+#include "../Utilities/Utilities.hpp"
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -48,7 +48,6 @@ class Server{
 		void	set_client_body_size(size_t &client_body_size);
 		void	set_locations(struct location &location);
 		void 	create_server();
-		void	debug(void);
 
 
 		std::vector<unsigned int>	&get_socket_fd(void);
@@ -59,6 +58,7 @@ class Server{
 		std::vector<error_pages>	&get_error_pages(void);
 		size_t						&get_client_body_size(void);
 
+		void	debug(void);
 	private:
 		std::vector<unsigned int>	_socket_fd;
 		std::string _host;

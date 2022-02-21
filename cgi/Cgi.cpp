@@ -1,57 +1,18 @@
 #include "Cgi.hpp"
-
 #include <unistd.h>
-
-
-    #include <sys/types.h>
-       #include <sys/stat.h>
-       #include <fcntl.h> 
-	     #include <sys/wait.h>
-/*
-** ------------------------------- CONSTRUCTOR --------------------------------
-*/
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h> 
+#include <sys/wait.h>
 
 Cgi::Cgi()
 {
 }
 
-Cgi::Cgi( const Cgi & src )
-{
-}
-
-
-/*
-** -------------------------------- DESTRUCTOR --------------------------------
-*/
 
 Cgi::~Cgi()
 {
 }
-
-
-/*
-** --------------------------------- OVERLOAD ---------------------------------
-*/
-
-Cgi &				Cgi::operator=( Cgi const & rhs )
-{
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
-	return *this;
-}
-
-std::ostream &			operator<<( std::ostream & o, Cgi const & i )
-{
-	//o << "Value = " << i.getValue();
-	return o;
-}
-
-
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
 
 
 std::string		Cgi::startCgi(Request *request)
@@ -62,7 +23,7 @@ std::string		Cgi::startCgi(Request *request)
 	pipe(pip);
 
 	pid_t pid = fork();
-	int new_fd;
+	// int new_fd;
 
 
 	// int fd = open("test÷.test", O_CREAT | O_RDWR, 0644);

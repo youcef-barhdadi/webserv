@@ -1,7 +1,61 @@
+CC = clang++
 
+FLAGS = -Wextra -Werror -Wall
 
+DEBUG = -fsanitize=address
 
+SRCS =	Utilities/Utilities.cpp\
+		\
+		FileDescriptorManager/FileDescriptorManager.cpp\
+		\
+		Networking/Socket.cpp\
+		\
+		Spinner/Spinner.cpp\
+		\
+		Config/Config.cpp\
+		\
+		Cgi/Cgi.cpp\
+		\
+		MimeTypes/MimeTypes.cpp\
+		\
+		Http/Response.cpp\
+		Http/Request.cpp\
+		\
+		Server/Server.cpp\
+		\
+		main.cpp\
+		\
 
-# -fsanitize=address
-make:
-	 g++ -g -fsanitize=address  utilities/*.cpp server/*.cpp   FileDescriptorManager/FileDescriptorManager.cpp NetWorking/*.cpp http/*.cpp   spinner/*.cpp  config/*.cpp  cgi/*.cpp MimeTypes/MimeTypes.cpp  main.cpp -o webserv
+OBJS =	Utilities.o\
+		\
+		FileDescriptorManager.o\
+		\
+		Socket.o\
+		\
+		Spinner.o\
+		\
+		Config.o\
+		\
+		Cgi.o\
+		\
+		MimeTypes.o\
+		\
+		Response.o\
+		Request.o\
+		\
+		Server.o\
+		\
+		main.o\
+		\
+
+all:
+	@echo "Compiling"
+	@$(CC) -c $(FLAGS) $(SRCS)
+	@$(CC) $(OBJS) -o webserv
+	@mkdir objs; mv *.o ./objs
+	@echo "Compiled"
+clean:
+	@rm -rf webserv
+	@rm -rf objs
+
+re: clean all
