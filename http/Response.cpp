@@ -337,7 +337,7 @@ std::vector<char>	Response::serv()
 
 	if (!check_methods())
 	{
-		std::cout << "methodd" << std::endl;
+		std::cout << "method" << std::endl;
 		return _405_error();
 	}
 

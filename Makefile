@@ -1,3 +1,5 @@
+#!/bin/bash
+
 CC = clang++
 
 FLAGS = -Wextra -Werror -Wall
@@ -48,7 +50,7 @@ all:
 	@echo "Compiling"
 	@$(CC) -c $(FLAGS) $(SRCS)
 	@$(CC) $(OBJS) -o webserv
-	@mkdir objs; mv *.o ./objs
+	@[[ ! -d objs ]] && mkdir objs; mv *.o ./objs
 	@echo "Compiled"
 clean:
 	@rm -rf webserv
