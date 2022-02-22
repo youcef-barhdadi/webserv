@@ -72,7 +72,7 @@ void    Request::Append(std::string &Message)
                 _isFinished = true;
             while (std::getline(ss, buff) && n > _body_size)
             {
-                ofs << ss;
+                ofs << buff;
                 n += buff.size();
                 if (n > _body_size)
                     ofs << "\n";

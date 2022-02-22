@@ -10,7 +10,8 @@
 #include <netinet/in.h>
 #include  <algorithm>
 #include <iostream>     // std::cout
-
+#include <assert.h>
+#include <cstring>
 
 struct error_pages{
 	std::string									root;

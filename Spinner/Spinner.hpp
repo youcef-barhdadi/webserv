@@ -8,6 +8,8 @@
 #include "../Http/Request.hpp"
 #include "../Http/Response.hpp"
 #include <unistd.h>
+#include <signal.h>
+#include <assert.h>
 
 class Spinner 
 {

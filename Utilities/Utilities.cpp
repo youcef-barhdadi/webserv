@@ -173,15 +173,15 @@ std::string	readable_fs(double size) {
 
 bool isDirectory(std::string path) {
 
-	
-   struct stat statbuf;
-   if (path == "/")
-	return true;
+
+	struct stat statbuf;
+	if (path == "/")
+		return true;
 
 	std::string s = path[0] == '/' ? path.erase(0,1) : path; 
 	if (stat(s.c_str(), &statbuf) != 0)
-       return 0;
-   return S_ISDIR(statbuf.st_mode);
+		return 0;
+	return S_ISDIR(statbuf.st_mode);
 }
 
 
