@@ -102,7 +102,7 @@ void Server::create_server()
 			perror("error ");
 			return ;
 		}
-		 ret = listen(server_fd, 10000);
+		ret = listen(server_fd, 10000);
 		assert(ret == 0);
 		if (ret < 0)
 		{

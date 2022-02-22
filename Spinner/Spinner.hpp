@@ -11,7 +11,7 @@
 #include <signal.h>
 #include <assert.h>
 
-class Spinner 
+class Spinner
 {
 
 	public:

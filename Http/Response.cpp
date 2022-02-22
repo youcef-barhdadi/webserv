@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <vector>
 #include "../Cgi/Cgi.hpp"
-# include <unistd.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/select.h>
@@ -10,6 +10,8 @@
 #include "../Utilities/Utilities.hpp"
 #include <cstring>
 #include <stdio.h>
+
+
 /*
  ** ------------------------------- CONSTRUCTOR --------------------------------
  */
@@ -66,7 +68,7 @@ Response &				Response::operator=( Response const & rhs )
 std::vector<char>  Response::AUTOINDEX(std::string path)
 {
 	if ( path[ path.size() - 1] != '/')
-		 path.insert( path.end(), '/');
+		path.insert( path.end(), '/');
 	std::string	body = "<html lang='en'>\n<head>\n<title>Document</title>\n</head>\n<body>\n<h1>Index OF "+ path + " </h1>\n<br>\n<table width=\"100%\">\n<hr>";
 	std::string  header;
 	std::string s = path[0] == '/' ? path.erase(0,1) : path;
@@ -119,7 +121,7 @@ std::string  Response::Create_Header()
 		header += "\n\n";
 		return header;
 	}
-	else if (this->_status == 201)	
+	else if (this->_status == 201)
 	{
 		header = "HTTP/1.1 201 Created\n";
 		header += "Location: " + this->_request->get_path();
@@ -167,17 +169,17 @@ std::vector<char> handlCgiresponse(std::string & str)
 
 void		serve_chanked()
 {
-	// if the size is bigger the Buffer_size 
+	// if the size is bigger the Buffer_size
 }
 
 
 
 std::vector<char>	 Response::POST()
-{	
+{
 	std::string head_str;
 	std::string upload_dir = _mylocation->upload.second;
 
-// get path to uploading
+	// get path to uploading
 	std::string body_path = _request->get_body_filename();
 
 	rename(body_path.c_str() , (upload_dir + _request->get_path()).c_str());
@@ -200,8 +202,8 @@ std::vector<char>	 Response::GET()
 		std::vector<char> test = handlCgiresponse(strtest);
 		// exit(0);
 		return  test;
-	}	
-	else 
+	}
+	else
 	{
 		resource.erase(0, 1);
 	}
@@ -227,7 +229,7 @@ std::vector<char>	 Response::GET()
 		this->_response_vec = first;
 		return first;
 	}
-	else 
+	else
 	{
 		return _404_error();
 	}
@@ -348,13 +350,13 @@ std::vector<char>	Response::serv()
 		this->find_index_file();
 	if (!check_methods())
 		return _405_error();
-// no location was found 
+	// no location was found
 	if (_mylocation == 0x0)
 		return _404_error();
 
 	if (this->_request->get_method() ==  "POST")
 	{
-// if the location does not support upload
+		// if the location does not support upload
 		if (!_mylocation->upload.first)
 			return _404_error();
 		return 	POST();

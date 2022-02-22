@@ -43,10 +43,10 @@ class Response
 
 		void				find_location(void);
 		void				find_index_file(void);
-		
+
 
 		bool				check_methods();
-	
+
 		std::string			get_errorpage(int status);
 
 		Request				*get_request(void);
@@ -73,16 +73,12 @@ class Response
 		unsigned int _status;
 		std::string _indexFile;
 //	if the resposnse chanked or not
-		bool		chanked_request; 
-// 		requested file  
+		bool		chanked_request;
+// 		requested file
 		int requestedFileFD;
 		size_t sizeFile;
 		size_t	sended;
 		struct location *_mylocation;
-
-
-
-
 };
 
 #endif /* ******************************************************** RESPONSE_H */

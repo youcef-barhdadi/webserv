@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <map>
 #include "../FileDescriptorManager/FileDescriptorManager.hpp"
-#include <queue>         
+#include <queue>
 #include <fcntl.h>
 
 
@@ -29,7 +29,7 @@ Spinner ::~Spinner ()
 
 
 /**
- *  10050 			150 % 10 == 
+ *  10050 			150 % 10 ==
  */
 
 
@@ -50,10 +50,10 @@ void		parseKeepAlive(std::string str)
 void	Spinner::run()
 {
 	struct sockaddr_in address;
-    socklen_t addrlen;
-    int  readlen;
+	socklen_t addrlen;
+	int  readlen;
 	char buffer[30000] = {0};
-   	struct timeval      timeout;
+	struct timeval      timeout;
 
 	std::map<unsigned long , Request*>  unfinshed_request;
 	std::map<unsigned long , Response*>  unfinshed_responce;
@@ -67,24 +67,24 @@ void	Spinner::run()
 	std::map<unsigned long, Server *> serverMap;
 	std::map<unsigned long,  unsigned long > socketfd_connectionfd;
 
-	
+
 
 	for(size_t i=0; i < this->_servers.size(); i++)
 	{
 		this->_servers[i]->create_server();
 	}
- 	unsigned	int maxfd = 0;
+	unsigned	int maxfd = 0;
 	std::vector<unsigned int> listOfFd;
 	for (size_t i = 0; i < this->_servers.size(); i++)
-	{	
+	{
 		for(size_t j = 0; j < this->_servers[i]->get_socket_fd().size(); j++)
 		{
 			FileDescriptorManager::ADD(this->_servers[i]->get_socket_fd()[j]);
 			serverMap.insert(std::make_pair(this->_servers[i]->get_socket_fd()[j], this->_servers[i]));
 			listOfFd.push_back(this->_servers[i]->get_socket_fd()[j]);
 			maxfd = std::max(maxfd, this->_servers[i]->get_socket_fd()[j]);
-			
-		}		
+
+		}
 	}
 
 	timeout.tv_sec  = 60;
@@ -112,14 +112,14 @@ void	Spinner::run()
 		std::cout << "select returns" << std::endl;
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
-					
+
 			if (FD_ISSET(connection_fd, &ready_socket)  || FD_ISSET(connection_fd, &current_socket))
 			{
 				// this new connection
 				if (std::count(listOfFd.begin(), listOfFd.end() , connection_fd) )
 				{
 					int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
-					
+
 					fcntl(new_socket, F_SETFL, O_NONBLOCK);
 					if (new_socket < 0)
 					{
@@ -132,97 +132,97 @@ void	Spinner::run()
 				}
 				else
 				{
-						std::cout << "connection fd: " << connection_fd << std::endl;
-						std::map<unsigned long , Request*>::iterator iterReq = unfinshed_request.find(connection_fd);
-						std::string copy;
-						if (iterReq == unfinshed_request.end())
+					std::cout << "connection fd: " << connection_fd << std::endl;
+					std::map<unsigned long , Request*>::iterator iterReq = unfinshed_request.find(connection_fd);
+					std::string copy;
+					if (iterReq == unfinshed_request.end())
+					{
+						if (FD_ISSET(connection_fd, &ready_socket))
 						{
-							if (FD_ISSET(connection_fd, &ready_socket))
-							{
-								readlen = read(connection_fd, buffer, 30000);
-								if (readlen == 0 || readlen == -1)
-								{	
-									close(connection_fd);
-									FileDescriptorManager::REMOVE(connection_fd);
-									continue ;
-								}else
-									buffer[readlen] = 0;	
-								copy = std::string(buffer);
-								Request *request = new Request();
-								//get the server 
-								 unsigned long socket_fd =  socketfd_connectionfd[connection_fd];
-								 request->set_server(serverMap[socket_fd]);
-								
-								request->Append(copy);
-								if (request->IsFinished() == true)
-								{
-									unfinshed_request.insert(std::make_pair(connection_fd, request));
-									FD_SET(connection_fd, &write_socket);
-									FileDescriptorManager::REMOVE(connection_fd);
-								}else
-								{ 														
-									unfinshed_request.insert(std::make_pair(connection_fd, request));
-								}
-
-								continue ;  // one read or write per cycle
-							}
-						}
-						if (FD_ISSET(connection_fd, &write_socket))
-						{
-							std::map<unsigned long, Response *>::iterator iter = unfinshed_responce.find(connection_fd);
-							Response *res;
-							if (iter == unfinshed_responce.end())
-							{
-								std::map<unsigned long, Request *>::iterator iter = unfinshed_request.find(connection_fd);
-								res  =  new Response(iter->second);
-								unfinshed_responce.insert(std::make_pair(connection_fd, res));
-							}
-							else 
-							{
-								res = iter->second;
-							}
-
-							std::vector<char> array  = res->serv();			
-							char *data  = array.data();
-							int writing = 0;
-							errno = 0;
-							signal(SIGPIPE, SIG_IGN);
-
-							writing= write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
-							signal(SIGPIPE, SIG_DFL);
-							if ( writing == 0 || writing == -1)
+							readlen = read(connection_fd, buffer, 30000);
+							if (readlen == 0 || readlen == -1)
 							{
 								close(connection_fd);
-								close(connection_fd);
-								FD_CLR(connection_fd, &write_socket);
-								unfinshed_responce.erase(connection_fd);
 								FileDescriptorManager::REMOVE(connection_fd);
-	
-								unfinshed_request.erase(connection_fd);
-							}
-							
-							//  std::cout << "=="  << writing << std::endl;
-							res->set_bytes_sent(res->get_bytes_sent() + writing);
-				
-							if (res->get_bytes_sent() == array.size())
+								continue ;
+							}else
+								buffer[readlen] = 0;
+							copy = std::string(buffer);
+							Request *request = new Request();
+							//get the server
+							unsigned long socket_fd =  socketfd_connectionfd[connection_fd];
+							request->set_server(serverMap[socket_fd]);
+
+							request->Append(copy);
+							if (request->IsFinished() == true)
 							{
-								unfinshed_responce.erase(connection_fd);
-								unfinshed_request.erase(connection_fd);
-								if (res->get_request()->HasHeader("Connection", "keep-alive") == false)
-								{
-									FD_CLR(connection_fd, &write_socket);
-									FileDescriptorManager::REMOVE(connection_fd);
-									socketfd_connectionfd.erase(connection_fd);
-									close(connection_fd);
-								}else {
-									std::cout << "Connection Closed: " << connection_fd  << std::endl;
-									FileDescriptorManager::ADD(connection_fd);
-									FD_CLR(connection_fd, &write_socket);
-									
-		
-								}
+								unfinshed_request.insert(std::make_pair(connection_fd, request));
+								FD_SET(connection_fd, &write_socket);
+								FileDescriptorManager::REMOVE(connection_fd);
+							}else
+							{
+								unfinshed_request.insert(std::make_pair(connection_fd, request));
+							}
+
+							continue ;  // one read or write per cycle
+						}
+					}
+					if (FD_ISSET(connection_fd, &write_socket))
+					{
+						std::map<unsigned long, Response *>::iterator iter = unfinshed_responce.find(connection_fd);
+						Response *res;
+						if (iter == unfinshed_responce.end())
+						{
+							std::map<unsigned long, Request *>::iterator iter = unfinshed_request.find(connection_fd);
+							res  =  new Response(iter->second);
+							unfinshed_responce.insert(std::make_pair(connection_fd, res));
+						}
+						else
+						{
+							res = iter->second;
+						}
+
+						std::vector<char> array  = res->serv();
+						char *data  = array.data();
+						int writing = 0;
+						errno = 0;
+						signal(SIGPIPE, SIG_IGN);
+
+						writing= write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
+						signal(SIGPIPE, SIG_DFL);
+						if ( writing == 0 || writing == -1)
+						{
+							close(connection_fd);
+							close(connection_fd);
+							FD_CLR(connection_fd, &write_socket);
+							unfinshed_responce.erase(connection_fd);
+							FileDescriptorManager::REMOVE(connection_fd);
+
+							unfinshed_request.erase(connection_fd);
+						}
+
+						//  std::cout << "=="  << writing << std::endl;
+						res->set_bytes_sent(res->get_bytes_sent() + writing);
+
+						if (res->get_bytes_sent() == array.size())
+						{
+							unfinshed_responce.erase(connection_fd);
+							unfinshed_request.erase(connection_fd);
+							if (res->get_request()->HasHeader("Connection", "keep-alive") == false)
+							{
+								FD_CLR(connection_fd, &write_socket);
+								FileDescriptorManager::REMOVE(connection_fd);
+								socketfd_connectionfd.erase(connection_fd);
+								close(connection_fd);
+							}else {
+								std::cout << "Connection Closed: " << connection_fd  << std::endl;
+								FileDescriptorManager::ADD(connection_fd);
+								FD_CLR(connection_fd, &write_socket);
+
+
 							}
 						}
+					}
 				}
 			}
 		}
@@ -235,9 +235,9 @@ void	Spinner::run()
 		{
 			close(this->_servers[i]->get_socket_fd()[j]);
 		}
-		
+
 	}
-	
+
 
 
 
@@ -249,12 +249,12 @@ void	Spinner::run()
 // 	std::queue<Request> _queue;
 
 
-// 	_queue.push()	
+// 	_queue.push()
 // }
 
 
 /*
 	event loop
-		incoming con 
-			->
+	incoming con
+	->
 */
