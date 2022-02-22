@@ -114,8 +114,7 @@ std::string  Response::Create_Header()
 
 	if (this->_status == 404)
 	{
-		header = "HTTP/1.1  404 Not found \n";
-		std::cout <<  "size " << this->_size << std::endl;
+		header = "HTTP/1.1 404 Not found \n";
 		header += "Content-Length: "+ std::to_string(this->_size);
 		header += "\n\n";
 		return header;
@@ -211,10 +210,6 @@ std::vector<char>	 Response::GET()
 		// exit(0);
 		return  test;
 	}	
-	if (resource == "/")
-	{
-		resource = "index.html";
-	}
 	else 
 	{
 		resource.erase(0, 1);
@@ -294,12 +289,22 @@ std::string		Response::get_errorpage(int status)
 
 std::vector<char> Response::_403_error()
 {
-	std::cout << get_errorpage(403) << std::endl;
+	std::string path = get_errorpage(403);
+	std::string l;
+	std::vector<char> file_vec;
+	if (path.size() == 0)
+	{
+		l = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\nContent-Length: 106\n\r\n<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>";
 
+	}
+	else{
+		l = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\n";
+		file_vec = getfileRaw(path + "/403.html");
+		l += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
+	}
 
-	std::string l = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\nContent-Length: 106\n\r\n<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>";
 	std::vector<char> res_vec(l.begin(), l.end());
-
+	res_vec.insert(res_vec.end(), file_vec.begin(), file_vec.end());
 	return res_vec;
 }
 
@@ -337,6 +342,7 @@ std::vector<char>	Response::serv()
 {
 	std::cout << "request path: " <<  _request->get_path() << std::endl;
 	this->find_location();
+	std::cout << _mylocation << std::endl;
 	if (isDirectory(this->_request->get_path()))
 		this->find_index_file();
 
@@ -362,8 +368,6 @@ std::vector<char>	Response::serv()
 			return _403_error();
 		return GET();
 	}
-	std::cout << "error >> " << std::endl;
-	// return GET();
 	exit(1337);
 }
 
