@@ -21,7 +21,7 @@ void	Config::Parse(std::string filename)
 
 	ifs.open(filename.c_str(), std::ifstream::in);
 	if (ifs.fail()){
-		/* failed to open the file*/
+		exit(1);
 		return;
 	}
 

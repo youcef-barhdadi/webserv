@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/21 22:14:45 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/22 02:37:58 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ strftime(time_buf, sizeof(time_buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 	return std::string(time_buf);
 }
 
-std::string	readable_fs(double size/*in bytes*/) {
+std::string	readable_fs(double size) {
     int i = 0;
 	char buf[30];
     const char* units[] = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
@@ -178,8 +178,8 @@ bool isDirectory(std::string path) {
    if (path == "/")
 	return true;
 
-   	std::string s = path[0] == '/' ? path.erase(0,1) : path; 
-   if (stat(s.c_str(), &statbuf) != 0)
+	std::string s = path[0] == '/' ? path.erase(0,1) : path; 
+	if (stat(s.c_str(), &statbuf) != 0)
        return 0;
    return S_ISDIR(statbuf.st_mode);
 }
@@ -191,19 +191,21 @@ std::vector<FileInfo>	getListOfFiles(std::string path)
 	struct dirent *info;
 	std::vector<FileInfo>	list;
 	DIR *dir;
-	std::string s = path[0] == '/' ? path.erase(0,1) : path; 
+	std::string s = path[0] == '/' ? path.erase(0,1) : path;
 	dir = opendir(s.c_str());
 	while ((info = readdir(dir)))
 	{
 			FileInfo obj;
 			obj.fileName = info->d_name;
-			obj.isDir = isDirectory(obj.fileName);
+			obj.isDir = isDirectory(path + "/" + obj.fileName);
 			struct stat result;
-			if(stat(obj.fileName.c_str(), &result)==0)
+			if(stat((path + "/" + obj.fileName).c_str(), &result)==0)
 			{
-				obj.date = get_time(result.st_mtime);
-				obj.size =  readable_fs(result.st_size);
+				obj.date =	get_time(result.st_mtime);
+				obj.size = 	readable_fs(result.st_size);
 
+			}else{
+				perror("stat");
 			}
 			list.push_back(obj);
 	}
@@ -211,13 +213,3 @@ std::vector<FileInfo>	getListOfFiles(std::string path)
 	closedir(dir);
 	return list;
 }
-
-// int main()
-// {
-// 		std::vector<FileInfo>		 list = getListOfFiles(".");
-
-// 		for (int i = 0; i < list.size(); i++)
-// 		{
-// 			std::cout << list[i].fileName << " " << list[i].isDir  <<  " "  <<  list[i].date <<  " "  <<  list[i].size <<  std::endl;
-// 		}
-// }

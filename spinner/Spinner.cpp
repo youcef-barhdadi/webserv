@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/21 22:06:34 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/22 01:01:40 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,9 +87,9 @@ void	Spinner::run()
 		}		
 	}
 
-	timeout.tv_sec  = 10;
+	timeout.tv_sec  = 60;
 	timeout.tv_usec = 0;
-	std::cout << "size of " << listOfFd.size() << std::endl;
+	std::cout << "nb of listener fd: " << listOfFd.size() << std::endl;
 	/* printing to stdout the ports the server listening on*/
 	std::cout << "server listening on ports: ";
 	for(size_t i = 0; i < _servers.size(); i++){
@@ -99,7 +99,7 @@ void	Spinner::run()
 	std::cout << std::endl;
 	while (true)
 	{
-
+		std::cout << std::string(15, '*') << "mainloop-begin" << std::string(15, '*') << std::endl;
 		ready_socket = FileDescriptorManager::set;
 		current_socket = write_socket;
 		if (select((int)maxfd +1, &ready_socket, &current_socket, NULL, &timeout) < 0)
@@ -132,7 +132,7 @@ void	Spinner::run()
 				}
 				else
 				{
-						std::cout << "connection " << connection_fd << std::endl;
+						std::cout << "connection fd: " << connection_fd << std::endl;
 						std::map<unsigned long , Request*>::iterator iterReq = unfinshed_request.find(connection_fd);
 						std::string copy;
 						if (iterReq == unfinshed_request.end())
@@ -188,10 +188,8 @@ void	Spinner::run()
 							errno = 0;
 							signal(SIGPIPE, SIG_IGN);
 
-							writing= write(connection_fd, data + res->bytes_sent ,getsize(array.size() - res->bytes_sent));
+							writing= write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
 							signal(SIGPIPE, SIG_DFL);
-							std::cout <<connection_fd << std::endl;
-							perror("hello ");
 							if ( writing == 0 || writing == -1)
 							{
 								close(connection_fd);
@@ -204,20 +202,20 @@ void	Spinner::run()
 							}
 							
 							//  std::cout << "=="  << writing << std::endl;
-							res->bytes_sent += writing;
+							res->set_bytes_sent(res->get_bytes_sent() + writing);
 				
-							if (res->bytes_sent == array.size())
+							if (res->get_bytes_sent() == array.size())
 							{
 								unfinshed_responce.erase(connection_fd);
 								unfinshed_request.erase(connection_fd);
-								if (res->request->HasHeader("Connection", "keep-alive") == false)
+								if (res->get_request()->HasHeader("Connection", "keep-alive") == false)
 								{
 									FD_CLR(connection_fd, &write_socket);
 									FileDescriptorManager::REMOVE(connection_fd);
 									socketfd_connectionfd.erase(connection_fd);
 									close(connection_fd);
 								}else {
-									std::cout << "Connection Closed "  << std::endl;
+									std::cout << "Connection Closed: " << connection_fd  << std::endl;
 									FileDescriptorManager::ADD(connection_fd);
 									FD_CLR(connection_fd, &write_socket);
 									
@@ -228,6 +226,8 @@ void	Spinner::run()
 				}
 			}
 		}
+		std::cout << std::string(15, '*') << "mainloop-end  " << std::string(15, '*') << std::endl;
+		std::cout << std::endl;
 	}
 	for (size_t i = 0; i < this->_servers.size(); i++)
 	{

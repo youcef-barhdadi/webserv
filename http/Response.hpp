@@ -47,15 +47,25 @@ class Response
 		bool				check_methods();
 	
 		std::string			get_errorpage(int status);
-		std::vector<char> response_vec;
 
-		size_t		bytes_sent;
+		Request				*get_request(void);
+		bool				get_is_finished(void);
+		std::vector<char>	&get_response_vec(void);
+		size_t				get_bytes_sent(void);
 
-		bool  is_finshed;
-		Request	*request;
+		void				set_bytes_sent(size_t n);
+
 	private:
+// error pages
 		std::vector<char> _403_error();
 		std::vector<char> _405_error();
+//
+
+		Request				*_request;
+		bool				_is_finshed;
+		std::vector<char>	_response_vec;
+		size_t				_bytes_sent;
+
 
 		size_t  _size;
 		unsigned int _status;

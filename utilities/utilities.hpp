@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:09 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/21 22:14:45 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/22 01:05:23 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 #include <dirent.h>
 
 
-typedef struct ss{
+typedef struct{
     bool                 isDir;
     std::string         fileName;
     std::string         date;
@@ -55,5 +55,5 @@ size_t     HexToDec(std::string nb);
 
 
 
-bool isDirectory(std::string path);
+bool 				isDirectory(std::string path);
 std::vector<FileInfo>	getListOfFiles(std::string path);
