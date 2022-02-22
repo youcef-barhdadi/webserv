@@ -175,26 +175,17 @@ void		serve_chanked()
 std::vector<char>	 Response::POST()
 {	
 	std::string head_str;
-	std::string upload_dir = "upload";	// config map["image"]
-	// get path to uploading
+	std::string upload_dir = _mylocation->upload.second;
+
+// get path to uploading
 	std::string body_path = _request->get_body_filename();
-	// copy 
-	// std::cout << body_path << std::endl;
-	rename( body_path.c_str() , (upload_dir + _request->get_path()).c_str());
+
+	rename(body_path.c_str() , (upload_dir + _request->get_path()).c_str());
 	this->_status = 201;
 	head_str = Create_Header();
 	std::vector<char> resp_vec(head_str.begin(), head_str.end());
 	return resp_vec;
 }
-
-/*
-   POST /upload/hamid.jpg 
-
-   location /upload root: /var/www
-
-
-   /var/www/hamod
-   */
 
 std::vector<char>	 Response::GET()
 {
@@ -238,16 +229,7 @@ std::vector<char>	 Response::GET()
 	}
 	else 
 	{
-		// this means 404
-		this->_status = 404;
-		std::vector<char> tow= getfileRaw("404.html");	
-		this->_size = tow.size();
-		responce = Create_Header();
-		std::vector<char> first(responce.begin(), responce.end());
-		first.insert(first.end(), tow.begin(), tow.end());
-		_response_vec = first;
-		this->_is_finshed= true;
-		return  first;
+		return _404_error();
 	}
 	// throw std::logic_error("not implemented yet !");
 
@@ -289,23 +271,23 @@ std::string		Response::get_errorpage(int status)
 
 std::vector<char> Response::_403_error()
 {
-	std::string path = get_errorpage(403);
-	std::string l;
-	std::vector<char> file_vec;
+	std::string path =  get_errorpage(403);
+	std::string header = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\n";
 	if (path.size() == 0)
 	{
-		l = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\nContent-Length: 106\n\r\n<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>";
-
+		std::string ll = "Content-Length: 106\n\r\n<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>";
+		std::string l = header + ll;
+		std::vector<char> res_vec(l.begin(), l.end());
+		return res_vec;
 	}
-	else{
-		l = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\n";
-		file_vec = getfileRaw(path + "/403.html");
-		l += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
-	}
+	std::vector<char> file_vec = getfileRaw(path + "/403.html");
 
-	std::vector<char> res_vec(l.begin(), l.end());
-	res_vec.insert(res_vec.end(), file_vec.begin(), file_vec.end());
-	return res_vec;
+	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
+
+	std::vector<char> return_vec(header.begin(), header.end());
+
+	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
+	return return_vec;
 }
 
 std::vector<char> Response::_405_error()
@@ -330,6 +312,26 @@ std::vector<char> Response::_405_error()
 
 }
 
+std::vector<char>	Response::_404_error()
+{
+	std::string path =  get_errorpage(404);
+	std::string header = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\n";
+	if (path.size() == 0)
+	{
+		std::string ll = "Content-Length: 106\n\r\n<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></center></body></html>";
+		std::string l = header + ll;
+		std::vector<char> res_vec(l.begin(), l.end());
+		return res_vec;
+	}
+	std::vector<char> file_vec = getfileRaw(path + "/404.html");
+
+	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
+
+	std::vector<char> return_vec(header.begin(), header.end());
+
+	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
+	return return_vec;
+}
 
 bool				Response::check_methods()
 {
@@ -342,19 +344,21 @@ std::vector<char>	Response::serv()
 {
 	std::cout << "request path: " <<  _request->get_path() << std::endl;
 	this->find_location();
-	std::cout << _mylocation << std::endl;
 	if (isDirectory(this->_request->get_path()))
 		this->find_index_file();
-
 	if (!check_methods())
-	{
-		std::cout << "method" << std::endl;
 		return _405_error();
-	}
+// no location was found 
+	if (_mylocation == 0x0)
+		return _404_error();
 
-	std::cout << "index file: " << _indexFile << std::endl;
 	if (this->_request->get_method() ==  "POST")
+	{
+// if the location does not support upload
+		if (!_mylocation->upload.first)
+			return _404_error();
 		return 	POST();
+	}
 	else if (this->_request->get_method() == "GET")
 	{
 		if (isDirectory(this->_request->get_path())   && _indexFile.size() != 0)

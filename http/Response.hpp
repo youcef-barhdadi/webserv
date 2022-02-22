@@ -40,6 +40,7 @@ class Response
 		std::vector<char>	 AUTOINDEX(std::string str);
 
 
+
 		void				find_location(void);
 		void				find_index_file(void);
 		
@@ -58,6 +59,7 @@ class Response
 	private:
 // error pages
 		std::vector<char> _403_error();
+		std::vector<char> _404_error();
 		std::vector<char> _405_error();
 //
 
