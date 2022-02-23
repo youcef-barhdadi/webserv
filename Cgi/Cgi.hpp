@@ -19,6 +19,9 @@ class Cgi
 		
 		std::string	 startCgi(Request *request);
 
+		std::vector<char>	readChunk();
+
+		int pip[2];
 
 	private:
 

@@ -2,11 +2,40 @@
 # include "./Server/Server.hpp"
 # include  "./Config/Config.hpp"
 # include "FileDescriptorManager/FileDescriptorManager.hpp"
+     #include <signal.h>
+
+
+	 #include <stdio.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <sys/resource.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <sys/resource.h>
+
+void  proc_exit(int a)
+{
+	int wstat;
+	pid_t pid;
+
+	a = 0;
+
+	while (1) {
+		pid = wait3(&wstat, WNOHANG, NULL);
+		if (pid == 0 || pid == -1)
+			return ;
+		printf("Return code: %d\n", wstat);
+		printf("PID: %d\n", pid);
+	}
+			return ;
+}
 
 int     main(int ac, char **av)
 {
-	if (ac != 2)
-		return 1;
+	ac = 0;
+	signal (SIGCHLD, proc_exit);
 	Config config;
 	Spinner s;
 
