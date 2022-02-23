@@ -99,6 +99,7 @@ std::vector<char>  Response::AUTOINDEX(std::string path)
 
 	header = "HTTP/1.1 200 Ok\n";
 	header += "Content-Length: "+ std::to_string(body.size());
+// if path is a file add header that allows the ressource to be downloaded
 	header += "\n\r\n";
 	header += body;
 	std::vector<char> resp(header.begin(), header.end());
