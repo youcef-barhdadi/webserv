@@ -161,33 +161,6 @@ std::string  Response::Create_Header()
 	return header;
 }
 
-
-std::vector<char> handlCgiresponse(std::string & str)
-{
-
-	std::vector<std::string> strs = split(str, '\n');;
-
-	int size = strs[2].length();
-
-
-	std::string content = "HTTP/1.1 200 OK\nContent-Length: "+ std::to_string(size);
-	content += "\n";
-	content.append(str);
-
-	std::vector <char> vec(content.begin(), content.end());
-
-
-	return vec;
-}
-
-
-void		serve_chanked()
-{
-	// if the size is bigger the Buffer_size
-}
-
-
-
 std::vector<char>	 Response::POST()
 {
 	std::string head_str;
@@ -224,14 +197,6 @@ std::vector<char>	 Response::GET()
 	
 	std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
-	if (extension == "pl")
-	{
-		Cgi cgi;
-		std::string  strtest = cgi.startCgi(_request);
-		std::vector<char> test = handlCgiresponse(strtest);
-		// exit(0);
-		return  test;
-	}
 	// else
 	// {
 	// 	resource.erase(0, 1);
@@ -392,11 +357,22 @@ bool				Response:: check_methods()
 {
 	return  std::count(_mylocation->methods.begin(), _mylocation->methods.end() , this->_request->get_method()) != 0;
 }
-
+int  i =0;
 
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
+	std::string extension = getExtension(this->_request->get_path());
+	if (extension == "pl")
+	{
+		Cgi cgi;
+		 cgi.startCgi(_request);
+		std::vector<char> test = cgi.readChunk();
+		// exit(0);
+		return  test;
+	}
+
+
 	std::cout << "request path: " <<  _request->get_path() << std::endl;
 	this->find_location();
 	std::cout << "location url: " << _mylocation->url << std::endl;

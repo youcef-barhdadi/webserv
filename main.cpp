@@ -35,7 +35,7 @@ void  proc_exit(int a)
 int     main(int ac, char **av)
 {
 	ac = 0;
-	signal (SIGCHLD, proc_exit);
+	// signal (SIGCHLD, proc_exit);
 	Config config;
 	Spinner s;
 
