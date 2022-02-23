@@ -64,6 +64,8 @@ Response &				Response::operator=( Response const & rhs )
 	return *this;
 }
 
+// autoindex the root of the location i.e, location /auto /Users/ztaouil/Projects/webserv
+//											we will autoindex this dir -> /Users/ztaouil/Projects/webserv
 
 std::vector<char>  Response::AUTOINDEX(std::string path)
 {
@@ -99,9 +101,7 @@ std::vector<char>  Response::AUTOINDEX(std::string path)
 
 	header = "HTTP/1.1 200 Ok\n";
 	header += "Content-Type: text/html\n";
-	// header += "Content-Disposition: attachment\n";
 	header += "Content-Length: "+ std::to_string(body.size());
-// if path is a file add header that allows the ressource to be downloaded
 	header += "\n\r\n";
 	header += body;
 	std::vector<char> resp(header.begin(), header.end());
@@ -136,17 +136,15 @@ std::string  Response::Create_Header()
 	else if (this->_status == 200)
 	{
 		std::string extetion = getExtension(resource);
-		// std::cout  << extetion << std::endl;
 
-		// std::cout << "extetion.c_str() . "  << extetion.c_str() << std::endl;
+// header allow ressource to be downloaded to the client host machine.
+		if (_mylocation->autoindex)
+			header += "Content-Disposition: attachment\n";
+
 		header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
-
 		header += "Content-Length: "+ std::to_string(this->_size);
 		header += "\n\n";
 	}
-	// else if (this->_status == 403)
-
-	// std::cout << header << std::endl;
 	return header;
 }
 
@@ -338,7 +336,29 @@ std::vector<char>	Response::_404_error()
 	return return_vec;
 }
 
-bool				Response::check_methods()
+std::vector<char>	Response::_501_error()
+{
+	std::string path =  get_errorpage(501);
+	std::string header = "HTTP/1.1 501 Not Implemented\r\nContent-Type: text/html\n";
+	if (path.size() == 0)
+	{
+		std::string ll = "Content-Length: 118\n\r\n<html><head><title>501 Not Implemented</title></head><body><center><h1>501 Not Implemented</h1></center></body></html>";
+		std::string l = header + ll;
+		std::vector<char> res_vec(l.begin(), l.end());
+		return res_vec;
+	}
+	std::vector<char> file_vec = getfileRaw(path + "/501.html");
+
+	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
+
+	std::vector<char> return_vec(header.begin(), header.end());
+
+	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
+	return return_vec;
+}
+
+
+bool				Response:: check_methods()
 {
 	return  std::count(_mylocation->methods.begin(), _mylocation->methods.end() , this->_request->get_method()) != 0;
 }
@@ -349,6 +369,7 @@ std::vector<char>	Response::serv()
 {
 	std::cout << "request path: " <<  _request->get_path() << std::endl;
 	this->find_location();
+	std::cout << "location url: " << _mylocation->url << std::endl;
 	if (isDirectory(this->_request->get_path()))
 		this->find_index_file();
 	if (!check_methods())
@@ -377,7 +398,9 @@ std::vector<char>	Response::serv()
 			return _403_error();
 		return GET();
 	}
-	exit(1337);
+	else{
+		return _501_error();
+	}
 }
 
 void				Response::find_location(void)

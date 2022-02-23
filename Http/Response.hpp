@@ -61,6 +61,7 @@ class Response
 		std::vector<char> _403_error();
 		std::vector<char> _404_error();
 		std::vector<char> _405_error();
+		std::vector<char> _501_error();
 //
 
 		Request				*_request;
