@@ -69,16 +69,29 @@ Response &				Response::operator=( Response const & rhs )
 
 std::vector<char>  Response::AUTOINDEX(std::string path)
 {
+	std::cout << "AUTOINDEX" << std::endl;
 	if ( path[ path.size() - 1] != '/')
 		path.insert( path.end(), '/');
+
+	std::string t_path = path;
+	t_path.erase(t_path.begin());
+	if (t_path.find('/') != std::string::npos)
+		t_path = t_path.substr(t_path.find('/'), t_path.size());
+	t_path.erase(t_path.end() - 1);
+	std::cout << "t_path = " << t_path << std::endl;
+// static/www		_locations->root + /www  ..
+
 	std::string	body = "<html lang='en'>\n<head>\n<title>Document</title>\n</head>\n<body>\n<h1>Index OF "+ path + " </h1>\n<br>\n<table width=\"100%\">\n<hr>";
 	std::string  header;
 	std::string s = path[0] == '/' ? path.erase(0,1) : path;
+	// std::string s = path;
 	if (s[s.size()-1] == '/')
 		s.erase(s.end() - 1);
-	if(isDirectory(path))
+
+	if(isDirectory(_mylocation->root + t_path))
 	{
-		std::vector<FileInfo> fileInfoList = getListOfFiles(path);
+// here	
+		std::vector<FileInfo> fileInfoList = getListOfFiles(_mylocation->root + t_path);
 
 
 		for(size_t i = 0; i < fileInfoList.size(); i++)
@@ -89,7 +102,7 @@ std::vector<char>  Response::AUTOINDEX(std::string path)
 				continue;
 			td  = "<td width=\"25%\">"+ fileInfoList[i].date + "</td>"  ;
 			body += td;
-			if (isDirectory( s + "/"+ fileInfoList[i].fileName))
+			if (isDirectory( _mylocation->root + t_path + "/"+ fileInfoList[i].fileName))
 				td = "<td width=\"25%\">"+ std::string("-") +"</td></tr>"  ;
 			else
 				td = "<td width=\"25%\">"+ (fileInfoList[i].size)+"</td></tr>" ;
@@ -194,7 +207,23 @@ std::vector<char>	 Response::GET()
 {
 	if (this->_is_finshed == true)
 		return this->_response_vec;
-	std::string resource = _request->get_path();
+	//
+
+	//
+	std::string resource;
+	if (!_mylocation->autoindex){
+		resource = _mylocation->root + _request->get_path();
+	}
+	else{
+		std::string t_path = _request->get_path();
+		t_path.erase(t_path.begin());
+		if (t_path.find('/') != std::string::npos)
+			t_path = t_path.substr(t_path.find('/'), t_path.size());
+		// t_path.erase(t_path.end() - 1);
+		resource = _mylocation->root + t_path;
+	}
+	
+	std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
 	if (extension == "pl")
 	{
@@ -204,10 +233,10 @@ std::vector<char>	 Response::GET()
 		// exit(0);
 		return  test;
 	}
-	else
-	{
-		resource.erase(0, 1);
-	}
+	// else
+	// {
+	// 	resource.erase(0, 1);
+	// }
 	// std::cout << resource << std::endl;
 	std::string  responce;
 	// responce = Createe_Header(request, resource);
@@ -215,6 +244,8 @@ std::vector<char>	 Response::GET()
 	std::string  body = "";
 	std::streampos size;
 	std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
+
+	std::cout << file.is_open() << std::endl;
 
 	if (file.is_open())
 	{
@@ -378,6 +409,19 @@ std::vector<char>	Response::serv()
 	if (_mylocation == 0x0)
 		return _404_error();
 
+//
+	std::string t_path = _request->get_path();
+
+
+	if (_mylocation->autoindex){
+		t_path += "/";
+		t_path.erase(t_path.begin());
+		if (t_path.find('/') != std::string::npos)
+			t_path = t_path.substr(t_path.find('/'), t_path.size());
+		t_path.erase(t_path.end()-1);
+	}
+
+//
 	if (this->_request->get_method() ==  "POST")
 	{
 		// if the location does not support upload
@@ -387,14 +431,16 @@ std::vector<char>	Response::serv()
 	}
 	else if (this->_request->get_method() == "GET")
 	{
-		if (isDirectory(this->_request->get_path())   && _indexFile.size() != 0)
+//	this->_request->get_path()	_mylocation->root
+		std::cout << "host path: " << _mylocation->root + t_path << std::endl;
+		if (isDirectory(_mylocation->root + t_path)   && _indexFile.size() != 0)
 		{
 			_request->set_path(_request->get_path() + _indexFile);
 			return GET();
 		}
-		else if (isDirectory(this->_request->get_path())  && this->_mylocation->autoindex)
+		else if (isDirectory(_mylocation->root + t_path)  && this->_mylocation->autoindex)
 			return AUTOINDEX(this->_request->get_path());
-		else if (isDirectory(this->_request->get_path()))
+		else if (isDirectory(_mylocation->root + t_path))
 			return _403_error();
 		return GET();
 	}

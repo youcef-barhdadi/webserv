@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/22 02:37:58 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/23 11:00:09 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,13 +172,14 @@ std::string	readable_fs(double size) {
 
 
 bool isDirectory(std::string path) {
-
+	
 
 	struct stat statbuf;
 	if (path == "/")
 		return true;
 
-	std::string s = path[0] == '/' ? path.erase(0,1) : path; 
+	// std::string s = path[0] == '/' ? path.erase(0,1) : path;
+	std::string s = path; 
 	if (stat(s.c_str(), &statbuf) != 0)
 		return 0;
 	return S_ISDIR(statbuf.st_mode);
@@ -191,7 +192,8 @@ std::vector<FileInfo>	getListOfFiles(std::string path)
 	struct dirent *info;
 	std::vector<FileInfo>	list;
 	DIR *dir;
-	std::string s = path[0] == '/' ? path.erase(0,1) : path;
+	// std::string s = path[0] == '/' ? path.erase(0,1) : path;
+	std::string s = path;
 	dir = opendir(s.c_str());
 	while ((info = readdir(dir)))
 	{
