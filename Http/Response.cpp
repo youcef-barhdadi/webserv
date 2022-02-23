@@ -219,7 +219,6 @@ std::vector<char>	 Response::GET()
 		t_path.erase(t_path.begin());
 		if (t_path.find('/') != std::string::npos)
 			t_path = t_path.substr(t_path.find('/'), t_path.size());
-		// t_path.erase(t_path.end() - 1);
 		resource = _mylocation->root + t_path;
 	}
 	
