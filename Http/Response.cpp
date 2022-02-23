@@ -98,6 +98,8 @@ std::vector<char>  Response::AUTOINDEX(std::string path)
 	}
 
 	header = "HTTP/1.1 200 Ok\n";
+	header += "Content-Type: text/html\n";
+	// header += "Content-Disposition: attachment\n";
 	header += "Content-Length: "+ std::to_string(body.size());
 	header += "\n\r\n";
 	header += body;
