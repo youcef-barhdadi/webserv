@@ -25,11 +25,8 @@ class Response
 		// this method will do magic MAGIC
 		std::vector<char>	serv();
 
-
 		std::string buildResponse();
 		std::string  Create_Header();
-
-		std::vector<char> Get(Request  &req, fd_set set);
 
 
 
@@ -77,6 +74,7 @@ class Response
 		int requestedFileFD;
 		size_t sizeFile;
 		size_t	sended;
+//		location
 		struct location *_mylocation;
 };
 
