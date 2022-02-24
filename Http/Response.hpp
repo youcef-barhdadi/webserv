@@ -47,8 +47,6 @@ class Response
 
 		bool				check_methods();
 
-		std::string			get_errorpage(int status);
-
 		Request				*get_request(void);
 		bool				get_is_finished(void);
 		std::vector<char>	&get_response_vec(void);

@@ -5,19 +5,13 @@
 
 int     main(int ac, char **av)
 {
-	if (ac != 2)
-		return 1;
 	Config config;
 	Spinner s;
-
-	std::string config_file = std::string(av[1]);
-	config.Parse(config_file);
-	std::vector<Server> servers = config.get_servers();
-
-	for(size_t i = 0; i < servers.size(); i++){
-		// servers[i].debug();
-		s._servers.push_back(&servers[i]);
-	}
+	
+	if (ac != 2)
+		return 1;
+	config.parse(av[1]);
+	s._servers = config.get_servers();
 	s.run();
 	return 0;
 }

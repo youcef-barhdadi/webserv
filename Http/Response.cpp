@@ -191,7 +191,7 @@ void		serve_chanked()
 std::vector<char>	 Response::POST()
 {
 	std::string head_str;
-	std::string upload_dir = _mylocation->upload.second;
+	std::string upload_dir = _mylocation->upload;
 
 	// get path to uploading
 	std::string body_path = _request->get_body_filename();
@@ -284,27 +284,9 @@ std::vector<char>	 Response::CGI()
 }
 
 
-std::string		Response::get_errorpage(int status)
-{
-	std::vector<error_pages> err_pages = this->_request->_server->get_error_pages();
-	std::string			path = "";
-
-	for (size_t i = 0; i < err_pages.size(); i++)
-	{
-		if (std::count(err_pages[i].status_codes.begin(), err_pages[i].status_codes.end(), status) != 0)
-		{
-			path = err_pages[i].root;
-			break;
-		}
-	}
-	return path;
-
-}
-
-
 std::vector<char> Response::_403_error()
 {
-	std::string path =  get_errorpage(403);
+	std::string path =  _request->_server->get_error_pages();
 	std::string header = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\n";
 	if (path.size() == 0)
 	{
@@ -325,7 +307,7 @@ std::vector<char> Response::_403_error()
 
 std::vector<char> Response::_405_error()
 {
-	std::string path =  get_errorpage(405);
+	std::string path =  _request->_server->get_error_pages();
 	std::string header = "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/html\n";
 	if (path.size() == 0)
 	{
@@ -347,7 +329,7 @@ std::vector<char> Response::_405_error()
 
 std::vector<char>	Response::_404_error()
 {
-	std::string path =  get_errorpage(404);
+	std::string path =  _request->_server->get_error_pages();
 	std::string header = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\n";
 	if (path.size() == 0)
 	{
@@ -368,7 +350,7 @@ std::vector<char>	Response::_404_error()
 
 std::vector<char>	Response::_501_error()
 {
-	std::string path =  get_errorpage(501);
+	std::string path = _request->_server->get_error_pages();
 	std::string header = "HTTP/1.1 501 Not Implemented\r\nContent-Type: text/html\n";
 	if (path.size() == 0)
 	{
@@ -424,7 +406,7 @@ std::vector<char>	Response::serv()
 	if (this->_request->get_method() ==  "POST")
 	{
 		// if the location does not support upload
-		if (!_mylocation->upload.first)
+		if (!_mylocation->upload.size())
 			return _404_error();
 		return 	POST();
 	}

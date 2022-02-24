@@ -48,7 +48,7 @@ OBJS =	Utilities.o\
 all:
 	@echo "Compiling"
 	@$(CC) -c $(FLAGS) $(SRCS)
-	@$(CC) $(DEBUG) $(OBJS) -o webserv
+	@$(CC) $(OBJS) -o webserv
 	@[[ ! -d objs ]] && mkdir objs; mv *.o ./objs
 	@echo "Compiled"
 clean:
