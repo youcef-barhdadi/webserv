@@ -18,26 +18,26 @@ class Response
 		Response( Response const & src );
 		~Response();
 
-		Response &		operator=( Response const & rhs );
+		Response &			operator=( Response const & rhs );
 
 
 
 		// this method will do magic MAGIC
-		std::vector<char>	serv();
+		std::vector<char>	serv(void);
 
-		std::string buildResponse();
-		std::string  Create_Header();
-
-
-
-		std::vector<char>	 POST();
-		std::vector<char>	 GET();
-		std::vector<char>	 DELETE();
-		std::vector<char>	 CGI();
-		std::vector<char>	 AUTOINDEX(std::string str);
+		std::string 		create_header(void);
 
 
 
+		void				 POST(void);
+		void				 GET(void);
+		void				 DELETE(void);
+		void				 CGI(void);
+
+
+
+
+		void				create_autoindex(std::string str);
 		void				find_location(void);
 		void				find_index_file(void);
 
@@ -62,20 +62,22 @@ class Response
 		Request				*_request;
 		bool				_is_finshed;
 		std::vector<char>	_response_vec;
+		std::string			_index_file;
+		location			*_mylocation;
 		size_t				_bytes_sent;
 
 
+
+//	not used yet
 		size_t  _size;
 		unsigned int _status;
-		std::string _indexFile;
-//	if the resposnse chanked or not
-		bool		chanked_request;
+//	if the resposnse chunked or not
+		// bool		chunked_request;
 // 		requested file
-		int requestedFileFD;
-		size_t sizeFile;
-		size_t	sended;
+		// int requestedFileFD;
+		// size_t sizeFile;
+		// size_t	sended;
 //		location
-		struct location *_mylocation;
 };
 
 #endif /* ******************************************************** RESPONSE_H */

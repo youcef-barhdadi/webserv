@@ -11,13 +11,6 @@
 #include <cstring>
 #include <stdio.h>
 
-
-/*
- ** ------------------------------- CONSTRUCTOR --------------------------------
- */
-
-
-
 Response::Response( const Response & rhs)
 {
 	*this= rhs;
@@ -29,27 +22,19 @@ Response::Response()
 	this->_bytes_sent = 0;
 	this->_is_finshed = false;
 	this->_mylocation = NULL;
-	this->_indexFile = "";
+	this->_index_file = "";
 }
 Response::Response(Request * req )
 {
 	this->_request = req;
 	this->_bytes_sent = 0;
 	this->_is_finshed = false;
-	this->_indexFile = "";
+	this->_index_file = "";
 }
-/*
- ** -------------------------------- DESTRUCTOR --------------------------------
- */
 
 Response::~Response()
 {
 }
-
-
-/*
- ** --------------------------------- OVERLOAD ---------------------------------
- */
 
 Response &				Response::operator=( Response const & rhs )
 {
@@ -60,17 +45,19 @@ Response &				Response::operator=( Response const & rhs )
 	this->_status = rhs._status;
 	this->_request = rhs._request;
 	this->_mylocation = rhs._mylocation;
-	this->_indexFile = rhs._indexFile;
+	this->_index_file = rhs._index_file;
 	return *this;
 }
 
-// autoindex the root of the location i.e, location /auto /Users/ztaouil/Projects/webserv
-//											we will autoindex this dir -> /Users/ztaouil/Projects/webserv
 
-std::vector<char>  Response::AUTOINDEX(std::string path)
+//
+// create_autoindex the root of the location i.e, location /auto /Users/ztaouil/Projects/webserv
+//											we will create_autoindex this dir -> /Users/ztaouil/Projects/webserv
+
+void	  Response::create_autoindex(std::string path)
 {
-	std::cout << "AUTOINDEX" << std::endl;
-	if ( path[ path.size() - 1] != '/')
+	std::cout << "Response::create_autoindex" << std::endl;
+	if (path[ path.size() - 1] != '/')
 		path.insert( path.end(), '/');
 
 	std::string t_path = path;
@@ -117,15 +104,19 @@ std::vector<char>  Response::AUTOINDEX(std::string path)
 	header += "Content-Length: "+ std::to_string(body.size());
 	header += "\n\r\n";
 	header += body;
-	std::vector<char> resp(header.begin(), header.end());
-	return resp;
+	
+// _response_vec should be empty
+	if (!_response_vec.empty())
+		exit(42);
+	_response_vec.insert(_response_vec.begin(), header.begin(), header.end());
+	return ;
 }
 
 
 
 
 
-std::string  Response::Create_Header()
+std::string  Response::create_header(void)
 {
 	std::string header = "HTTP/1.1 200 OK\n";
 	std::string resource =  _request->get_path();
@@ -180,15 +171,7 @@ std::vector<char> handlCgiresponse(std::string & str)
 	return vec;
 }
 
-
-void		serve_chanked()
-{
-	// if the size is bigger the Buffer_size
-}
-
-
-
-std::vector<char>	 Response::POST()
+void	 Response::POST(void)
 {
 	std::string head_str;
 	std::string upload_dir = _mylocation->upload;
@@ -198,17 +181,15 @@ std::vector<char>	 Response::POST()
 
 	rename(body_path.c_str() , (upload_dir + _request->get_path()).c_str());
 	this->_status = 201;
-	head_str = Create_Header();
-	std::vector<char> resp_vec(head_str.begin(), head_str.end());
-	return resp_vec;
+	head_str = create_header();
+
+	_response_vec.insert(_response_vec.begin(), head_str.begin(), head_str.end());
+	return ;
 }
 
-std::vector<char>	 Response::GET()
+void	 Response::GET(void)
 {
-	if (this->_is_finshed == true)
-		return this->_response_vec;
-	//
-
+	std::cout << "Response::Get" << std::endl;
 	//
 	std::string resource;
 	if (!_mylocation->autoindex){
@@ -222,23 +203,17 @@ std::vector<char>	 Response::GET()
 		resource = _mylocation->root + t_path;
 	}
 	
-	std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
+	// std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
 	if (extension == "pl")
 	{
 		Cgi cgi;
 		std::string  strtest = cgi.startCgi(_request);
 		std::vector<char> test = handlCgiresponse(strtest);
-		// exit(0);
-		return  test;
+		return  ;
 	}
-	// else
-	// {
-	// 	resource.erase(0, 1);
-	// }
-	// std::cout << resource << std::endl;
+
 	std::string  responce;
-	// responce = Createe_Header(request, resource);
 	std::string  str;
 	std::string  body = "";
 	std::streampos size;
@@ -253,34 +228,28 @@ std::vector<char>	 Response::GET()
 		file.close();
 		std::vector<char> tow= getfileRaw(resource);
 		this->_size = tow.size();
-		responce = Create_Header();
+		responce = create_header();
 		std::vector<char> first(responce.begin(), responce.end());
 		first.insert(first.end(), tow.begin(), tow.end());
 		this->_is_finshed = true;
 		this->_response_vec = first;
-		return first;
+		_response_vec = first;
 	}
 	else
 	{
-		return _404_error();
+		_response_vec = _404_error();
 	}
-	// throw std::logic_error("not implemented yet !");
 
 }
 
-std::vector<char>	 Response::DELETE()
+void	 Response::DELETE(void)
 {
-	std::vector<char> t;
-
-	return t;
+	return ;
 }
 
-std::vector<char>	 Response::CGI()
+void	 Response::CGI(void)
 {
-	std::vector<char> t;
-
-
-	return t;
+	return ;
 }
 
 
@@ -408,26 +377,28 @@ std::vector<char>	Response::serv()
 		// if the location does not support upload
 		if (!_mylocation->upload.size())
 			return _404_error();
-		return 	POST();
+		POST();
 	}
 	else if (this->_request->get_method() == "GET")
 	{
 //	this->_request->get_path()	_mylocation->root
 		std::cout << "host path: " << _mylocation->root + t_path << std::endl;
-		if (isDirectory(_mylocation->root + t_path)   && _indexFile.size() != 0)
+		if (isDirectory(_mylocation->root + t_path)   && _index_file.size() != 0)
 		{
-			_request->set_path(_request->get_path() + _indexFile);
-			return GET();
+			_request->set_path(_request->get_path() + _index_file);
+			GET();
 		}
 		else if (isDirectory(_mylocation->root + t_path)  && this->_mylocation->autoindex)
-			return AUTOINDEX(this->_request->get_path());
+			create_autoindex(this->_request->get_path());
 		else if (isDirectory(_mylocation->root + t_path))
 			return _403_error();
-		return GET();
+		else
+			GET();
 	}
 	else{
 		return _501_error();
 	}
+	return _response_vec;
 }
 
 void				Response::find_location(void)
@@ -463,7 +434,7 @@ void				Response::find_index_file(void)
 		fd = open(absolute_path.c_str(), O_RDONLY);
 		if (fd > 0)
 		{
-			_indexFile = _mylocation->index[i];
+			_index_file = _mylocation->index[i];
 			close(fd);
 			break ;
 		}
