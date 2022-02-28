@@ -190,6 +190,11 @@ void	 Response::POST(void)
 void	 Response::GET(void)
 {
 	std::cout << "Response::Get" << std::endl;
+	// if location has redirection
+	if (_mylocation->redirect.size() != 0){
+		_response_vec = create_302_header();
+		return ;
+	}
 	//
 	std::string resource;
 	if (!_mylocation->autoindex){
@@ -352,6 +357,13 @@ void				Response::find_index_file(void)
 			break ;
 		}
 	}
+}
+
+std::vector<char>	Response::create_302_header(void)
+{
+	std::string s = "HTTP/1.1 302 Found\nLocation: http://www." + _mylocation->redirect + "\n";
+
+	return std::vector<char>(s.begin(), s.end());
 }
 
 

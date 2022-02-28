@@ -153,6 +153,8 @@ void	Config::ext_location_parse(std::vector<std::string>	&buffer_split, location
 	else if (buffer_split[0] == "upload"){
 		loc->upload = buffer_split[1];
 	}
+	else if (buffer_split[0] == "redirect")
+		loc->redirect = buffer_split[1];
 	else
 		c_error("");
 }

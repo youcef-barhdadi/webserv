@@ -28,6 +28,8 @@ class Response
 		std::string 		create_header(void);
 		std::string			create_status_line(std::string status_code);
 
+		std::vector<char>	create_302_header(void);
+
 		void				 POST(void);
 		void				 GET(void);
 		void				 DELETE(void);

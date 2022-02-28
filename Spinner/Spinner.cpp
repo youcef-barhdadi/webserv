@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/28 11:13:53 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/28 13:17:35 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,12 +109,6 @@ void	Spinner::run()
 			exit(0);
 		}
 
-		std::cout << "@";
-		for (size_t fds = 0; fds < maxfd + 1; fds++) {
-			if (FD_ISSET(fds, &ready_socket) || FD_ISSET(fds, &current_socket))
-				std::cout << fds << " | ";
-		}
-		std::cout << std::endl;
 		std::cout << "select returns" << std::endl;
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
