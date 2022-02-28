@@ -45,72 +45,55 @@ std::vector<char>	Cgi::readChunk()
 		}
 		buffer[size] = 0;
 		std::string str(buffer);
-		std::cout << "[" << str << "]" << std::endl;
 		std::vector<char>  vec=  handlCgiresponse(str);
 		return vec;
 }	
 
 
+
+
+void sleepcp(int milliseconds) // Cross-platform sleep function
+{
+    clock_t time_end;
+    time_end = clock() + milliseconds * CLOCKS_PER_SEC/1000;
+    while (clock() < time_end)
+    {
+    }
+}
+
+
+
 std::string		Cgi::startCgi(Request *request)
 {
 	pipe(this->pip);
-	int opserver  = fork();
-	if (opserver== 0)
+	int status = 0;
+	pid_t worker_pid = fork();
+	if (worker_pid == 0)
 	{
-		pid_t  pid = fork();
-
-		if (pid == 0)
-		{
-			pid_t worker_pid = fork();
-			if (worker_pid == 0)
-			{
-				std::string new_stg = request->get_path().erase(0,1);
-				const char *s =new_stg.c_str();
-				errno =0;
-				dup2(pip[1], 1);
-				perror("dup2");
-				close(pip[1]);
-				perror("close 1");
-				close(pip[0]);
-				perror("close 2");
-				const char *args[] = {"perl", s, NULL };
-				// set environment variables
-				execvp("perl", (char **) args);
-				perror("perl 1");
-				exit(1);
-			}
-			pid_t timeout_pid = fork();
-			if (timeout_pid == 0)
-			{
-				sleep(10);
-				write(2, "xxxx\n", 5);
-				_exit(0);
-			}
-			pid_t exited_pid = wait(NULL);
-			if (exited_pid == worker_pid)
-			{
-				kill(timeout_pid, SIGKILL);
-			}
-			else 
-			{
-				errno = 0;
-				std::string header = "HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\n";
-				std::string ll = "Content-Length: 117\n\r\n<html><head><title>504 Gateway Timeout</title></head><body><center><h1>504 Gateway Timeout</h1></center></body></html>";
-				std::string l = header + ll;
-				std::vector<char> res_vec(l.begin(), l.end());
-				std::cout << l << std::endl;
-				int ret = 	write(pip[1], res_vec.data(), res_vec.size());
-				std::cout << ret << "-------------------" << std::endl;
-				kill(worker_pid, SIGKILL); 
-			}
-			wait(NULL); 
-			_exit(0); 
-		}
-		close(this->pip[1]);
-		return "";
+		std::string new_stg = request->get_path().erase(0,1);
+		const char *s =new_stg.c_str();
+		errno =0;
+		dup2(pip[1], 1);
+		perror("dup2");
+		close(pip[1]);
+		perror("close 1");
+		close(pip[0]);
+		perror("close 2");
+		const char *args[] = {"perl", s, NULL };
+		// set environment variables
+		execvp("perl", (char **) args);
+		perror("perl 1");
+		exit(1);
 	}
-			return "";
+	sleepcp(500);
+	int ret = waitpid(worker_pid, &status, WNOHANG);
+	if (ret == -1)
+	{
+			std::cout << "fff" << std::endl;
+	}
+	return "";
 
+	
 }
 
 

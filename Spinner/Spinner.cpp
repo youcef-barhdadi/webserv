@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/22 01:01:40 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/23 21:15:43 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ void	Spinner::run()
 	std::cout << std::endl;
 	while (true)
 	{
-		std::cout << std::string(15, '*') << "mainloop-begin" << std::string(15, '*') << std::endl;
+		// std::cout << std::string(15, '*') << "mainloop-begin" << std::string(15, '*') << std::endl;
 		ready_socket = FileDescriptorManager::set;
 		current_socket = write_socket;
 		if (select((int)maxfd +1, &ready_socket, &current_socket, NULL, &timeout) < 0)
@@ -226,8 +226,8 @@ void	Spinner::run()
 				}
 			}
 		}
-		std::cout << std::string(15, '*') << "mainloop-end  " << std::string(15, '*') << std::endl;
-		std::cout << std::endl;
+		// // std::cout << std::string(15, '*') << "mainloop-end  " << std::string(15, '*') << std::endl;
+		// std::cout << std::endl;
 	}
 	for (size_t i = 0; i < this->_servers.size(); i++)
 	{

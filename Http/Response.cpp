@@ -263,9 +263,7 @@ std::string		Response::get_errorpage(int status)
 		}
 	}
 	return path;
-
 }
-
 
 std::vector<char> Response::_403_error()
 {

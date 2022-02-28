@@ -8,7 +8,7 @@ print '<body>';
 print '<h2>Hello za3im</h2>';
 print '<h2>Hello Souliam</h2>';
 print '</body>';
-# sleep(150);
+sleep(100000);
 print '</html>';
 
 1;
