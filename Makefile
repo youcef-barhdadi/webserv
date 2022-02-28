@@ -1,6 +1,8 @@
 
 CC = clang++
 
+NAME = webserv.out
+
 FLAGS = -Wextra -Werror -Wall
 
 DEBUG = -fsanitize=address
@@ -47,14 +49,21 @@ OBJS =	Utilities.o\
 		main.o\
 		\
 
-all:
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	@$(CC) $(OBJS) -o $(NAME)
+	@echo "Compiled"
+
+$(OBJS): $(SRCS)
 	@echo "Compiling"
 	@$(CC) -c $(FLAGS) $(SRCS)
-	@$(CC) $(OBJS) -o webserv
-	@[[ ! -d objs ]] && mkdir objs; mv *.o ./objs
-	@echo "Compiled"
+
+
 clean:
-	@rm -rf webserv
-	@rm -rf objs
+	@rm -rf $(OBJS)
+
+fclean: clean
+	@rm -rf $(NAME)
 
 re: clean all

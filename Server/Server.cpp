@@ -37,7 +37,7 @@ void	Server::set_locations(struct location &location){
 
 void	Server::debug(void)
 {
-	std::cout << std::string(50, '&') << std::endl;
+	std::cout << std::string(50, '-') << std::endl;
 	std::cout << "server_name: " << _server_name << std::endl;
 	std::cout << "host: " << _host << std::endl;
 	std::cout << "port: "; for(size_t i=0; i<_ports.size(); i++){std::cout << _ports[i] << " ";}; std::cout << '\n';
