@@ -26,8 +26,7 @@ class Response
 		std::vector<char>	serv(void);
 
 		std::string 		create_header(void);
-
-
+		std::string			create_status_line(std::string status_code);
 
 		void				 POST(void);
 		void				 GET(void);

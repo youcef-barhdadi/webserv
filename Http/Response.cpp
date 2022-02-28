@@ -351,13 +351,14 @@ std::vector<char>	Response::serv()
 	std::cout << "request path: " <<  _request->get_path() << std::endl;
 	this->find_location();
 	std::cout << "location url: " << _mylocation->url << std::endl;
+	if (_mylocation == 0x0)
+		return _404_error();
 	if (isDirectory(this->_request->get_path()))
 		this->find_index_file();
+	std::cout << "index file: " << _index_file << std::endl;
 	if (!check_methods())
 		return _405_error();
 	// no location was found
-	if (_mylocation == 0x0)
-		return _404_error();
 
 //
 	std::string t_path = _request->get_path();
