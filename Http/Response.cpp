@@ -209,7 +209,8 @@ void	 Response::GET(void)
 	{
 		Cgi cgi;
 		std::string  strtest = cgi.startCgi(_request);
-		std::vector<char> test = handlCgiresponse(strtest);
+		// std::vector<char> test = handlCgiresponse(strtest);
+		_response_vec = handlCgiresponse(strtest);
 		return  ;
 	}
 
@@ -226,7 +227,7 @@ void	 Response::GET(void)
 
 		this->_status = 200;
 		file.close();
-		std::vector<char> tow= getfileRaw(resource);
+		std::vector<char> tow = getfileRaw(resource);
 		this->_size = tow.size();
 		responce = create_header();
 		std::vector<char> first(responce.begin(), responce.end());
@@ -252,102 +253,15 @@ void	 Response::CGI(void)
 	return ;
 }
 
-
-std::vector<char> Response::_403_error()
-{
-	std::string path =  _request->_server->get_error_pages();
-	std::string header = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\n";
-	if (path.size() == 0)
-	{
-		std::string ll = "Content-Length: 106\n\r\n<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>";
-		std::string l = header + ll;
-		std::vector<char> res_vec(l.begin(), l.end());
-		return res_vec;
-	}
-	std::vector<char> file_vec = getfileRaw(path + "/403.html");
-
-	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
-
-	std::vector<char> return_vec(header.begin(), header.end());
-
-	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
-	return return_vec;
-}
-
-std::vector<char> Response::_405_error()
-{
-	std::string path =  _request->_server->get_error_pages();
-	std::string header = "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/html\n";
-	if (path.size() == 0)
-	{
-		std::string ll = "Content-Length: 125\n\r\n<html><head><title>405 Method Not Allowed</title></head><body><center><h1>405  Method Not Allowed</h1></center></body></html>";
-		std::string l = header + ll;
-		std::vector<char> res_vec(l.begin(), l.end());
-		return res_vec;
-	}
-	std::vector<char> file_vec = getfileRaw(path + "/405.html");
-
-	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
-
-	std::vector<char> return_vec(header.begin(), header.end());
-
-	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
-	return return_vec;
-
-}
-
-std::vector<char>	Response::_404_error()
-{
-	std::string path =  _request->_server->get_error_pages();
-	std::string header = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\n";
-	if (path.size() == 0)
-	{
-		std::string ll = "Content-Length: 106\n\r\n<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></center></body></html>";
-		std::string l = header + ll;
-		std::vector<char> res_vec(l.begin(), l.end());
-		return res_vec;
-	}
-	std::vector<char> file_vec = getfileRaw(path + "/404.html");
-
-	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
-
-	std::vector<char> return_vec(header.begin(), header.end());
-
-	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
-	return return_vec;
-}
-
-std::vector<char>	Response::_501_error()
-{
-	std::string path = _request->_server->get_error_pages();
-	std::string header = "HTTP/1.1 501 Not Implemented\r\nContent-Type: text/html\n";
-	if (path.size() == 0)
-	{
-		std::string ll = "Content-Length: 118\n\r\n<html><head><title>501 Not Implemented</title></head><body><center><h1>501 Not Implemented</h1></center></body></html>";
-		std::string l = header + ll;
-		std::vector<char> res_vec(l.begin(), l.end());
-		return res_vec;
-	}
-	std::vector<char> file_vec = getfileRaw(path + "/501.html");
-
-	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
-
-	std::vector<char> return_vec(header.begin(), header.end());
-
-	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
-	return return_vec;
-}
-
-
 bool				Response:: check_methods()
 {
 	return  std::count(_mylocation->methods.begin(), _mylocation->methods.end() , this->_request->get_method()) != 0;
 }
 
-
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
+	std::cout << _request->_server->get_host() << ":" << _request->_server->get_ports()[0] << std::endl;
 	std::cout << "request path: " <<  _request->get_path() << std::endl;
 	this->find_location();
 	std::cout << "location url: " << _mylocation->url << std::endl;
@@ -420,8 +334,6 @@ void				Response::find_location(void)
 		}
 	}
 	this->_mylocation = &this->_request->_server->get_locations()[location_index];
-
-	// std::cout << "matched_location = " << matched_location << " | with index = " << location_index << std::endl;
 }
 
 void				Response::find_index_file(void)
@@ -443,6 +355,8 @@ void				Response::find_index_file(void)
 }
 
 
+
+/*	getter	*/
 
 Request				*Response::get_request(void)
 {

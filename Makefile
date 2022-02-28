@@ -18,6 +18,7 @@ SRCS =	Utilities/Utilities.cpp\
 		MimeTypes/MimeTypes.cpp\
 		\
 		Http/Response.cpp\
+		Http/Error_codes.cpp\
 		Http/Request.cpp\
 		\
 		Server/Server.cpp\
@@ -38,6 +39,7 @@ OBJS =	Utilities.o\
 		MimeTypes.o\
 		\
 		Response.o\
+		Error_codes.o\
 		Request.o\
 		\
 		Server.o\

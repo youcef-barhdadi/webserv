@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/23 11:00:09 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/28 06:40:55 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ std::vector<char>	getRange(std::string file, size_t start, size_t end)
 		iffile.read (memblock, size);
 		iffile.close();
 		std::vector<char> ret(memblock, memblock+sizee);
+		delete memblock;
 		return ret;
 	}
     return empty;	
@@ -59,6 +60,7 @@ std::vector<char> getfileRaw(std::string file)
 		iffile.read (memblock, size);
 		iffile.close();
 		std::vector<char> ret(memblock, memblock+sizee);
+		delete memblock;
 		return ret;
 	}
     return empty;

@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/22 01:01:40 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/02/28 11:13:53 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void		parseKeepAlive(std::string str)
 	(void)str;
 }
 
-
+// lost pointers.
 void	Spinner::run()
 {
 	struct sockaddr_in address;
@@ -109,10 +109,16 @@ void	Spinner::run()
 			exit(0);
 		}
 
+		std::cout << "@";
+		for (size_t fds = 0; fds < maxfd + 1; fds++) {
+			if (FD_ISSET(fds, &ready_socket) || FD_ISSET(fds, &current_socket))
+				std::cout << fds << " | ";
+		}
+		std::cout << std::endl;
 		std::cout << "select returns" << std::endl;
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
-
+			
 			if (FD_ISSET(connection_fd, &ready_socket)  || FD_ISSET(connection_fd, &current_socket))
 			{
 				// this new connection
@@ -192,13 +198,19 @@ void	Spinner::run()
 						signal(SIGPIPE, SIG_DFL);
 						if ( writing == 0 || writing == -1)
 						{
+							// std::map<unsigned long , Request*>::iterator it1 = unfinshed_request.find(connection_fd);
+							// std::map<unsigned long , Response*>::iterator it2 = unfinshed_responce.find(connection_fd);
+
 							close(connection_fd);
 							close(connection_fd);
 							FD_CLR(connection_fd, &write_socket);
+
+							// delete it1->second;
+							// delete it2->second;
 							unfinshed_responce.erase(connection_fd);
 							FileDescriptorManager::REMOVE(connection_fd);
-
 							unfinshed_request.erase(connection_fd);
+
 						}
 
 						//  std::cout << "=="  << writing << std::endl;
@@ -206,6 +218,9 @@ void	Spinner::run()
 
 						if (res->get_bytes_sent() == array.size())
 						{
+							// std::map<unsigned long , Request*>::iterator it1 = unfinshed_request.find(connection_fd);
+							// std::map<unsigned long , Response*>::iterator it2 = unfinshed_responce.find(connection_fd);
+
 							unfinshed_responce.erase(connection_fd);
 							unfinshed_request.erase(connection_fd);
 							if (res->get_request()->HasHeader("Connection", "keep-alive") == false)
@@ -214,6 +229,8 @@ void	Spinner::run()
 								FileDescriptorManager::REMOVE(connection_fd);
 								socketfd_connectionfd.erase(connection_fd);
 								close(connection_fd);
+								// delete it1->second;
+								// delete it2->second;
 							}else {
 								std::cout << "Connection Closed: " << connection_fd  << std::endl;
 								FileDescriptorManager::ADD(connection_fd);
