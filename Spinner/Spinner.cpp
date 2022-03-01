@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/01 17:12:04 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/01 23:07:56 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,7 +222,7 @@ void	Spinner::run()
 
 							unfinshed_responce.erase(connection_fd);
 							unfinshed_request.erase(connection_fd);
-							if (res->get_request()->HasHeader("Connection", "keep-alive") == false)
+							if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
 							{
 								FD_CLR(connection_fd, &write_socket);
 								FileDescriptorManager::REMOVE(connection_fd);
@@ -231,7 +231,9 @@ void	Spinner::run()
 								std::cout << "timestamp#" << get_time2(begin) << " [" << connection_fd  << "] connection closed" << std::endl;
 								// delete it1->second;
 								// delete it2->second;
-							}else {
+							}
+							else 
+							{
 								FileDescriptorManager::ADD(connection_fd);
 								FD_CLR(connection_fd, &write_socket);
 							}

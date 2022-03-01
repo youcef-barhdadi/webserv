@@ -29,7 +29,7 @@ class Response
 		std::string			create_status_line(std::string status_code);
 
 		std::vector<char>	create_302_header(void);
-
+		std::vector<char>	create_303_header(void);
 		void				 POST(void);
 		void				 GET(void);
 		void				 DELETE(void);
@@ -53,6 +53,10 @@ class Response
 		size_t				get_bytes_sent(void);
 
 		void				set_bytes_sent(size_t n);
+
+
+
+		bool		close_connection;
 
 	private:
 // error pages

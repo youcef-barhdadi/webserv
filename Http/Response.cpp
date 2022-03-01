@@ -260,7 +260,7 @@ std::vector<char>	Response::serv()
 		return _405_error();
 	// no location was found
 	if (_mylocation->redirect.size() != 0)
-		return create_302_header();
+		return create_303_header();
 
 
 
@@ -283,8 +283,6 @@ std::vector<char>	Response::serv()
 			create_autoindex(this->_request->get_path());
 		else if (isDirectory(absolute_path))
 			return _403_error();
-		// else if (_mylocation->redirect != "")
-		// 		return create_302_header();
 		else
 			GET();
 	}
@@ -341,6 +339,17 @@ std::vector<char>	Response::create_302_header(void)
 
 	 return ret;
 }
+
+
+std::vector<char>	Response::create_303_header(void)
+{
+	this->close_connection = true;
+	std::string s = "HTTP/1.1 303  Moved Permanently\nLocation: " + _mylocation->redirect + "\nConnection: close\nContent-Length: 0\r\n";
+
+	std::vector<char> ret(s.begin(), s.end());
+	 return ret;
+}
+
 
 
 std::string			Response::get_absolute_path(void)
