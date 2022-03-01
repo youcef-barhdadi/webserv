@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/01 12:47:45 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/01 17:12:04 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,11 +186,14 @@ void	Spinner::run()
 
 						std::vector<char> array  = res->serv();
 						char *data  = array.data();
+						// std::cerr << std::string(50, '-') << std::endl;
+						// std::cerr << data << std::endl;
+						// std::cerr << std::string(50, '-') << std::endl;
 						int writing = 0;
 						errno = 0;
 						signal(SIGPIPE, SIG_IGN);
 
-						writing= write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
+						writing = write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
 						signal(SIGPIPE, SIG_DFL);
 						if ( writing == 0 || writing == -1)
 						{

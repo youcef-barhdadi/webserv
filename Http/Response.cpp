@@ -243,6 +243,7 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
+	std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
 	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
 	this->find_location();
 	std::string absolute_path = get_absolute_path();
@@ -303,7 +304,7 @@ void				Response::find_location(void)
 	for(size_t i = 0;  i < loc.size(); i++)
 	{
 		size_t ret = req_path.find(loc[i].url);
-		std::cerr << req_path << " | ret = " << ret << " | " << req_path[ret + loc[i].url.size()] << std::endl;
+		// std::cerr << req_path << " | ret = " << ret << " | " << req_path[ret + loc[i].url.size()] << std::endl;
 		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
 			if (loc[i].url.length() > matched_location.length()){
 				matched_location = loc[i].url;
@@ -334,7 +335,7 @@ void				Response::find_index_file(void)
 
 std::vector<char>	Response::create_302_header(void)
 {
-	std::string s = "HTTP/1.1 301 Moved Permanently\nLocation: " + _mylocation->redirect + "\r\n";
+	std::string s = "HTTP/1.1 303 See Other\nLocation: " + _mylocation->redirect + "\r\n";
 
 	std::vector<char> ret(s.begin(), s.end());
 

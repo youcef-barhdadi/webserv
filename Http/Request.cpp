@@ -132,8 +132,13 @@ void       Request::ParseHeaders(void)
 	std::getline(ss, buffer);
 	std::vector<std::string> firstline = split(buffer, ' ');
 
-	if (firstline.size() != 3)
-		throw RequestError();
+	if (firstline.size() != 3){
+		try{
+			throw RequestError();
+		}catch(...){
+			std::cout << "catched exception" << std::endl;
+		}
+	}
 
 	_method = firstline[0];
 	_path = firstline[1];
@@ -168,8 +173,9 @@ void    Request::VerifyRequest(void)
 	for(int i = 0; i < static_cast<int>(sizeof(methods)/sizeof(std::string)); i++)
 		if (_method == methods[i])
 			found = 1;
-	if (!found)
+	if (!found){
 		throw RequestError();
+	}
 }
 
 void    Request::ParseQueryParams(void)
