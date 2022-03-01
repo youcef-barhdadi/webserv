@@ -359,7 +359,7 @@ std::vector<char>	Response::create_302_header(void)
 {
 	std::string s = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + _mylocation->redirect + "\r\n";
 
-	 return ret;
+	 return std::vector<char>(s.begin(), s.end());
 }
 
 
