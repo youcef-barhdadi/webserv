@@ -6,22 +6,23 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:09 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/24 16:51:58 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/01 12:44:06 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once 
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sys/stat.h>
+# include <vector>
+# include <iostream>
+# include <fstream>
+# include <sys/stat.h>
 # include <vector>
 # include <sstream>
 # include <string>
 # include <ctime>
 # include <unistd.h>
-#include <sys/types.h>
-#include <dirent.h>
+# include <sys/types.h>
+# include <dirent.h>
+# include <ctime>
 
 
 typedef struct{
@@ -49,3 +50,5 @@ std::string RandString(int len);
 size_t     HexToDec(std::string nb);
 bool 				isDirectory(std::string path);
 std::vector<FileInfo>	getListOfFiles(std::string path);
+std::string			get_time(time_t unix_timestamp);
+double			get_time2(time_t begin);

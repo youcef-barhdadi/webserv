@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/01 01:31:48 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/01 12:47:45 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "../FileDescriptorManager/FileDescriptorManager.hpp"
 #include <queue>
 #include <fcntl.h>
+#include <ctime>
 
 
 Spinner ::Spinner ()
@@ -49,6 +50,7 @@ void		parseKeepAlive(std::string str)
 // lost pointers.
 void	Spinner::run()
 {
+	time_t	begin = time(NULL);
 	struct sockaddr_in address;
 	socklen_t addrlen;
 	int  readlen;
@@ -99,7 +101,7 @@ void	Spinner::run()
 	std::cout << std::endl;
 	while (true)
 	{
-		std::cout << std::string(15, '*') << "mainloop-begin" << std::string(15, '*') << std::endl;
+		// std::cout << std::string(15, '*') << "mainloop-begin" << std::string(15, '*') << std::endl;
 		ready_socket = FileDescriptorManager::set;
 		current_socket = write_socket;
 		if (select((int)maxfd +1, &ready_socket, &current_socket, NULL, &timeout) < 0)
@@ -109,7 +111,7 @@ void	Spinner::run()
 			exit(0);
 		}
 
-		std::cout << "select returns" << std::endl;
+		// std::cout << "select returns" << std::endl;
 		for (size_t connection_fd = 0; connection_fd < maxfd + 1; connection_fd++)
 		{
 			
@@ -119,7 +121,7 @@ void	Spinner::run()
 				if (std::count(listOfFd.begin(), listOfFd.end() , connection_fd) )
 				{
 					int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
-
+					std::cout << "timestamp#" << get_time2(begin) << " [" << new_socket << "] incoming connection accepted" << std::endl; 
 					fcntl(new_socket, F_SETFL, O_NONBLOCK);
 					if (new_socket < 0)
 					{
@@ -132,7 +134,7 @@ void	Spinner::run()
 				}
 				else
 				{
-					std::cout << "connection fd: " << connection_fd << std::endl;
+					std::cout << "timestamp#" << get_time2(begin) << " [" << connection_fd << "] connection ready for i/o" << std::endl;
 					std::map<unsigned long , Request*>::iterator iterReq = unfinshed_request.find(connection_fd);
 					std::string copy;
 					if (iterReq == unfinshed_request.end())
@@ -223,23 +225,19 @@ void	Spinner::run()
 								FileDescriptorManager::REMOVE(connection_fd);
 								socketfd_connectionfd.erase(connection_fd);
 								close(connection_fd);
+								std::cout << "timestamp#" << get_time2(begin) << " [" << connection_fd  << "] connection closed" << std::endl;
 								// delete it1->second;
 								// delete it2->second;
 							}else {
-								delete res;
-								std::cout << "Connection Closed: " << connection_fd  << std::endl;
 								FileDescriptorManager::ADD(connection_fd);
 								FD_CLR(connection_fd, &write_socket);
-
-
 							}
+							delete res;
 						}
 					}
 				}
 			}
 		}
-		std::cout << std::string(15, '*') << "mainloop-end  " << std::string(15, '*') << std::endl;
-		std::cout << std::endl;
 	}
 	for (size_t i = 0; i < this->_servers.size(); i++)
 	{

@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/28 06:40:55 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/01 12:44:02 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,10 +152,10 @@ size_t     HexToDec(std::string nb)
 
 std::string get_time(time_t unix_timestamp)
 {
-char time_buf[80];
-struct tm ts;
-ts = *localtime(&unix_timestamp);
-strftime(time_buf, sizeof(time_buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
+	char time_buf[80];
+	struct tm ts;
+	ts = *localtime(&unix_timestamp);
+	strftime(time_buf, sizeof(time_buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 
 	return std::string(time_buf);
 }
@@ -216,4 +216,12 @@ std::vector<FileInfo>	getListOfFiles(std::string path)
 
 	closedir(dir);
 	return list;
+}
+
+
+double			get_time2(time_t begin)
+{
+	time_t current = time(NULL);
+
+	return difftime(current, begin);
 }

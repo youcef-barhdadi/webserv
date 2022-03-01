@@ -61,13 +61,9 @@ void	  Response::create_autoindex(std::string path)
 	if (path[ path.size() - 1] != '/')
 		path.insert( path.end(), '/');
 
-	std::string t_path = path;
-	t_path.erase(t_path.begin());
-	if (t_path.find('/') != std::string::npos)
-		t_path = t_path.substr(t_path.find('/'), t_path.size());
-	t_path.erase(t_path.end() - 1);
-	std::cout << "t_path = " << t_path << std::endl;
-// static/www		_locations->root + /www  ..
+	// 
+	std::string absolute_path = get_absolute_path();
+
 
 	std::string	body = "<html lang='en'>\n<head>\n<title>Document</title>\n</head>\n<body>\n<h1>Index OF "+ path + " </h1>\n<br>\n<table width=\"100%\">\n<hr>";
 	std::string  header;
@@ -76,10 +72,10 @@ void	  Response::create_autoindex(std::string path)
 	if (s[s.size()-1] == '/')
 		s.erase(s.end() - 1);
 
-	if(isDirectory(_mylocation->root + t_path))
+	if(isDirectory(absolute_path))
 	{
 // here	
-		std::vector<FileInfo> fileInfoList = getListOfFiles(_mylocation->root + t_path);
+		std::vector<FileInfo> fileInfoList = getListOfFiles(absolute_path);
 
 
 		for(size_t i = 0; i < fileInfoList.size(); i++)
@@ -90,7 +86,7 @@ void	  Response::create_autoindex(std::string path)
 				continue;
 			td  = "<td width=\"25%\">"+ fileInfoList[i].date + "</td>"  ;
 			body += td;
-			if (isDirectory( _mylocation->root + t_path + "/"+ fileInfoList[i].fileName))
+			if (isDirectory( absolute_path + "/"+ fileInfoList[i].fileName))
 				td = "<td width=\"25%\">"+ std::string("-") +"</td></tr>"  ;
 			else
 				td = "<td width=\"25%\">"+ (fileInfoList[i].size)+"</td></tr>" ;
@@ -112,9 +108,6 @@ void	  Response::create_autoindex(std::string path)
 	_response_vec.insert(_response_vec.begin(), header.begin(), header.end());
 	return ;
 }
-
-
-
 
 
 std::string  Response::create_header(void)
@@ -143,7 +136,7 @@ std::string  Response::create_header(void)
 		std::string extetion = getExtension(resource);
 
 // header allow ressource to be downloaded to the client host machine.
-		if (_mylocation->autoindex)
+		if (_index_file.size() == 0 && _mylocation->autoindex)
 			header += "Content-Disposition: attachment\n";
 
 		header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
@@ -174,6 +167,7 @@ std::vector<char> handlCgiresponse(std::string & str)
 
 void	 Response::POST(void)
 {
+	std::cerr << "\033[32mResponse::POST\033[0m" << std::endl;
 	std::string head_str;
 	std::string upload_dir = _mylocation->upload;
 
@@ -190,36 +184,25 @@ void	 Response::POST(void)
 
 void	 Response::GET(void)
 {
-	std::cout << "Response::Get" << std::endl;
+	std::cout << "\033[31;4mResponse::Get\033[0m" << std::endl;
 	// if location has redirection
-	if (_mylocation->redirect.size() != 0){
-		_response_vec = create_302_header();
-		return ;
-	}
+
 	//
-	std::string resource;
-	if (!_mylocation->autoindex){
-		resource = _mylocation->root + _request->get_path();
-	}
-	else{
-		std::string t_path = _request->get_path();
-		t_path.erase(t_path.begin());
-		if (t_path.find('/') != std::string::npos)
-			t_path = t_path.substr(t_path.find('/'), t_path.size());
-		resource = _mylocation->root + t_path;
-	}
-	
+	std::string resource = get_absolute_path();
+
+	std::cout << "resource = " << resource << std::endl;
+	// 
 	// std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
 
 
-	std::string  responce;
-	std::string  str;
-	std::string  body = "";
+	std::string		responce;
+	std::string		str;
+	std::string		body = "";
 	std::streampos size;
 	std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
 
-	std::cout << file.is_open() << std::endl;
+	// std::cout << file.is_open() << std::endl;
 
 	if (file.is_open())
 	{
@@ -260,32 +243,27 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
-	std::cout << _request->_server->get_host() << ":" << _request->_server->get_ports()[0] << std::endl;
-	std::cout << "request path: " <<  _request->get_path() << std::endl;
+	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
 	this->find_location();
-	std::cout << "location url: " << _mylocation->url << std::endl;
-	if (_mylocation == 0x0)
+	std::string absolute_path = get_absolute_path();
+	std::cout << "absolute path = " << absolute_path << std::endl;
+	std::cout << "location = " << _mylocation->url << std::endl;
+
+ 	if (_mylocation == 0x0)
 		return _404_error();
-	if (isDirectory(this->_request->get_path()))
+	if (isDirectory(absolute_path))
 		this->find_index_file();
-	std::cout << "index file: " << _index_file << std::endl;
+	if (isDirectory(absolute_path) && !_mylocation->autoindex && !_mylocation->redirect.size() && !_index_file.size())
+		return _404_error();
 	if (!check_methods())
 		return _405_error();
 	// no location was found
+	if (_mylocation->redirect.size() != 0)
+		return create_302_header();
 
-//
-	std::string t_path = _request->get_path();
 
 
-	if (_mylocation->autoindex){
-		t_path += "/";
-		t_path.erase(t_path.begin());
-		if (t_path.find('/') != std::string::npos)
-			t_path = t_path.substr(t_path.find('/'), t_path.size());
-		t_path.erase(t_path.end()-1);
-	}
 
-//
 	if (this->_request->get_method() ==  "POST")
 	{
 		// if the location does not support upload
@@ -295,16 +273,14 @@ std::vector<char>	Response::serv()
 	}
 	else if (this->_request->get_method() == "GET")
 	{
-//	this->_request->get_path()	_mylocation->root
-		std::cout << "host path: " << _mylocation->root + t_path << std::endl;
-		if (isDirectory(_mylocation->root + t_path)   && _index_file.size() != 0)
+		if (isDirectory(absolute_path) && _index_file.size() != 0)
 		{
 			_request->set_path(_request->get_path() + _index_file);
 			GET();
 		}
-		else if (isDirectory(_mylocation->root + t_path)  && this->_mylocation->autoindex)
+		else if (isDirectory(absolute_path)  && this->_mylocation->autoindex)
 			create_autoindex(this->_request->get_path());
-		else if (isDirectory(_mylocation->root + t_path))
+		else if (isDirectory(absolute_path))
 			return _403_error();
 		// else if (_mylocation->redirect != "")
 		// 		return create_302_header();
@@ -322,12 +298,13 @@ void				Response::find_location(void)
 	std::vector<struct location>  loc = this->_request->_server->get_locations();
 	std::string req_path = _request->get_path();
 	int location_index = 0;
-	std::string matched_location = "";
+	std::string matched_location = "/";
 
 	for(size_t i = 0;  i < loc.size(); i++)
 	{
 		size_t ret = req_path.find(loc[i].url);
-		if (ret != std::string::npos && ret == 0){
+		std::cerr << req_path << " | ret = " << ret << " | " << req_path[ret + loc[i].url.size()] << std::endl;
+		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
 			if (loc[i].url.length() > matched_location.length()){
 				matched_location = loc[i].url;
 				location_index  = i;
@@ -343,7 +320,7 @@ void				Response::find_index_file(void)
 
 	for (size_t i = 0; i < _mylocation->index.size(); i++)
 	{
-		int fd = 0;
+		int fd;
 		std::string absolute_path = root_file + "/" + _mylocation->index[i];
 		fd = open(absolute_path.c_str(), O_RDONLY);
 		if (fd > 0)
@@ -357,12 +334,22 @@ void				Response::find_index_file(void)
 
 std::vector<char>	Response::create_302_header(void)
 {
-	std::string s = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + _mylocation->redirect + "\r\n";
+	std::string s = "HTTP/1.1 301 Moved Permanently\nLocation: " + _mylocation->redirect + "\r\n";
 
-	 return std::vector<char>(s.begin(), s.end());
+	std::vector<char> ret(s.begin(), s.end());
+
+	 return ret;
 }
 
 
+std::string			Response::get_absolute_path(void)
+{
+	std::string uri = _request->get_path().erase(0, _mylocation->url.size()); 
+	if (uri.size() && uri[0] != '/')
+		uri.insert(uri.begin(), '/');
+
+	return _mylocation->root + uri;
+}
 
 /*	getter	*/
 

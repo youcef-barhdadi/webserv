@@ -45,6 +45,8 @@ class Response
 
 		bool				check_methods();
 
+		std::string			get_absolute_path(void);
+
 		Request				*get_request(void);
 		bool				get_is_finished(void);
 		std::vector<char>	&get_response_vec(void);
