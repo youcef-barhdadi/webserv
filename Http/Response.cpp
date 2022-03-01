@@ -34,6 +34,7 @@ Response::Response(Request * req )
 
 Response::~Response()
 {
+	delete this->_request;
 }
 
 Response &				Response::operator=( Response const & rhs )
@@ -210,14 +211,7 @@ void	 Response::GET(void)
 	
 	// std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
-	if (extension == "pl")
-	{
-		Cgi cgi;
-		std::string  strtest = cgi.startCgi(_request);
-		// std::vector<char> test = handlCgiresponse(strtest);
-		_response_vec = handlCgiresponse(strtest);
-		return  ;
-	}
+
 
 	std::string  responce;
 	std::string  str;
@@ -312,6 +306,8 @@ std::vector<char>	Response::serv()
 			create_autoindex(this->_request->get_path());
 		else if (isDirectory(_mylocation->root + t_path))
 			return _403_error();
+		// else if (_mylocation->redirect != "")
+		// 		return create_302_header();
 		else
 			GET();
 	}
@@ -363,7 +359,7 @@ std::vector<char>	Response::create_302_header(void)
 {
 	std::string s = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + _mylocation->redirect + "\r\n";
 
-	return std::vector<char>(s.begin(), s.end());
+	 return ret;
 }
 
 

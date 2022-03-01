@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/02/28 13:17:35 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/01 01:31:48 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,6 +226,7 @@ void	Spinner::run()
 								// delete it1->second;
 								// delete it2->second;
 							}else {
+								delete res;
 								std::cout << "Connection Closed: " << connection_fd  << std::endl;
 								FileDescriptorManager::ADD(connection_fd);
 								FD_CLR(connection_fd, &write_socket);
