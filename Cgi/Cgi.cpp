@@ -74,6 +74,14 @@ std::string		Cgi::startCgi(Request *request,  location location)
 {
 	pipe(this->pip);
 	int status = 0;
+	int fd;
+
+
+	if (request->get_method() == "POST")
+	{
+			fd = open(request->get_body_filename().c_str(), O_RDONLY);
+	}
+
 	std::string extention =	getExtension(request->get_path());
 	std::string  type;
 	if (extention == "py")
@@ -84,9 +92,12 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	if (worker_pid == 0)
 	{
 		std::string new_stg = request->get_path().erase(0,1);
-		// check heare
 		const char *script = (location.root +  new_stg).c_str();
 		errno =0;
+		if (fd != -1)
+		{
+			dup2(fd, 0);
+		}
 		dup2(pip[1], 1);
 		close(pip[1]);
 		close(pip[0]);

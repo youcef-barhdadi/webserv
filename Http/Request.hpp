@@ -65,6 +65,9 @@ class Request{
 
 		bool        HasHeader(std::string header,  std::string value);
 
+		std::map<std::string, std::string>  get_query_parnms();	
+		std::map<std::string, std::string>  get_query_headers();	
+
 		Server       *_server;
 	private:
 		std::string         _buffer;

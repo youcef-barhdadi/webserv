@@ -271,3 +271,13 @@ bool        Request::HasHeader(std::string header,  std::string value)
 		return true;
 	return false;
 }
+
+std::map<std::string, std::string>  Request::get_query_parnms()
+{
+	return this->_query_params;
+}
+
+std::map<std::string, std::string>  Request::get_query_headers()
+{
+	return this->_headers;
+}
