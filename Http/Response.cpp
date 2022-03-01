@@ -210,14 +210,7 @@ void	 Response::GET(void)
 	
 	// std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
-	if (extension == "pl")
-	{
-		Cgi cgi;
-		std::string  strtest = cgi.startCgi(_request);
-		// std::vector<char> test = handlCgiresponse(strtest);
-		_response_vec = handlCgiresponse(strtest);
-		return  ;
-	}
+
 
 	std::string  responce;
 	std::string  str;
@@ -266,6 +259,21 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
+	
+
+	std::string extension = getExtension(_request->get_path());
+
+	std::cout <<  "============"  << extension << std::endl;
+
+
+	if (extension == "pl")
+	{
+		Cgi cgi;
+
+		cgi.startCgi(this->_request);
+		return cgi.readChunk();
+	}
+
 	std::cout << _request->_server->get_host() << ":" << _request->_server->get_ports()[0] << std::endl;
 	std::cout << "request path: " <<  _request->get_path() << std::endl;
 	this->find_location();
