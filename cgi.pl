@@ -10,5 +10,5 @@ print '<h2>Hello za3im</h2>';
 print '<h2>Hello Souliam</h2>';
 print '</body>';
 print '</html>';
-sleep(555);
+sleep(1);
 1;

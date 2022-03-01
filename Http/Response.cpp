@@ -261,18 +261,18 @@ std::vector<char>	Response::serv()
 {
 	
 
-	std::string extension = getExtension(_request->get_path());
+	// std::string extension = getExtension(_request->get_path());
 
-	std::cout <<  "============"  << extension << std::endl;
+	// std::cout <<  "============"  << extension << std::endl;
 
 
-	if (extension == "pl")
-	{
-		Cgi cgi;
+	// if (extension == "pl")
+	// {
+	// 	Cgi cgi;
 
-		cgi.startCgi(this->_request);
-		return cgi.readChunk();
-	}
+	// 	cgi.startCgi(this->_request);
+	// 	return cgi.readChunk();
+	// }
 
 	std::cout << _request->_server->get_host() << ":" << _request->_server->get_ports()[0] << std::endl;
 	std::cout << "request path: " <<  _request->get_path() << std::endl;

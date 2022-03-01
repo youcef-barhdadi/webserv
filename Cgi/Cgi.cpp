@@ -32,18 +32,26 @@ std::vector<char> handlCgiresponse(std::string  str)
 std::vector<char>	Cgi::readChunk()
 {
 
-		char buffer[50000];
-		int size = 0;
-		size = read(this->pip[0], buffer, 49999);
-		if (size < 0)
-		{
-			perror("hhhh");
-			exit(0);
-		}
-		buffer[size] = 0;
-		std::string str(buffer);
-		std::vector<char>  vec=  handlCgiresponse(str);
-		return vec;
+	if (this->IsTimeOut)
+	{
+		std::string header = "HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\n";
+		std::string ll = "Content-Length: 120\n\r\n<html><head><title>504  Gateway Timeout</title></head><body><center><h1>504  Gateway Timeout</h1></center></body></html>";
+		std::string l = header + ll;
+		std::vector<char> res_vec(l.begin(), l.end());
+		return res_vec;
+	}
+	char buffer[50000];
+	int size = 0;
+	size = read(this->pip[0], buffer, 49999);
+	if (size < 0)
+	{
+		perror("hhhh");
+		exit(0);
+	}
+	buffer[size] = 0;
+	std::string str(buffer);
+	std::vector<char>  vec=  handlCgiresponse(str);
+	return vec;
 }	
 
 
@@ -83,7 +91,7 @@ std::string		Cgi::startCgi(Request *request)
 		perror("perl 1");
 		exit(1);
 	}
-	sleepcp(15);
+	sleepcp(40000);
 	int ret = waitpid(-1, &status, WNOHANG);
 	std::cout <<"=====+++++==" << ret <<  std::endl;
 	if (ret ==0)
