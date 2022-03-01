@@ -55,9 +55,6 @@ std::vector<char>	Cgi::readChunk()
 	return vec;
 }	
 
-
-
-
 void sleepcp(int milliseconds) // Cross-platform sleep function
 {
     clock_t time_end;
@@ -67,15 +64,14 @@ void sleepcp(int milliseconds) // Cross-platform sleep function
     }
 }
 
-
-
 //https://en.wikipedia.org/wiki/Common_Gateway_Interface
+// /https://www.oreilly.com/openbook/cgi/ch04_02.html
 std::string		Cgi::startCgi(Request *request,  location location)
 {
 	pipe(this->pip);
 	int status = 0;
 	int fd;
-
+	std::string query_string;
 
 	if (request->get_method() == "POST")
 	{
@@ -83,6 +79,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	}
 
 	std::string extention =	getExtension(request->get_path());
+	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
 	if (extention == "py")
 		type = "python";
@@ -103,6 +100,10 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		close(pip[0]);
 		const char *args[] = {type.c_str(), script, NULL };
 		// set environment variables
+		setenv("QUERY_STRING", query_string.c_str(), 1);
+		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
+		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
+		setenv("SERVER_PROTOCOL", "HTPP 1.1", 1);
 		execvp(type.c_str(), (char **) args);
 	}
 	sleepcp(40000);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utilities.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/01 12:44:02 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/01 19:08:39 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,4 +224,18 @@ double			get_time2(time_t begin)
 	time_t current = time(NULL);
 
 	return difftime(current, begin);
+}
+
+
+std::string		generate_query_string(std::map<std::string, std::string>  query)
+{
+	std::string ret;
+
+	for (std::map<std::string, std::string>::iterator it = query.begin(); it != query.end(); ++it)
+	{
+		ret += it->first + "=" +it->second;
+		ret += "&";
+	}
+	
+	return ret;
 }
