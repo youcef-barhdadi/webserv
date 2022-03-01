@@ -306,8 +306,8 @@ std::vector<char>	Response::serv()
 			create_autoindex(this->_request->get_path());
 		else if (isDirectory(_mylocation->root + t_path))
 			return _403_error();
-		else if (_mylocation->redirect != "")
-				return create_302_header();
+		// else if (_mylocation->redirect != "")
+		// 		return create_302_header();
 		else
 			GET();
 	}
