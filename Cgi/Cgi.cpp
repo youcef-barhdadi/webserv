@@ -32,7 +32,6 @@ std::vector<char> handlCgiresponse(std::string  str)
 
 std::vector<char>	Cgi::readChunk()
 {
-
 	if (this->IsTimeOut)
 	{
 		std::string header = "HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\n";
@@ -43,14 +42,18 @@ std::vector<char>	Cgi::readChunk()
 	}
 	char buffer[50000];
 	int size = 0;
-	size = read(this->pip[0], buffer, 49999);
-	if (size < 0)
+	std::string str;
+
+	while ((size =  read(this->pip[0], buffer, 49999)) > 0)
 	{
-		perror("hhhh");
-		exit(0);
+			buffer[size] = 0;
+			str += std::string(buffer);
 	}
-	buffer[size] = 0;
-	std::string str(buffer);
+	if (size == -1)
+	{
+		str = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\n";
+		str += "Content-Length: 128\n\r\n<html><head><title>500  Internal Server Error</title></head><body><center><h1>Internal Server Error</h1></center></body></html>"; 
+	}
 	std::vector<char>  vec=  handlCgiresponse(str);
 	return vec;
 }	
@@ -63,7 +66,6 @@ void sleepcp(int milliseconds) // Cross-platform sleep function
     {
     }
 }
-
 //https://en.wikipedia.org/wiki/Common_Gateway_Interface
 // /https://www.oreilly.com/openbook/cgi/ch04_02.html
 std::string		Cgi::startCgi(Request *request,  location location)
@@ -72,15 +74,21 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	int status = 0;
 	int fd;
 	std::string query_string;
+	std::string new_stg = request->get_path().erase(0,1);
+	const char *script = (location.root +  new_stg).c_str();
+	if (file_exist(script) == false)
+	{
+			this->NotExist = false;
+	}
 
 	if (request->get_method() == "POST")
 	{
 			fd = open(request->get_body_filename().c_str(), O_RDONLY);
 	}
-
 	std::string extention =	getExtension(request->get_path());
 	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
+
 	if (extention == "py")
 		type = "python";
 	else
@@ -88,8 +96,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	pid_t worker_pid = fork();
 	if (worker_pid == 0)
 	{
-		std::string new_stg = request->get_path().erase(0,1);
-		const char *script = (location.root +  new_stg).c_str();
+		
 		errno =0;
 		if (fd != -1)
 		{

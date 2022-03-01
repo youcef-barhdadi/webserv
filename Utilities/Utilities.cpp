@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/01 19:08:39 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/01 22:38:35 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,4 +238,17 @@ std::string		generate_query_string(std::map<std::string, std::string>  query)
 	}
 	
 	return ret;
+}
+
+
+
+bool	file_exist(const char *file)
+{
+	int fd = open(file, O_RDWR);
+	if (fd > 0)
+	{
+		close(fd);
+		return true;
+	}
+	return false;
 }
