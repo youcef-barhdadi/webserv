@@ -16,7 +16,7 @@ class Cgi
 		~Cgi();
 
 		Cgi &		operator=( Cgi const & rhs );
-		std::string	 startCgi(Request *request);
+		std::string		startCgi(Request *request,  location location);
 		std::vector<char>	readChunk();
 		int pip[2];
 

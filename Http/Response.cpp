@@ -34,6 +34,7 @@ Response::Response(Request * req )
 
 Response::~Response()
 {
+	delete this->_request;
 }
 
 Response &				Response::operator=( Response const & rhs )
@@ -259,21 +260,6 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
-	
-
-	// std::string extension = getExtension(_request->get_path());
-
-	// std::cout <<  "============"  << extension << std::endl;
-
-
-	// if (extension == "pl")
-	// {
-	// 	Cgi cgi;
-
-	// 	cgi.startCgi(this->_request);
-	// 	return cgi.readChunk();
-	// }
-
 	std::cout << _request->_server->get_host() << ":" << _request->_server->get_ports()[0] << std::endl;
 	std::cout << "request path: " <<  _request->get_path() << std::endl;
 	this->find_location();
@@ -320,6 +306,8 @@ std::vector<char>	Response::serv()
 			create_autoindex(this->_request->get_path());
 		else if (isDirectory(_mylocation->root + t_path))
 			return _403_error();
+		else if (_mylocation->redirect != "")
+				return create_302_header();
 		else
 			GET();
 	}
@@ -369,9 +357,13 @@ void				Response::find_index_file(void)
 
 std::vector<char>	Response::create_302_header(void)
 {
-	std::string s = "HTTP/1.1 302 Found\nLocation: http://www." + _mylocation->redirect + "\n";
+	std::cout << "--------------------------" <<   _mylocation->redirect << std::endl;
+	std::string s = "HTTP/1.1 302 Found\nLocation: " + _mylocation->redirect + "\n";
 
-	return std::vector<char>(s.begin(), s.end());
+	 std::vector<char>  ret(s.begin(), s.end());
+
+
+	 return ret;
 }
 
 

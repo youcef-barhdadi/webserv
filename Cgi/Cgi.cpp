@@ -4,7 +4,8 @@
 #include <sys/stat.h>
 #include <fcntl.h> 
 #include <sys/wait.h>
-
+#include "../Utilities/Utilities.hpp"
+#include <signal.h>
 Cgi::Cgi()
 {
 	this->IsTimeOut = false;
@@ -68,40 +69,39 @@ void sleepcp(int milliseconds) // Cross-platform sleep function
 
 
 
-
-std::string		Cgi::startCgi(Request *request)
+//https://en.wikipedia.org/wiki/Common_Gateway_Interface
+std::string		Cgi::startCgi(Request *request,  location location)
 {
 	pipe(this->pip);
 	int status = 0;
+	std::string extention =	getExtension(request->get_path());
+	std::string  type;
+	if (extention == "py")
+		type = "python";
+	else
+		type  = "perl";
 	pid_t worker_pid = fork();
 	if (worker_pid == 0)
 	{
 		std::string new_stg = request->get_path().erase(0,1);
-		const char *s =new_stg.c_str();
+		// check heare
+		const char *script = (location.root +  new_stg).c_str();
 		errno =0;
 		dup2(pip[1], 1);
-		perror("dup2");
 		close(pip[1]);
-		perror("close 1");
 		close(pip[0]);
-		perror("close 2");
-		const char *args[] = {"perl", s, NULL };
+		const char *args[] = {type.c_str(), script, NULL };
 		// set environment variables
-		execvp("perl", (char **) args);
-		perror("perl 1");
-		exit(1);
+		execvp(type.c_str(), (char **) args);
 	}
 	sleepcp(40000);
-	int ret = waitpid(-1, &status, WNOHANG);
-	std::cout <<"=====+++++==" << ret <<  std::endl;
+	int ret = waitpid(worker_pid, &status, WNOHANG);
 	if (ret ==0)
 	{
-			// std::cout << "ffffffffffffffffff" << std::endl;
-			this->IsTimeOut = true;
+		kill(9,worker_pid);
+		this->IsTimeOut = true;
 	}
 	return "";
-
-	
 }
 
 
