@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 19:21:23 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 19:29:35 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,9 @@ Request 		*Spinner::read_request(int connection_fd)
 	if (readlen == 0 || readlen == -1)
 	{
 		close(connection_fd);
-		FileDescriptorManager::REMOVE(FileDescriptorManager::READ, connection_fd);
+		// FileDescriptorManager::REMOVE(FileDescriptorManager::READ, connection_fd);
+							FD_CLR(connection_fd, &FileDescriptorManager::set_read);
+
 	}else
 		buffer[readlen] = 0;
 	std::string copy = std::string(buffer);
@@ -104,7 +106,9 @@ Request 		*Spinner::read_request(int connection_fd)
 	if (request->IsFinished() == true)
 	{
 		// std::cout << "IS FINSHED" << FileDescriptorManager::READ << std::endl;
-		FileDescriptorManager::REMOVE(FileDescriptorManager::READ ,connection_fd);
+		// FileDescriptorManager::REMOVE(FileDescriptorManager::READ ,connection_fd);
+					FD_CLR(connection_fd, &FileDescriptorManager::set_read);
+
 		FileDescriptorManager::ADD(FileDescriptorManager::WRITE ,connection_fd);
 	}
 	return request;
@@ -140,18 +144,19 @@ void		Spinner::write_responce(int connection_fd)
 	signal(SIGPIPE, SIG_IGN);
 	writing = write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
 	signal(SIGPIPE, SIG_DFL);
-	
-	if ( writing == 0)
+	if ( writing == 0 || writing == -1) 
 	{
-		std::cout << "Closed==== "<<  writing <<" ==================================================="<< std::endl;
 		close(connection_fd);
 		_responces.erase(connection_fd);
-		FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE ,connection_fd);
+		// FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE ,connection_fd);
+							FD_CLR(connection_fd, &FileDescriptorManager::set_write);
+
 		_requests.erase(connection_fd);
 	}
 	res->set_bytes_sent(res->get_bytes_sent() + writing);
 	if (res->get_bytes_sent() == array.size())
 	{
+		std::cout << "Delete" << std::endl;
 		_responces.erase(connection_fd);
 		_requests.erase(connection_fd);
 		if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
