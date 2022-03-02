@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 05:12:36 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 18:48:22 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,8 +140,9 @@ void		Spinner::write_responce(int connection_fd)
 	writing = write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
 	signal(SIGPIPE, SIG_DFL);
 	
-	if ( writing == 0 || writing == -1)
+	if ( writing == 0)
 	{
+		std::cout << "Closed==== "<<  writing <<" ==================================================="<< std::endl;
 		close(connection_fd);
 		_responces.erase(connection_fd);
 		FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE ,connection_fd);
