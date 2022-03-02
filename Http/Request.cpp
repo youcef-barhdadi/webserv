@@ -64,18 +64,31 @@ void    Request::Append(std::string &Message)
 		std::ofstream ofs (_body_filename, std::ofstream::out);
 		if (_headers["Transfer-Encoding"] == "chunked")
 		{
-			std::cerr << "Request::Append | transfer-encoding chunked" << std::endl;
-			// I am supposing that the second and nth request contains only the body.
-
+			std::cerr << "Transfer-Encoding: chunked" << std::endl;
 			std::stringstream ss(_buffer);
-			std::cerr << _buffer << std::endl;
 			std::string buff;
 
-			std::getline(ss, buff);
-			size_t n = HexToDec(buff);
+			// postman dlkhra
+			// std::getline(ss, buff);			
 
-			std::cerr << n << std::endl;
-			exit(0);
+			while (true)
+			{
+				std::getline(ss, buff);
+				size_t n = HexToDec(buff);
+
+				std::cerr << "n = " << n << std::endl;
+
+				if (!n)
+					break;
+
+				for(size_t i = 0; i < n; i++){
+					char c = ss.get();
+					ofs << c;
+					std::cerr << "[" << (int)c << "]";
+				}
+				std::cerr << std::endl;
+				ss.get();
+			}
 
 		}else{
 			ofs << _buffer;
@@ -132,7 +145,7 @@ bool     Request::IsFinished(void) const
 void       Request::ParseHeaders(void)
 {
 	std::stringstream   ss(_buffer);
-	std::cerr << _buffer << std::endl;
+	// std::cerr << _buffer << std::endl;
 
 	std::string buffer;
 	std::getline(ss, buffer);
@@ -153,7 +166,7 @@ void       Request::ParseHeaders(void)
 	_path = firstline[1];
 	_protocol_version = stof(split(firstline[2], '/')[1]);
 
-	std::cerr << "protocol version = " << _protocol_version << std::endl;
+	// std::cerr << "protocol version = " << _protocol_version << std::endl;
 	if (_protocol_version >= 1.2)
 	{
 		_bad_status = 505;
@@ -166,6 +179,11 @@ void       Request::ParseHeaders(void)
 		if (buffer == "\r")
 			break;
 		std::vector<std::string> myvec = split(buffer, ':');
+		if (myvec[0].find(' ') != std::string::npos){
+			_bad_status = 400;
+			_isFinished = true;
+			return ;
+		}
 		if (_headers.find(trim(myvec[0])) != _headers.end())
 		{
 			_bad_status = 400;

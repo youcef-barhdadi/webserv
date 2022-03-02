@@ -131,10 +131,14 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
 
+	std::cerr << "EXTENSION = " << extention << std::endl;
+
 	if (extention == "py")
 		type = "python";
-	else
+	else if (extention == "pl")
 		type  = "perl";
+	else
+		type = "php";
 	pid_t worker_pid = fork();
 	if (worker_pid == 0)
 	{
@@ -146,12 +150,13 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
 		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
 		setenv("SERVER_PROTOCOL", "HTPP 1.1", 1);
+		std::cerr << "phhhhhhhhhhhhp" << std::endl;
 		execvp(type.c_str(), (char **) args);
 		std::cout << "errrrrro " << std::endl;
 	}
 	sleepcp(40000);
 	int ret = waitpid(worker_pid, &status, WNOHANG);
-	if (ret ==0)
+	if (ret == 0)
 	{
 		kill(9,worker_pid);
 		this->IsTimeOut = true;
