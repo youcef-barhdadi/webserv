@@ -47,6 +47,10 @@ class Spinner
 
 		void		print_ports();
 
+
+		fd_set set_read;
+        fd_set set_write;
+
 };
 
 
