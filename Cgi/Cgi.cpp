@@ -131,6 +131,8 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
 
+	std::cerr << "EXTENSION = " << extention << std::endl;
+
 	if (extention == "py")
 		type = "python";
 	else if (extention == "pl")
