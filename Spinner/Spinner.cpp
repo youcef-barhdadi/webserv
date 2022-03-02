@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 04:35:21 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 04:54:26 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,16 +109,11 @@ Request 		*Spinner::read_request(int connection_fd)
 	return request;
 }
 
-
-
-void		Spinner::write_responce(int connection_fd)
+Response *Spinner::getResponse(int connection_fd)
 {
-	int writing = 0;
-	std::vector<char> array ;
-	char *data;
+	Response *res;
 
 	std::map<unsigned long, Response *>::iterator iter = _responces.find(connection_fd);
-	Response *res;
 	if (iter == _responces.end())
 	{
 		std::map<unsigned long, Request *>::iterator iter = _requests.find(connection_fd);
@@ -126,14 +121,25 @@ void		Spinner::write_responce(int connection_fd)
 		_responces.insert(std::make_pair(connection_fd, res));
 	}
 	else
-	{
 		res = iter->second;
-	}
+	return res;
+}
+
+void		Spinner::write_responce(int connection_fd)
+{
+	int writing = 0;
+	std::vector<char> array ;
+	char *data;
+	Response *res;
+
+	res = getResponse(connection_fd);
 	array = res->serv();
 	data  = array.data();
+	
 	signal(SIGPIPE, SIG_IGN);
 	writing = write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
 	signal(SIGPIPE, SIG_DFL);
+	
 	if ( writing == 0 || writing == -1)
 	{
 		close(connection_fd);

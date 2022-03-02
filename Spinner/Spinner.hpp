@@ -29,7 +29,7 @@ class Spinner
 		int		accepet(int);
 		std::map<unsigned long,  unsigned long > socketfd_connectionfd;
 		Request 		*read_request(int connection_fd);
-
+		Response *getResponse(int connection_fd);
 
 		std::map<unsigned long , Request*>  _requests;
 
