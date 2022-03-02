@@ -24,7 +24,28 @@ class Spinner
 		void	run();
 		std::vector<Server *> _servers;
 
+
 	private:
+		int		accepet(int);
+		std::map<unsigned long,  unsigned long > socketfd_connectionfd;
+		Request 		*read_request(int connection_fd);
+		Response *getResponse(int connection_fd);
+
+		std::map<unsigned long , Request*>  _requests;
+
+		void		write_responce(int connection_fd);
+		std::map<unsigned long, Server *> serverMap;
+
+		void		init_Spinner();
+
+
+		unsigned	int _maxfd;
+
+		std::vector<unsigned int> listOfFd;
+
+		std::map<unsigned long , Response*>  _responces;
+
+		void		print_ports();
 
 };
 

@@ -138,19 +138,10 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	pid_t worker_pid = fork();
 	if (worker_pid == 0)
 	{
-		
-		errno =0;
-		// if (fd != -1)
-		// {
-		// 	dup2(fd, 0);
-		// }
-			printf(" ========sss=========>  [%s]\n", script.c_str());
-
 		dup2(pip[1], 1);
 		close(pip[1]);
 		close(pip[0]);
 		const char *args[] = {type.c_str(), script.c_str(), NULL };
-		// set environment variables
 		setenv("QUERY_STRING", query_string.c_str(), 1);
 		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
 		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);

@@ -2,19 +2,31 @@
 #include "FileDescriptorManager.hpp"
 
 
-fd_set FileDescriptorManager::set;
+fd_set FileDescriptorManager::set_read;
+fd_set FileDescriptorManager::set_write;
+int FileDescriptorManager::WRITE = 1;
+int FileDescriptorManager::READ = 0;
+
 
 void  FileDescriptorManager::CLEAN()
 {
-        FD_ZERO(&FileDescriptorManager::set);
+        FD_ZERO(&FileDescriptorManager::set_read);
+        FD_ZERO(&FileDescriptorManager::set_write);
 }
 
-void FileDescriptorManager::ADD(int fd)
-{
-    FD_SET(fd, &FileDescriptorManager::set);
+void FileDescriptorManager::ADD(int flag,int fd)
+{   
+    if (flag == FileDescriptorManager::WRITE)
+        FD_SET(fd, &FileDescriptorManager::set_write);
+    else
+        FD_SET(fd, &FileDescriptorManager::set_read);
+
 }
 
-void FileDescriptorManager::REMOVE(int fd)
+void FileDescriptorManager::REMOVE(int flag,int fd)
 {
-    FD_CLR(fd, &FileDescriptorManager::set);
+    if (flag == FileDescriptorManager::WRITE)
+        FD_SET(fd, &FileDescriptorManager::set_write);
+    else
+        FD_SET(fd, &FileDescriptorManager::set_read);
 }
