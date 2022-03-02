@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 18:48:22 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 19:21:23 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,7 @@ Request 		*Spinner::read_request(int connection_fd)
 	_requests.insert(std::make_pair(connection_fd, request));
 	if (request->IsFinished() == true)
 	{
+		// std::cout << "IS FINSHED" << FileDescriptorManager::READ << std::endl;
 		FileDescriptorManager::REMOVE(FileDescriptorManager::READ ,connection_fd);
 		FileDescriptorManager::ADD(FileDescriptorManager::WRITE ,connection_fd);
 	}
@@ -155,7 +156,10 @@ void		Spinner::write_responce(int connection_fd)
 		_requests.erase(connection_fd);
 		if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
 		{
-			FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE, connection_fd);
+			FD_CLR(connection_fd, &FileDescriptorManager::set_write);
+			FD_CLR(connection_fd, &FileDescriptorManager::set_read);
+			// FileDescriptorManager::REMOVE(FileDescriptorManager::READ, connection_fd);
+			// FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE, connection_fd);
 			socketfd_connectionfd.erase(connection_fd);
 			close(connection_fd);
 		}
@@ -207,8 +211,9 @@ void	Spinner::run()
 	struct timeval      timeout;
 
 	std::queue<Response>     responce_queue;
-	fd_set  current_socket, ready_socket;
-	FD_ZERO(&current_socket);
+	fd_set  current_socket_write, current_socket_read;
+	FD_ZERO(&current_socket_write);
+	FD_ZERO(&current_socket_read);
 	FileDescriptorManager::CLEAN();
 
 	timeout.tv_sec  = 60;
@@ -219,9 +224,9 @@ void	Spinner::run()
 
 	while (true)
 	{
-		ready_socket = FileDescriptorManager::set_read;
-		current_socket = FileDescriptorManager::set_write;
-		if (select((int)_maxfd +1, &ready_socket, &current_socket, NULL, &timeout) < 0)
+		current_socket_read = FileDescriptorManager::set_read;
+		current_socket_write = FileDescriptorManager::set_write;
+		if (select((int)_maxfd +1, &current_socket_read, &current_socket_write, NULL, &timeout) < 0)
 		{
 			assert(true);
 			perror("select error");
@@ -230,7 +235,7 @@ void	Spinner::run()
 		for (size_t connection_fd = 0; connection_fd < _maxfd + 1; connection_fd++)
 		{
 			
-			if (FD_ISSET(connection_fd, &ready_socket)  || FD_ISSET(connection_fd, &current_socket))
+			if (FD_ISSET(connection_fd, &current_socket_read)  || FD_ISSET(connection_fd, &current_socket_write))
 			{
 				if (std::count(listOfFd.begin(), listOfFd.end() , connection_fd) )
 				{
@@ -239,15 +244,10 @@ void	Spinner::run()
 				}
 				else
 				{
-					if (_requests.find(connection_fd)  == _requests.end())
-					{
-						if (FD_ISSET(connection_fd, &ready_socket))
-						{
+						if (FD_ISSET(connection_fd, &current_socket_read))
 						 	read_request(connection_fd);
-							continue ;
-						}
-					}
-					write_responce(connection_fd);
+						else
+							write_responce(connection_fd);
 				}
 			}
 		}

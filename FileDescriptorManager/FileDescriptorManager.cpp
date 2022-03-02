@@ -25,6 +25,7 @@ void FileDescriptorManager::ADD(int flag,int fd)
 
 void FileDescriptorManager::REMOVE(int flag,int fd)
 {
+    // std::cout <<flag <<  "==========="<< FileDescriptorManager::WRITE<<  "\n";
     if (flag == FileDescriptorManager::WRITE)
         FD_SET(fd, &FileDescriptorManager::set_write);
     else
