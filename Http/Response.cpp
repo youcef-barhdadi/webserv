@@ -184,13 +184,13 @@ void	 Response::POST(void)
 
 void	 Response::GET(void)
 {
-	std::cout << "\033[31;4mResponse::Get\033[0m" << std::endl;
+	// std::cout << "\033[31;4mResponse::Get\033[0m" << std::endl;
 	// if location has redirection
 
 	//
 	std::string resource = get_absolute_path();
 
-	std::cout << "resource = " << resource << std::endl;
+	// std::cout << "resource = " << resource << std::endl;
 	// 
 	// std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
@@ -243,7 +243,7 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
-	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
+	// std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
 	// std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
 
 	if (_request->get_bad_status())
@@ -251,8 +251,8 @@ std::vector<char>	Response::serv()
 
 	this->find_location();
 	std::string absolute_path = get_absolute_path();
-	std::cout << "absolute path = " << absolute_path << std::endl;
-	std::cout << "location = " << _mylocation->url << std::endl;
+	// std::cout << "absolute path = " << absolute_path << std::endl;
+	// std::cout << "location = " << _mylocation->url << std::endl;
 	std::string extension = getExtension(this->_request->get_path());
 
  	if (_mylocation == 0x0)

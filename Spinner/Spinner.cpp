@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 21:44:47 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 23:00:13 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 Spinner ::Spinner ()
 {
 		_maxfd = 0;
+		begin = time(NULL);
 }
 
 Spinner ::~Spinner ()
@@ -86,6 +87,7 @@ Request 		*Spinner::read_request(int connection_fd)
 	if (readlen == 0 || readlen == -1)
 	{
 		FD_CLR(connection_fd, &this->set_read);
+		std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
 		close(connection_fd);
 		return NULL;
 
@@ -142,7 +144,7 @@ void		Spinner::write_responce(int connection_fd)
 	signal(SIGPIPE, SIG_DFL);
 	if ( writing == 0 || writing == -1) 
 	{
-		std::cout << " ======||||||||||||||||||||====== "<< std::endl;
+		std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
 		close(connection_fd);
 		_responces.erase(connection_fd);
 		FD_CLR(connection_fd, &this->set_write);
@@ -157,10 +159,10 @@ void		Spinner::write_responce(int connection_fd)
 		_requests.erase(connection_fd);
 		if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
 		{
-			std::cout << " ****************************************** "<< std::endl;
 			FD_CLR(connection_fd, &this->set_write);
 			FD_CLR(connection_fd, &this->set_read);
 			socketfd_connectionfd.erase(connection_fd);
+			std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
 			close(connection_fd);
 		}
 		else 
@@ -245,14 +247,19 @@ void	Spinner::run()
 				if (std::count(listOfFd.begin(), listOfFd.end() , connection_fd) )
 				{
 					int new_socket = this->accepet(connection_fd);
+					std::cout << "[" << get_time2(begin) << "] " <<  "incoming connection fd:" << new_socket << std::endl;
 					_maxfd = std::max(_maxfd, (unsigned int)  new_socket);
 				}
 				else
 				{
-						if (FD_ISSET(connection_fd, &current_socket_read))
+						if (FD_ISSET(connection_fd, &current_socket_read)){
+							std::cout << "[" << get_time2(begin) << "] " <<  "read ready connection fd:" << connection_fd << std::endl;
 						 	read_request(connection_fd);
-						else
+						}
+						else{
+							std::cout << "[" << get_time2(begin) << "] " <<  "write ready connection fd:" << connection_fd << std::endl;
 							write_responce(connection_fd);
+						}
 				}
 			}
 		}

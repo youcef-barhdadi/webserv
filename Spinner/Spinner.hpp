@@ -51,6 +51,8 @@ class Spinner
 		fd_set set_read;
         fd_set set_write;
 
+		time_t	begin;
+
 };
 
 
