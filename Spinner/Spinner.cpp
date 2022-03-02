@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/01 23:07:56 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 02:44:53 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,32 @@ void		parseKeepAlive(std::string str)
 }
 
 // lost pointers.
+
+int		Spinner::accepet(int connection_fd)
+{
+	struct sockaddr_in address;
+	socklen_t addrlen;
+	
+	int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
+	// std::cout << "timestamp#" << get_time2(begin) << " [" << new_socket << "] incoming connection accepted" << std::endl; 
+	fcntl(new_socket, F_SETFL, O_NONBLOCK);
+	if (new_socket < 0)
+	{
+		perror("in accept");
+		exit(0);
+	}
+	this->socketfd_connectionfd.insert(std::make_pair(new_socket, connection_fd));
+	FileDescriptorManager::ADD(new_socket);
+	// maxfd = std::max(maxfd, (unsigned int)  new_socket);
+	return new_socket;
+}
+
+
 void	Spinner::run()
 {
 	time_t	begin = time(NULL);
-	struct sockaddr_in address;
-	socklen_t addrlen;
+	// struct sockaddr_in address;
+	// socklen_t addrlen;
 	int  readlen;
 	char buffer[30000] = {0};
 	struct timeval      timeout;
@@ -67,7 +88,7 @@ void	Spinner::run()
 	FileDescriptorManager::CLEAN();
 
 	std::map<unsigned long, Server *> serverMap;
-	std::map<unsigned long,  unsigned long > socketfd_connectionfd;
+	// std::map<unsigned long,  unsigned long > socketfd_connectionfd;
 
 
 
@@ -120,16 +141,7 @@ void	Spinner::run()
 				// this new connection
 				if (std::count(listOfFd.begin(), listOfFd.end() , connection_fd) )
 				{
-					int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
-					std::cout << "timestamp#" << get_time2(begin) << " [" << new_socket << "] incoming connection accepted" << std::endl; 
-					fcntl(new_socket, F_SETFL, O_NONBLOCK);
-					if (new_socket < 0)
-					{
-						perror("in accept");
-						exit(0);
-					}
-					socketfd_connectionfd.insert(std::make_pair(new_socket, connection_fd));
-					FileDescriptorManager::ADD(new_socket);
+					int new_socket = this->accepet(connection_fd);
 					maxfd = std::max(maxfd, (unsigned int)  new_socket);
 				}
 				else
@@ -154,7 +166,6 @@ void	Spinner::run()
 							//get the server
 							unsigned long socket_fd =  socketfd_connectionfd[connection_fd];
 							request->set_server(serverMap[socket_fd]);
-
 							request->Append(copy);
 							if (request->IsFinished() == true)
 							{
@@ -186,9 +197,6 @@ void	Spinner::run()
 
 						std::vector<char> array  = res->serv();
 						char *data  = array.data();
-						// std::cerr << std::string(50, '-') << std::endl;
-						// std::cerr << data << std::endl;
-						// std::cerr << std::string(50, '-') << std::endl;
 						int writing = 0;
 						errno = 0;
 						signal(SIGPIPE, SIG_IGN);
@@ -197,29 +205,17 @@ void	Spinner::run()
 						signal(SIGPIPE, SIG_DFL);
 						if ( writing == 0 || writing == -1)
 						{
-							// std::map<unsigned long , Request*>::iterator it1 = unfinshed_request.find(connection_fd);
-							// std::map<unsigned long , Response*>::iterator it2 = unfinshed_responce.find(connection_fd);
-
 							close(connection_fd);
 							close(connection_fd);
 							FD_CLR(connection_fd, &write_socket);
-
-							// delete it1->second;
-							// delete it2->second;
 							unfinshed_responce.erase(connection_fd);
 							FileDescriptorManager::REMOVE(connection_fd);
 							unfinshed_request.erase(connection_fd);
 
 						}
-
-						//  std::cout << "=="  << writing << std::endl;
 						res->set_bytes_sent(res->get_bytes_sent() + writing);
-
 						if (res->get_bytes_sent() == array.size())
 						{
-							// std::map<unsigned long , Request*>::iterator it1 = unfinshed_request.find(connection_fd);
-							// std::map<unsigned long , Response*>::iterator it2 = unfinshed_responce.find(connection_fd);
-
 							unfinshed_responce.erase(connection_fd);
 							unfinshed_request.erase(connection_fd);
 							if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
@@ -229,8 +225,6 @@ void	Spinner::run()
 								socketfd_connectionfd.erase(connection_fd);
 								close(connection_fd);
 								std::cout << "timestamp#" << get_time2(begin) << " [" << connection_fd  << "] connection closed" << std::endl;
-								// delete it1->second;
-								// delete it2->second;
 							}
 							else 
 							{

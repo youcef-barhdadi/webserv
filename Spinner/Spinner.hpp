@@ -24,7 +24,10 @@ class Spinner
 		void	run();
 		std::vector<Server *> _servers;
 
+
 	private:
+		int		accepet(int);
+		std::map<unsigned long,  unsigned long > socketfd_connectionfd;
 
 };
 
