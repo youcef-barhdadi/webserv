@@ -28,8 +28,6 @@ SRCS =	Utilities/Utilities.cpp\
 
 OBJS =	Utilities.o\
 		\
-		FileDescriptorManager.o\
-		\
 		Spinner.o\
 		\
 		Config.o\
