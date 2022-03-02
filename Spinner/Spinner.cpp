@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 04:33:20 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 04:35:21 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ Spinner ::~Spinner ()
 		{
 			close(this->_servers[i]->get_socket_fd()[j]);
 		}
-
 	}
 }
 
@@ -56,7 +55,6 @@ void		parseKeepAlive(std::string str)
 	(void)str;
 }
 
-// lost pointers.
 
 int		Spinner::accepet(int connection_fd)
 {
@@ -210,7 +208,7 @@ void	Spinner::run()
 
 	timeout.tv_sec  = 60;
 	timeout.tv_usec = 0;
-	
+
 	init_Spinner();
 	print_ports();
 
