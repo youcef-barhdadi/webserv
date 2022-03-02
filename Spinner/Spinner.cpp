@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 19:29:35 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 19:46:42 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void		Spinner::write_responce(int connection_fd)
 	res->set_bytes_sent(res->get_bytes_sent() + writing);
 	if (res->get_bytes_sent() == array.size())
 	{
-		std::cout << "Delete" << std::endl;
+		// std::cout << "Delete" << std::endl;
 		_responces.erase(connection_fd);
 		_requests.erase(connection_fd);
 		if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
