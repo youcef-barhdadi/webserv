@@ -182,7 +182,7 @@ void       Request::ParseHeaders(void)
 			_isFinished = true;
 			return ;
 		}
-		if (std::stoi(_headers["Content-Length"]) > static_cast<int>(_server->get_client_body_size() * 1048576))
+		if (_headers.find("Content-Length") != _headers.end() && std::stoi(_headers["Content-Length"]) > static_cast<int>(_server->get_client_body_size() * 1048576))
 		{
 			_bad_status = 413;
 			_isFinished = true;
