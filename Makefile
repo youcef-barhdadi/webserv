@@ -9,8 +9,6 @@ DEBUG = -fsanitize=address
 
 SRCS =	Utilities/Utilities.cpp\
 		\
-		FileDescriptorManager/FileDescriptorManager.cpp\
-		\
 		Spinner/Spinner.cpp\
 		\
 		Config/Config.cpp\

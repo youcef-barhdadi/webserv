@@ -6,7 +6,11 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
+<<<<<<< HEAD
+/*   Updated: 2022/03/02 20:17:01 by ybarhdad         ###   ########.fr       */
+=======
 /*   Updated: 2022/03/02 19:46:42 by ztaouil          ###   ########.fr       */
+>>>>>>> b2f90f86309ceadf9910155c34860c4cfe7c5a6a
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +18,6 @@
 #include <sys/select.h>
 #include <algorithm>
 #include <map>
-#include "../FileDescriptorManager/FileDescriptorManager.hpp"
 #include <queue>
 #include <fcntl.h>
 #include <ctime>
@@ -70,7 +73,8 @@ int		Spinner::accepet(int connection_fd)
 		exit(0);
 	}
 	this->socketfd_connectionfd.insert(std::make_pair(new_socket, connection_fd));
-	FileDescriptorManager::ADD(FileDescriptorManager::READ, new_socket);
+	// FileDescriptorManager::ADD(FileDescriptorManager::READ, new_socket);
+	FD_SET(new_socket, &this->set_read);
 	_maxfd = std::max(_maxfd, (unsigned int)  new_socket);
 	return new_socket;
 }
@@ -87,7 +91,7 @@ Request 		*Spinner::read_request(int connection_fd)
 	{
 		close(connection_fd);
 		// FileDescriptorManager::REMOVE(FileDescriptorManager::READ, connection_fd);
-							FD_CLR(connection_fd, &FileDescriptorManager::set_read);
+		FD_CLR(connection_fd, &this->set_read);
 
 	}else
 		buffer[readlen] = 0;
@@ -107,9 +111,8 @@ Request 		*Spinner::read_request(int connection_fd)
 	{
 		// std::cout << "IS FINSHED" << FileDescriptorManager::READ << std::endl;
 		// FileDescriptorManager::REMOVE(FileDescriptorManager::READ ,connection_fd);
-					FD_CLR(connection_fd, &FileDescriptorManager::set_read);
-
-		FileDescriptorManager::ADD(FileDescriptorManager::WRITE ,connection_fd);
+		FD_CLR(connection_fd, &this->set_read);
+		FD_SET(connection_fd, &this->set_write);
 	}
 	return request;
 }
@@ -148,9 +151,7 @@ void		Spinner::write_responce(int connection_fd)
 	{
 		close(connection_fd);
 		_responces.erase(connection_fd);
-		// FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE ,connection_fd);
-							FD_CLR(connection_fd, &FileDescriptorManager::set_write);
-
+		FD_CLR(connection_fd, &this->set_write);
 		_requests.erase(connection_fd);
 	}
 	res->set_bytes_sent(res->get_bytes_sent() + writing);
@@ -161,17 +162,15 @@ void		Spinner::write_responce(int connection_fd)
 		_requests.erase(connection_fd);
 		if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
 		{
-			FD_CLR(connection_fd, &FileDescriptorManager::set_write);
-			FD_CLR(connection_fd, &FileDescriptorManager::set_read);
-			// FileDescriptorManager::REMOVE(FileDescriptorManager::READ, connection_fd);
-			// FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE, connection_fd);
+			FD_CLR(connection_fd, &this->set_write);
+			FD_CLR(connection_fd, &this->set_read);
 			socketfd_connectionfd.erase(connection_fd);
 			close(connection_fd);
 		}
 		else 
-		{
-			FileDescriptorManager::ADD(FileDescriptorManager::READ, connection_fd);
-			FD_CLR(connection_fd, &FileDescriptorManager::set_write);
+		{	
+			FD_SET(connection_fd, &this->set_read);
+			FD_CLR(connection_fd, &this->set_write);
 		}
 		delete res;
 	}
@@ -188,7 +187,9 @@ void		Spinner::init_Spinner()
 	{
 		for(size_t j = 0; j < this->_servers[i]->get_socket_fd().size(); j++)
 		{
-			FileDescriptorManager::ADD(FileDescriptorManager::READ, this->_servers[i]->get_socket_fd()[j]);
+			// FileDescriptorManager::ADD(FileDescriptorManager::READ, this->_servers[i]->get_socket_fd()[j]);
+			int fd = this->_servers[i]->get_socket_fd()[j];
+			FD_SET(fd, &this->set_read);
 			serverMap.insert(std::make_pair(this->_servers[i]->get_socket_fd()[j], this->_servers[i]));
 			listOfFd.push_back(this->_servers[i]->get_socket_fd()[j]);
 			_maxfd = std::max(_maxfd, this->_servers[i]->get_socket_fd()[j]);
@@ -219,7 +220,8 @@ void	Spinner::run()
 	fd_set  current_socket_write, current_socket_read;
 	FD_ZERO(&current_socket_write);
 	FD_ZERO(&current_socket_read);
-	FileDescriptorManager::CLEAN();
+	FD_ZERO(&this->set_read);
+	FD_ZERO(&this->set_write);
 
 	timeout.tv_sec  = 60;
 	timeout.tv_usec = 0;
@@ -229,8 +231,8 @@ void	Spinner::run()
 
 	while (true)
 	{
-		current_socket_read = FileDescriptorManager::set_read;
-		current_socket_write = FileDescriptorManager::set_write;
+		current_socket_read = this->set_read;
+		current_socket_write = this->set_write;
 		if (select((int)_maxfd +1, &current_socket_read, &current_socket_write, NULL, &timeout) < 0)
 		{
 			assert(true);
