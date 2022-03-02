@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 04:54:26 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/02 05:12:36 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,8 @@ Request 		*Spinner::read_request(int connection_fd)
 	_requests.insert(std::make_pair(connection_fd, request));
 	if (request->IsFinished() == true)
 	{
-		FD_SET(connection_fd, &FileDescriptorManager::set_write);
 		FileDescriptorManager::REMOVE(FileDescriptorManager::READ ,connection_fd);
+		FileDescriptorManager::ADD(FileDescriptorManager::WRITE ,connection_fd);
 	}
 	return request;
 }
@@ -143,9 +143,8 @@ void		Spinner::write_responce(int connection_fd)
 	if ( writing == 0 || writing == -1)
 	{
 		close(connection_fd);
-		FD_CLR(connection_fd, &FileDescriptorManager::set_write);
 		_responces.erase(connection_fd);
-		FileDescriptorManager::REMOVE(FileDescriptorManager::READ ,connection_fd);
+		FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE ,connection_fd);
 		_requests.erase(connection_fd);
 	}
 	res->set_bytes_sent(res->get_bytes_sent() + writing);
@@ -155,14 +154,13 @@ void		Spinner::write_responce(int connection_fd)
 		_requests.erase(connection_fd);
 		if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
 		{
-			FD_CLR(connection_fd, &FileDescriptorManager::set_write);
-			FileDescriptorManager::REMOVE(FileDescriptorManager::READ, connection_fd);
+			FileDescriptorManager::REMOVE(FileDescriptorManager::WRITE, connection_fd);
 			socketfd_connectionfd.erase(connection_fd);
 			close(connection_fd);
 		}
 		else 
 		{
-			FileDescriptorManager::ADD(FileDescriptorManager::WRITE, connection_fd);
+			FileDescriptorManager::ADD(FileDescriptorManager::READ, connection_fd);
 			FD_CLR(connection_fd, &FileDescriptorManager::set_write);
 		}
 		delete res;
