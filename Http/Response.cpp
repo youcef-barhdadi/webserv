@@ -249,6 +249,7 @@ std::vector<char>	Response::serv()
 	std::string absolute_path = get_absolute_path();
 	std::cout << "absolute path = " << absolute_path << std::endl;
 	std::cout << "location = " << _mylocation->url << std::endl;
+	std::string extension = getExtension(this->_request->get_path());
 
  	if (_mylocation == 0x0)
 		return _404_error();
@@ -258,16 +259,18 @@ std::vector<char>	Response::serv()
 		return _404_error();
 	if (!check_methods())
 		return _405_error();
-	// no location was found
 	if (_mylocation->redirect.size() != 0)
 		return create_303_header();
 
-
-
+	if (std::find(_mylocation->cgi.begin(), _mylocation->cgi.end(), extension) !=  _mylocation->cgi.end())
+	{
+		Cgi  cgi;
+		cgi.startCgi(this->_request, *_mylocation);
+		return cgi.readChunk();
+	}
 
 	if (this->_request->get_method() ==  "POST")
 	{
-		// if the location does not support upload
 		if (!_mylocation->upload.size())
 			return _404_error();
 		POST();
@@ -333,10 +336,9 @@ void				Response::find_index_file(void)
 
 std::vector<char>	Response::create_302_header(void)
 {
+	this->close_connection = true;
 	std::string s = "HTTP/1.1 303 See Other\nLocation: " + _mylocation->redirect + "\r\n";
-
 	std::vector<char> ret(s.begin(), s.end());
-
 	 return ret;
 }
 

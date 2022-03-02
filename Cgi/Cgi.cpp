@@ -17,14 +17,49 @@ Cgi::~Cgi()
 }
 
 
+std::vector<std::string> parser_cgi_response(std::string str)
+{
+	std::stringstream ss(str);
+	std::string buffer;
+
+	std::string headers;
+	std::string body;
+
+	std::vector<std::string> ret;
+
+	while (std::getline(ss, buffer))
+	{
+		if (buffer == "\r")
+		{
+			headers.append(buffer+"\n");
+				break ;
+		}
+		headers.append(buffer + "\n");
+	}
+
+	while (std::getline(ss, buffer))
+	{
+		body.append(buffer +"\n");
+	}
+	ret.push_back(headers);
+	ret.push_back(body);
+	return ret;
+}	
+
 
 std::vector<char> handlCgiresponse(std::string  str)
 {
-	std::vector<std::string> strs = split(str, '\n');;
-	int size = strs[2].length();
+	
+	std::vector<std::string> strs = parser_cgi_response(str);;
+	std::cout << strs.size() << std::endl;
+	int size = strs[1].length();
 	std::string content = "HTTP/1.1 200 OK\nContent-Length: "+ std::to_string(size);
 	content += "\n";
-	content.append(str);
+	content.append(strs[0]);
+	// content.append("\n\r\n");
+	content.append(strs[1]);
+
+	std::cout << "[" <<  content << "]" <<  std::endl;
 	std::vector <char> vec(content.begin(), content.end());
 	return vec;
 }
@@ -47,14 +82,17 @@ std::vector<char>	Cgi::readChunk()
 	while ((size =  read(this->pip[0], buffer, 49999)) > 0)
 	{
 			buffer[size] = 0;
+			
 			str += std::string(buffer);
+			std::cout<< str  << size  << std::endl;
+			break ;
 	}
 	if (size == -1)
 	{
 		str = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\n";
 		str += "Content-Length: 128\n\r\n<html><head><title>500  Internal Server Error</title></head><body><center><h1>Internal Server Error</h1></center></body></html>"; 
 	}
-	std::vector<char>  vec=  handlCgiresponse(str);
+	std::vector<char>  vec =  handlCgiresponse(str);
 	return vec;
 }	
 
@@ -74,11 +112,15 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	int status = 0;
 	int fd;
 	std::string query_string;
-	std::string new_stg = request->get_path().erase(0,1);
-	const char *script = (location.root +  new_stg).c_str();
-	if (file_exist(script) == false)
+	std::string new_stg = request->get_path();
+	std::string	script = location.root  +  new_stg;
+
+	std::cout << location.root << "=====" << new_stg  << "  " << script   << std::endl;
+
+	if (file_exist(script.c_str()) == false)
 	{
-			this->NotExist = false;
+			this->NotExist = false;	
+			return "";
 	}
 
 	if (request->get_method() == "POST")
@@ -98,20 +140,23 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	{
 		
 		errno =0;
-		if (fd != -1)
-		{
-			dup2(fd, 0);
-		}
+		// if (fd != -1)
+		// {
+		// 	dup2(fd, 0);
+		// }
+			printf(" ========sss=========>  [%s]\n", script.c_str());
+
 		dup2(pip[1], 1);
 		close(pip[1]);
 		close(pip[0]);
-		const char *args[] = {type.c_str(), script, NULL };
+		const char *args[] = {type.c_str(), script.c_str(), NULL };
 		// set environment variables
 		setenv("QUERY_STRING", query_string.c_str(), 1);
 		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
 		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
 		setenv("SERVER_PROTOCOL", "HTPP 1.1", 1);
 		execvp(type.c_str(), (char **) args);
+		std::cout << "errrrrro " << std::endl;
 	}
 	sleepcp(40000);
 	int ret = waitpid(worker_pid, &status, WNOHANG);
@@ -130,3 +175,13 @@ std::string		Cgi::startCgi(Request *request,  location location)
 
 
 /* ************************************************************************** */
+
+
+// <html>
+// <head>
+// <title>Hello - Second CGI Program</title>
+// </head>
+// <body>
+// <h2>Hello None None</h2>
+// </body>
+// </html>
