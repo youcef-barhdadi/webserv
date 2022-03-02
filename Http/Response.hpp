@@ -36,7 +36,7 @@ class Response
 		void				 CGI(void);
 
 
-
+		std::vector<char>	request_error(void);
 
 		void				create_autoindex(std::string str);
 		void				find_location(void);
@@ -60,9 +60,12 @@ class Response
 
 	private:
 // error pages
+		std::vector<char> _505_error();
+		std::vector<char> _400_error();
 		std::vector<char> _403_error();
 		std::vector<char> _404_error();
 		std::vector<char> _405_error();
+		std::vector<char> _413_error();
 		std::vector<char> _501_error();
 //
 

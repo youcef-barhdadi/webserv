@@ -6,7 +6,7 @@
 
 Request::Request(void)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
-, _isFinished(false), _isHeaderParsed(false), _debug(0)
+, _isFinished(false), _isHeaderParsed(false), _bad_status(0), _debug(0)
 {
 
 }
@@ -55,31 +55,36 @@ void    Request::Append(std::string &Message)
 		_isHeaderParsed = true;
 	}
 
+	if (_isFinished)
+		return ;
+
 	if (_isHeaderParsed && _headers.find("Content-Length") != _headers.end() && std::stoi(_headers["Content-Length"]) > 0)
 	{
 		_body_filename = RandString(30);
 		std::ofstream ofs (_body_filename, std::ofstream::out);
 		if (_headers["Transfer-Encoding"] == "chunked")
 		{
+			std::cerr << "Request::Append | transfer-encoding chunked" << std::endl;
 			// I am supposing that the second and nth request contains only the body.
 
 			std::stringstream ss(_buffer);
+			std::cerr << _buffer << std::endl;
 			std::string buff;
 
 			std::getline(ss, buff);
 			size_t n = HexToDec(buff);
-			if (buff == "0\r")
-				_isFinished = true;
-			while (std::getline(ss, buff) && n > _body_size)
-			{
-				ofs << buff;
-				n += buff.size();
-				if (n > _body_size)
-					ofs << "\n";
-			}
+
+			std::cerr << n << std::endl;
+			exit(0);
+
 		}else{
 			ofs << _buffer;
 			_body_size += _buffer.size();
+			if (_body_size > _server->get_client_body_size() * 1048576)
+			{
+				_isFinished = 1;
+				_bad_status = 413;
+			}
 			// std::cout << "==>" << _body_size << std::endl;
 		}
 		_buffer.clear();
@@ -127,12 +132,16 @@ bool     Request::IsFinished(void) const
 void       Request::ParseHeaders(void)
 {
 	std::stringstream   ss(_buffer);
+	std::cerr << _buffer << std::endl;
 
 	std::string buffer;
 	std::getline(ss, buffer);
 	std::vector<std::string> firstline = split(buffer, ' ');
 
 	if (firstline.size() != 3){
+		_bad_status = 400;
+		_isFinished = true;
+		return ;
 		try{
 			throw RequestError();
 		}catch(...){
@@ -144,15 +153,45 @@ void       Request::ParseHeaders(void)
 	_path = firstline[1];
 	_protocol_version = stof(split(firstline[2], '/')[1]);
 
-	// if (_path == "/")
-	//     _path = "/index.html";
+	std::cerr << "protocol version = " << _protocol_version << std::endl;
+	if (_protocol_version >= 1.2)
+	{
+		_bad_status = 505;
+		_isFinished = true;
+		return ;
+	}
 
 	while (std::getline(ss, buffer))
 	{
 		if (buffer == "\r")
 			break;
 		std::vector<std::string> myvec = split(buffer, ':');
+		if (_headers.find(trim(myvec[0])) != _headers.end())
+		{
+			_bad_status = 400;
+			_isFinished = true;
+			return ;
+		}
 		_headers.insert(std::make_pair(trim(myvec[0]), trim(myvec[1])));
+	}
+
+	try{
+		if (_headers.find("Content-Length") != _headers.end() && (std::stoi(_headers["Content-Length"]) < 0))
+		{
+			_bad_status = 400;
+			_isFinished = true;
+			return ;
+		}
+		if (std::stoi(_headers["Content-Length"]) > static_cast<int>(_server->get_client_body_size() * 1048576))
+		{
+			_bad_status = 413;
+			_isFinished = true;
+			return ;
+		}
+	}catch(...){
+		_bad_status = 413;
+		_isFinished = true;
+		return ;		
 	}
 
 	_buffer.clear();
@@ -174,6 +213,8 @@ void    Request::VerifyRequest(void)
 		if (_method == methods[i])
 			found = 1;
 	if (!found){
+		_bad_status = 501;
+		_isFinished = true;
 		throw RequestError();
 	}
 }
@@ -280,4 +321,9 @@ std::map<std::string, std::string>  Request::get_query_parnms()
 std::map<std::string, std::string>  Request::get_query_headers()
 {
 	return this->_headers;
+}
+
+int									Request::get_bad_status(void)
+{
+	return _bad_status;
 }

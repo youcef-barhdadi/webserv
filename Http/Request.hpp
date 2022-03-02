@@ -12,8 +12,8 @@
 #include <algorithm>
 #include <fstream>
 #include "../Utilities/Utilities.hpp"
-
 #include "../Server/Server.hpp"
+
 
 
 
@@ -45,6 +45,7 @@ class Request{
 		bool        IsFinished(void) const;
 		void        ParseHeaders(void);
 
+
 		void        VerifyRequest(void);
 		void        ParseQueryParams(void);
 
@@ -57,6 +58,7 @@ class Request{
 		void        debug_query_params(void);
 		void		set_path(std::string path);
 		std::string	get_body_filename(void);
+		int			get_bad_status(void);
 
 		void        get_buffer(void);
 
@@ -80,6 +82,7 @@ class Request{
 		size_t              _body_size;
 		bool                _isFinished;
 		bool                _isHeaderParsed;
+		int					_bad_status;
 
 		//
 		int          _debug;

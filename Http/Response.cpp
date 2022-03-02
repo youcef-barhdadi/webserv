@@ -243,8 +243,12 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
-	std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
 	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
+	// std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
+
+	if (_request->get_bad_status())
+		return request_error();
+
 	this->find_location();
 	std::string absolute_path = get_absolute_path();
 	std::cout << "absolute path = " << absolute_path << std::endl;
@@ -363,6 +367,21 @@ std::string			Response::get_absolute_path(void)
 	return _mylocation->root + uri;
 }
 
+std::vector<char>				Response::request_error(void)
+{
+	int status = _request->get_bad_status();
+
+	if (status == 400)
+		return _400_error();
+	else if (status == 413)
+		return _413_error();
+	else if (status == 505)
+		return _505_error();
+	else if (status == 501)
+		return _501_error();
+	else
+		exit(666);
+}
 /*	getter	*/
 
 Request				*Response::get_request(void)
