@@ -13,6 +13,7 @@
 #include <fstream>
 #include "../Utilities/Utilities.hpp"
 #include "../Server/Server.hpp"
+#include <sys/select.h>
 
 
 
@@ -85,8 +86,11 @@ class Request{
 		int					_bad_status;
 
 		std::ofstream		ofs;
+
 		bool				ofs_open;
+//
+		int					f_fd;
+		fd_set				f_fd_set;
 
 		//
-		int          _debug;
 };

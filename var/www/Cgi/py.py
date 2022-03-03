@@ -12,7 +12,6 @@ first_name = form.getvalue('first_name')
 last_name  = form.getvalue('last_name')
 date  = form.getvalue('date')
 sex  = form.getvalue('sex')
-time.sleep(2.4)
 
 print ("Content-type:text/html\r\n\r\n")
 print ("<html>")
