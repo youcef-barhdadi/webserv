@@ -243,8 +243,8 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
-	// std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
-	// std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
+	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
+	std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
 
 	if (_request->get_bad_status())
 		return request_error();
@@ -265,9 +265,10 @@ std::vector<char>	Response::serv()
 		return _405_error();
 	if (_mylocation->redirect.size() != 0)
 		return create_303_header();
-
+	std::cout << extension << "==================extenstion\n";
 	if (std::find(_mylocation->cgi.begin(), _mylocation->cgi.end(), extension) !=  _mylocation->cgi.end())
 	{
+		std::cout << "Cgi=====================\n";
 		Cgi  cgi;
 		cgi.startCgi(this->_request, *_mylocation);
 		return cgi.readChunk();

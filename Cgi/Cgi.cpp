@@ -111,14 +111,16 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	pipe(this->pip);
 	int status = 0;
 	int fd;
+
+	fd = -1;
 	std::string query_string;
 	std::string new_stg = request->get_path();
 	std::string	script = location.root  +  new_stg;
 
-	std::cout << location.root << "=====" << new_stg  << "  " << script   << std::endl;
 
 	if (file_exist(script.c_str()) == false)
-	{
+	{	
+			std::cout << "File dosn't exist" << std::endl;
 			this->NotExist = false;	
 			return "";
 	}
@@ -127,11 +129,11 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	{
 			fd = open(request->get_body_filename().c_str(), O_RDONLY);
 	}
+	std::cout << fd << "=====file  " << std::endl; 
 	std::string extention =	getExtension(request->get_path());
 	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
 
-	std::cerr << "EXTENSION = " << extention << std::endl;
 
 	if (extention == "py")
 		type = "python";
@@ -139,19 +141,26 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		type  = "perl";
 	else
 		type = "php";
+
 	pid_t worker_pid = fork();
 	time_t	begin = time(NULL);
 	if (worker_pid == 0)
 	{
+		if (fd != -1)
+		{
+			dup2(fd, 0);
+		}
 		dup2(pip[1], 1);
 		close(pip[1]);
 		close(pip[0]);
 		const char *args[] = {type.c_str(), script.c_str(), NULL };
 		setenv("QUERY_STRING", query_string.c_str(), 1);
 		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
+		// setenv("REQUEST_METHOD", "GET", 1);
 		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
 		setenv("SERVER_PROTOCOL", "HTPP 1.1", 1);
 		execvp(type.c_str(), (char **) args);
+
 	}
 
 	bool timout(true);

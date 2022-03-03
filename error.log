@@ -1,4 +1,8 @@
-EXTENSION = py
-phhhhhhhhhhhhp
-EXTENSION = py
-phhhhhhhhhhhhp
+Traceback (most recent call last):
+  File "/Users/ybarhdad/Desktop/webserv/var/www/Cgi/py.py", line 8, in <module>
+    form = cgi.FieldStorage() 
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/cgi.py", line 496, in __init__
+    self.read_urlencoded()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/cgi.py", line 597, in read_urlencoded
+    qs = self.fp.read(self.length)
+KeyboardInterrupt

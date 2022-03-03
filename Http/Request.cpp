@@ -93,6 +93,8 @@ void    Request::Append(std::string &Message)
 		}else{
 			ofs << _buffer;
 			_body_size += _buffer.size();
+			if (_body_size == static_cast<size_t>(std::stoi(_headers["Content-Length"])))
+				_isFinished = 1;
 			if (_body_size > _server->get_client_body_size() * 1048576)
 			{
 				_isFinished = 1;
