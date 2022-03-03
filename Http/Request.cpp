@@ -6,7 +6,7 @@
 
 Request::Request(void)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
-, _isFinished(false), _isHeaderParsed(false), _bad_status(0), _debug(0)
+, _isFinished(false), _isHeaderParsed(false), _bad_status(0), ofs_open(false), _debug(0)
 {
 
 }
@@ -47,8 +47,18 @@ Request   &Request::operator=(Request const &rhs)
 
 void    Request::Append(std::string &Message)
 {
-	_buffer += Message;
+// binary go brrrr
+	std::vector<char> myvec;
+	for (size_t i = 0; i < Message.size(); i++){
+		// std::cerr << (int)Message[i] << " ";
+		myvec.push_back(Message[i]);
+	}
+	// std::cerr << std::endl;
+	_buffer.insert(_buffer.end(), myvec.begin(), myvec.end());
 
+	// _buffer += Message;
+
+ 
 	if (_isHeaderParsed == false && HeadersFinished()){
 		ParseHeaders();
 		ParseQueryParams();
@@ -60,11 +70,15 @@ void    Request::Append(std::string &Message)
 
 	if (_isHeaderParsed && _headers.find("Content-Length") != _headers.end() && std::stoi(_headers["Content-Length"]) > 0)
 	{
-		_body_filename = RandString(30);
-		std::ofstream ofs (_body_filename, std::ofstream::out);
+		if (_body_filename.size() == 0)
+			_body_filename = RandString(30);
+		if (ofs_open == false){
+			ofs.open(_body_filename, std::ofstream::out);
+			ofs_open = true;
+		}
 		if (_headers["Transfer-Encoding"] == "chunked")
 		{
-			std::cerr << "Transfer-Encoding: chunked" << std::endl;
+			// std::cerr << "Transfer-Encoding: chunked" << std::endl;
 			std::stringstream ss(_buffer);
 			std::string buff;
 
@@ -76,7 +90,7 @@ void    Request::Append(std::string &Message)
 				std::getline(ss, buff);
 				size_t n = HexToDec(buff);
 
-				std::cerr << "n = " << n << std::endl;
+				// std::cerr << "n = " << n << std::endl;
 
 				if (!n)
 					break;
@@ -84,16 +98,17 @@ void    Request::Append(std::string &Message)
 				for(size_t i = 0; i < n; i++){
 					char c = ss.get();
 					ofs << c;
-					std::cerr << "[" << (int)c << "]";
+					// // std::cerr << "[" << (int)c << "]";
 				}
-				std::cerr << std::endl;
+				// // std::cerr << std::endl;
 				ss.get();
 			}
 
 		}else{
 			ofs << _buffer;
 			_body_size += _buffer.size();
-			if (_body_size == static_cast<size_t>(std::stoi(_headers["Content-Length"])))
+			// std::cerr << "#" << _body_size << " | " << _headers["Content-Length"] << std::endl;
+			if (_body_size+1 >= static_cast<size_t>(std::stoi(_headers["Content-Length"])))
 				_isFinished = 1;
 			if (_body_size > _server->get_client_body_size() * 1048576)
 			{
@@ -103,7 +118,10 @@ void    Request::Append(std::string &Message)
 			// std::cout << "==>" << _body_size << std::endl;
 		}
 		_buffer.clear();
-		ofs.close();
+		if (_isFinished){
+			ofs.close();
+			std::cout << "ofs closed" << std::endl;
+		}
 	}
 	else if (_headers["Transfer-Encoding"] != "chunked" && BodyFinished())
 		_isFinished = true;
@@ -111,7 +129,12 @@ void    Request::Append(std::string &Message)
 	if (_isFinished)
 	{
 		VerifyRequest();
+		ofs.close();
+		std::cout << "ofs closed" << std::endl;
 	}
+
+	// std::cerr << "is finished = " << _isFinished << std::endl;
+	// std::cerr << "body size "  << _body_size << std::endl;
 }
 
 bool    Request::HeadersFinished(void)
@@ -147,7 +170,7 @@ bool     Request::IsFinished(void) const
 void       Request::ParseHeaders(void)
 {
 	std::stringstream   ss(_buffer);
-	// std::cerr << _buffer << std::endl;
+	// // std::cerr << _buffer << std::endl;
 
 	std::string buffer;
 	std::getline(ss, buffer);
@@ -168,7 +191,7 @@ void       Request::ParseHeaders(void)
 	_path = firstline[1];
 	_protocol_version = stof(split(firstline[2], '/')[1]);
 
-	// std::cerr << "protocol version = " << _protocol_version << std::endl;
+	// // std::cerr << "protocol version = " << _protocol_version << std::endl;
 	if (_protocol_version >= 1.2)
 	{
 		_bad_status = 505;

@@ -84,6 +84,9 @@ class Request{
 		bool                _isHeaderParsed;
 		int					_bad_status;
 
+		std::ofstream		ofs;
+		bool				ofs_open;
+
 		//
 		int          _debug;
 };

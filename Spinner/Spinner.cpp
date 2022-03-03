@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/02 23:00:13 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/03 03:05:10 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ Request 		*Spinner::read_request(int connection_fd)
 
 	}else
 		buffer[readlen] = 0;
-	std::string copy = std::string(buffer);
+	std::string copy = std::string(buffer, readlen);
 	if (this->_requests.find(connection_fd) == this->_requests.end())
 	{
 			request = new Request();
