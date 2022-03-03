@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utilities.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 06:23:34 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/03 07:04:03 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,7 @@ std::vector<char>	getRange(std::string file, size_t start, size_t end)
 
 std::vector<char> getfileRaw(std::string file)
 {
-	// std::ifstream iffile(file,  std::ios::in|std::ios::binary|std::ios::ate);
-		errno = 0;
-
-	// stup
 	std::vector<char>   empty;
-
 	int fd = open(file.c_str(), O_RDONLY);
 	int ret = 1;
 	if (fd < 0)

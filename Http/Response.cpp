@@ -197,15 +197,8 @@ void	 Response::POST(void)
 
 void	 Response::GET(void)
 {
-	// std::cout << "\033[31;4mResponse::Get\033[0m" << std::endl;
-	// if location has redirection
 
-	//
 	std::string resource = get_absolute_path();
-
-	// std::cout << "resource = " << resource << std::endl;
-	// 
-	// std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
 
 
@@ -217,8 +210,8 @@ void	 Response::GET(void)
 
 	// std::cout << file.is_open() << std::endl;
 
-	if (file.is_open())
-	{
+	// if (file.is_open())
+	// {
 
 		this->_status = 200;
 		file.close();
@@ -231,11 +224,11 @@ void	 Response::GET(void)
 		this->_response_vec = first;
 		_response_vec = first;
 
-	}
-	else
-	{
-		_response_vec = _404_error();
-	}
+	// }
+	// else
+	// {
+	// 	_response_vec = _404_error();
+	// }
 
 }
 
@@ -292,7 +285,10 @@ std::vector<char>	Response::serv()
 	// std::cout << "absolute path = " << absolute_path << std::endl;
 	// std::cout << "location = " << _mylocation->url << std::endl;
 	std::string extension = getExtension(this->_request->get_path());
-
+	if (_mylocation->redirect.size() != 0)
+		return create_303_header();
+	if (!isDirectory(absolute_path) && !file_exist(absolute_path.c_str()))
+		return _404_error();
  	if (_mylocation == 0x0)
 		return _404_error();
 	if (isDirectory(absolute_path))
@@ -301,8 +297,6 @@ std::vector<char>	Response::serv()
 		return _404_error();
 	if (!check_methods())
 		return _405_error();
-	if (_mylocation->redirect.size() != 0)
-		return create_303_header();
 
 	if (std::find(_mylocation->cgi.begin(), _mylocation->cgi.end(), extension) !=  _mylocation->cgi.end())
 	{

@@ -124,9 +124,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	std::string	script = location.root  +  new_stg;
 
 	if (request->get_method() == "POST")
-	{
 			fd = open(request->get_body_filename().c_str(), O_RDONLY);
-	}
 
 	std::string extention =	getExtension(request->get_path());
 	query_string = generate_query_string(request->get_query_parnms());
@@ -153,7 +151,6 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		close(pip[1]);
 		close(pip[0]);
 		const char *args[] = {type.c_str(),  script.c_str()  , NULL };
-		// const char *args[] = {"./cgi_tester", "/Users/ybarhdad/Desktop/webserv/var/www/Cgi/file.bla", NULL };
 		setenv("QUERY_STRING", query_string.c_str(), 1);
 		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
 		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
@@ -162,8 +159,6 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		if (request->get_method() == "POST")
 			setenv("PATH_INFO",std::to_string(getSizeOfile(request->get_body_filename())).c_str()  , 1);
 		execvp(type.c_str(), (char **) args);
-		std::cout << "=========== CGI ERROR " << std::endl;
-
 	}
 	bool timout(true);
 	while (difftime(time(NULL), begin) <= 5)
