@@ -180,11 +180,6 @@ void       Request::ParseHeaders(void)
 		_bad_status = 400;
 		_isFinished = true;
 		return ;
-		try{
-			throw RequestError();
-		}catch(...){
-			std::cout << "catched exception" << std::endl;
-		}
 	}
 
 	_method = firstline[0];
@@ -258,7 +253,6 @@ void    Request::VerifyRequest(void)
 	if (!found){
 		_bad_status = 501;
 		_isFinished = true;
-		throw RequestError();
 	}
 }
 
@@ -271,7 +265,11 @@ void    Request::ParseQueryParams(void)
 		std::vector<std::string> myvec2 = split(myvec1[1], '&');
 		size_t n = std::count(myvec1[1].begin(), myvec1[1].end(), '&');
 		if (myvec2.size() != n + 1){
-			throw BadRequest();
+			try{
+				throw BadRequest();
+			}catch(...){
+				_bad_status = 400;
+			}
 		}
 		for(size_t i = 0; i < myvec2.size(); i++)
 		{
