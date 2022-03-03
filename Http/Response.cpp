@@ -349,6 +349,7 @@ void				Response::find_index_file(void)
 	}
 }
 
+
 std::vector<char>	Response::create_302_header(void)
 {
 	this->close_connection = true;

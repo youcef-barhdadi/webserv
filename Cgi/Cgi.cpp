@@ -120,7 +120,6 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	std::string new_stg = request->get_path();
 	std::string	script = location.root  +  new_stg;
 
-
 	// if (file_exist(script.c_str()) == false)
 	// {	
 	// 		std::cout << "File dosn't exist" << std::endl;
@@ -135,8 +134,6 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	std::string extention =	getExtension(request->get_path());
 	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
-
-
 	if (extention == "py")
 		type = "python";
 	else if (extention == "pl")
@@ -158,20 +155,18 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		dup2(pip[1], 1);
 		close(pip[1]);
 		close(pip[0]);
-		const char *args[] = {"./cgi_tester", "/Users/ybarhdad/Desktop/webserv/var/www/Cgi/file.bla", NULL };
+		const char *args[] = {type.c_str(),  script.c_str()  , NULL };
+		// const char *args[] = {"./cgi_tester", "/Users/ybarhdad/Desktop/webserv/var/www/Cgi/file.bla", NULL };
 		setenv("QUERY_STRING", query_string.c_str(), 1);
 		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
-		// setenv("REQUEST_METHOD", "GET", 1);
 		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
 		setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
-		
 		setenv("PATH_INFO",get_path_info(request->get_method()).c_str(), 1);
-
-		dprintf(2,"\nPATH INFO IS :[%s]\n",get_path_info(request->get_path()).c_str());
-		execve("./cgi_tester", (char **) args, environ);
+		if (request->get_method() == "POST")
+			setenv("PATH_INFO",std::to_string(getSizeOfile(request->get_body_filename())).c_str()  , 1);
+		execvp(type.c_str(), (char **) args);
 
 	}
-
 	bool timout(true);
 	while (difftime(time(NULL), begin) <= 5)
 	{
@@ -183,9 +178,6 @@ std::string		Cgi::startCgi(Request *request,  location location)
 			break;
 		}
 	}
-
-// forces a fast execution to this time. which is bad
-// sleepcp(40000);
 	if (timout)
 	{
 		kill(9,worker_pid);
