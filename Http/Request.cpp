@@ -72,7 +72,7 @@ void    Request::Append(std::string &Message)
 	{
 		if (_body_filename.size() == 0)
 			_body_filename = RandString(30);
-		if (ofs_open == false){
+		if (ofs_open == false && _method == "POST"){
 			ofs.open(_body_filename, std::ofstream::out);
 			ofs_open = true;
 		}

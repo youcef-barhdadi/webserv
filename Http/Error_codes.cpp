@@ -120,7 +120,7 @@ std::vector<char>	Response::_505_error()
 {
 	std::string path = _request->_server->get_error_pages();
 	std::string header = "HTTP/1.1 505 HTTP Version Not Supported\r\nContent-Type: text/html\n";
-	std::vector<char> file_vec = getfileRaw(path + "/501.html");
+	std::vector<char> file_vec = getfileRaw(path + "/505.html");
 	if (path.size() == 0 || !file_vec.size())
 	{
 		std::string ll = "Content-Length: 140\n\r\n<html><head><title>505 HTTP Version Not Supported</title></head><body><center><h1>505 HTTP Version Not Supported</h1></center></body></html>";
@@ -141,7 +141,7 @@ std::vector<char>	Response::_413_error()
 {
 	std::string path = _request->_server->get_error_pages();
 	std::string header = "HTTP/1.1 413 Payload Too Large\r\nContent-Type: text/html\n";
-	std::vector<char> file_vec = getfileRaw(path + "/501.html");
+	std::vector<char> file_vec = getfileRaw(path + "/413.html");
 	if (path.size() == 0 || !file_vec.size())
 	{
 		std::string ll = "Content-Length: 122\n\r\n<html><head><title>413 Payload Too Large</title></head><body><center><h1>413 Payload Too Large</h1></center></body></html>";
@@ -156,4 +156,25 @@ std::vector<char>	Response::_413_error()
 
 	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
 	return return_vec;
+}
+
+std::vector<char> Response::_204_error()
+{
+	std::string path = _request->_server->get_error_pages();
+	std::string header = "HTTP/1.1 204 No Content\r\nContent-Type: text/html\n";
+	std::vector<char> file_vec = getfileRaw(path + "/204.html");
+	if (path.size() == 0 || !file_vec.size())
+	{
+		std::string ll = "Content-Length: 108\n\r\n<html><head><title>204 No Content</title></head><body><center><h1>204 No Content</h1></center></body></html>";
+		std::string l = header + ll;
+		std::vector<char> res_vec(l.begin(), l.end());
+		return res_vec;
+	}
+
+	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
+
+	std::vector<char> return_vec(header.begin(), header.end());
+
+	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
+	return return_vec;	
 }

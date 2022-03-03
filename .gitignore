@@ -3,3 +3,4 @@
 .vscode/settings.json
 *.o
 server.conf
+error.log
