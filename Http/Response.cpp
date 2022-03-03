@@ -139,9 +139,10 @@ std::string  Response::create_header(void)
 		if (_index_file.size() == 0 && _mylocation->autoindex)
 			header += "Content-Disposition: attachment\n";
 
-		header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
+		if (_request->get_method() != "DELETE")
+			header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
 		header += "Content-Length: "+ std::to_string(this->_size);
-		header += "\n\n";
+		header += "\r\n";
 	}
 	return header;
 }
@@ -239,6 +240,31 @@ void	 Response::GET(void)
 
 void	 Response::DELETE(void)
 {
+	std::string resource = get_absolute_path();
+	std::string	cmd = "rm " + resource;
+
+
+	int fd = open(resource.c_str(), O_RDONLY);
+	if (fd > 0){
+		close (fd);
+	}
+	else{
+		_response_vec = _204_error();
+		return ;
+	}
+
+	system(cmd.c_str());
+	this->_status = 200;
+	std::string body = "file deleted";
+	this->_size = body.size();
+	std::string header = create_header();
+	header += "\r\n";
+
+	std::vector<char> hamid(header.begin(), header.end());
+	hamid.insert(hamid.end(), body.begin(), body.end());
+
+	std::cerr << header << body << std::endl;
+	_response_vec = hamid;
 	return ;
 }
 
@@ -303,6 +329,10 @@ std::vector<char>	Response::serv()
 			return _403_error();
 		else
 			GET();
+	}
+	else if (this->_request->get_method() == "DELETE")
+	{
+		DELETE();
 	}
 	else{
 		return _501_error();

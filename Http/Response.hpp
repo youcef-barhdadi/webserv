@@ -68,7 +68,9 @@ class Response
 		std::vector<char> _405_error();
 		std::vector<char> _413_error();
 		std::vector<char> _501_error();
+		std::vector<char> _204_error();
 //
+// 204 (No Content)
 
 		Request				*_request;
 		bool				_is_finshed;
