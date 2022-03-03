@@ -73,7 +73,7 @@ void    Request::Append(std::string &Message)
 			_body_filename = RandString(30);
 		if (ofs_open == false && _method == "POST"){
 			std::cerr << "ofs opened" << std::endl;
-			f_fd = open(_body_filename.c_str(), O_CREAT, O_WRONLY);
+			f_fd = open(_body_filename.c_str(), O_CREAT|O_APPEND|O_RDWR,  S_IRUSR|S_IWUSR);
 			fcntl(f_fd, F_SETFL, O_NONBLOCK);
 			FD_ZERO(&f_fd_set);
 			FD_SET(f_fd, &f_fd_set);
