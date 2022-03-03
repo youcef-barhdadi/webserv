@@ -142,7 +142,7 @@ std::string  Response::create_header(void)
 		if (_request->get_method() != "DELETE")
 			header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
 		header += "Content-Length: "+ std::to_string(this->_size);
-		header += "\r\n";
+		header += "\r\n\r\n";
 	}
 	return header;
 }
@@ -230,6 +230,7 @@ void	 Response::GET(void)
 		this->_is_finshed = true;
 		this->_response_vec = first;
 		_response_vec = first;
+
 	}
 	else
 	{
@@ -258,7 +259,6 @@ void	 Response::DELETE(void)
 	std::string body = "file deleted";
 	this->_size = body.size();
 	std::string header = create_header();
-	header += "\r\n";
 
 	std::vector<char> hamid(header.begin(), header.end());
 	hamid.insert(hamid.end(), body.begin(), body.end());
