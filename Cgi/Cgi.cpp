@@ -68,16 +68,26 @@ std::vector<char> handlCgiresponse(std::string  str)
 }
 
 
-std::vector<char>	Cgi::readChunk()
+int		Cgi::StatusCode()
 {
 	if (this->IsTimeOut)
-	{
-		std::string header = "HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\n";
-		std::string ll = "Content-Length: 120\n\r\n<html><head><title>504  Gateway Timeout</title></head><body><center><h1>504  Gateway Timeout</h1></center></body></html>";
-		std::string l = header + ll;
-		std::vector<char> res_vec(l.begin(), l.end());
-		return res_vec;
-	}
+		return 504;
+	return 200;
+}
+
+
+
+
+std::vector<char>	Cgi::readChunk()
+{
+	// if (this->IsTimeOut)
+	// {
+	// 	std::string header = "HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\n";
+	// 	std::string ll = "Content-Length: 120\n\r\n<html><head><title>504  Gateway Timeout</title></head><body><center><h1>504  Gateway Timeout</h1></center></body></html>";
+	// 	std::string l = header + ll;
+	// 	std::vector<char> res_vec(l.begin(), l.end());
+	// 	return res_vec;
+	// }
 	char buffer[50000];
 	int size = 0;
 	std::string str;
@@ -92,8 +102,9 @@ std::vector<char>	Cgi::readChunk()
 	}
 	if (size == -1)
 	{
-		str = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\n";
-		str += "Content-Length: 128\n\r\n<html><head><title>500  Internal Server Error</title></head><body><center><h1>Internal Server Error</h1></center></body></html>"; 
+		// str = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\n";
+		// str += "Content-Length: 128\n\r\n<html><head><title>500  Internal Server Error</title></head><body><center><h1>Internal Server Error</h1></center></body></html>";
+		throw std::exception();
 	}
 	std::vector<char>  vec =  handlCgiresponse(str);
 	return vec;

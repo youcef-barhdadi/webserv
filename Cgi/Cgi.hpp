@@ -23,6 +23,7 @@ class Cgi
 	private:
 		bool IsTimeOut;
 		bool	NotExist;
+		int		StatusCode();
 
 };
 
