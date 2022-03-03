@@ -69,6 +69,10 @@ class Response
 		std::vector<char> _413_error();
 		std::vector<char> _501_error();
 		std::vector<char> _204_error();
+
+		std::vector<char> _504_error();
+		std::vector<char> _500_error();
+
 //
 // 204 (No Content)
 

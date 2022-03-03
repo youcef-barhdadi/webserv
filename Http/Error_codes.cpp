@@ -178,3 +178,40 @@ std::vector<char> Response::_204_error()
 	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
 	return return_vec;	
 }
+
+
+std::vector<char> Response::_504_error()
+{
+	std::string path = _request->_server->get_error_pages();
+	std::string header = "HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\n";
+	std::vector<char> file_vec = getfileRaw(path + "/504.html");
+	if (path.size() == 0 || !file_vec.size())
+	{
+		std::string ll = "Content-Length: 120\n\r\n<html><head><title>504  Gateway Timeout</title></head><body><center><h1>504  Gateway Timeout</h1></center></body></html>";
+		std::string l = header + ll;
+		std::vector<char> res_vec(l.begin(), l.end());
+		return res_vec;
+	}
+	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
+	std::vector<char> return_vec(header.begin(), header.end());
+	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
+	return return_vec;
+}
+
+std::vector<char> Response::_500_error()
+{
+	std::string path = _request->_server->get_error_pages();
+	std::string header = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\n";
+	std::vector<char> file_vec = getfileRaw(path + "/500.html");
+	if (path.size() == 0 || !file_vec.size())
+	{
+		std::string ll = "Content-Length: 128\n\r\n<html><head><title>500  Internal Server Error</title></head><body><center><h1>Internal Server Error</h1></center></body></html>";
+		std::string l = header + ll;
+		std::vector<char> res_vec(l.begin(), l.end());
+		return res_vec;
+	}
+	header += "Content-Length: " + std::to_string(file_vec.size()) + "\n\r\n";
+	std::vector<char> return_vec(header.begin(), header.end());
+	return_vec.insert(return_vec.end(), file_vec.begin(), file_vec.end());
+	return return_vec;
+}

@@ -3,7 +3,7 @@
 
 # Import modules for CGI handling 
 import cgi, cgitb 
-
+import time;
 # Create instance of FieldStorage 
 form = cgi.FieldStorage() 
 
@@ -12,7 +12,7 @@ first_name = form.getvalue('first_name')
 last_name  = form.getvalue('last_name')
 date  = form.getvalue('date')
 sex  = form.getvalue('sex')
-
+time.sleep(182.4)
 
 print ("Content-type:text/html\r\n\r\n")
 print ("<html>")

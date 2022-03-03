@@ -19,11 +19,12 @@ class Cgi
 		std::string		startCgi(Request *request,  location location);
 		std::vector<char>	readChunk();
 		int pip[2];
+			int		StatusCode();
 
 	private:
 		bool IsTimeOut;
 		bool	NotExist;
-		int		StatusCode();
+		bool IServerError;
 
 };
 
