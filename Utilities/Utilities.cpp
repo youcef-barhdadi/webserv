@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utilities.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 03:09:27 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/03 06:23:34 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,25 +44,36 @@ std::vector<char>	getRange(std::string file, size_t start, size_t end)
 
 std::vector<char> getfileRaw(std::string file)
 {
-	std::ifstream iffile(file,  std::ios::in|std::ios::binary|std::ios::ate);
-	std::streampos size;
-	char* memblock;
-	int sizee;
+	// std::ifstream iffile(file,  std::ios::in|std::ios::binary|std::ios::ate);
+		errno = 0;
+
 	// stup
 	std::vector<char>   empty;
 
-	if (iffile.is_open())
+	int fd = open(file.c_str(), O_RDONLY);
+	int ret = 1;
+	if (fd < 0)
+		return empty;
+	fcntl(fd, F_SETFL, O_NONBLOCK);
+
+	fd_set fdset;
+
+	FD_ZERO(&fdset);
+	FD_SET(fd, &fdset);
+
+
+	while (true)
 	{
-		size = iffile.tellg();
-		sizee = size;
-		memblock = new char [sizee];
-		iffile.seekg (0, std::ios::beg);
-		iffile.read (memblock, size);
-		iffile.close();
-		std::vector<char> ret(memblock, memblock+sizee);
-		delete memblock;
-		return ret;
+		char buffer[1025];
+		select(fd + 1, &fdset, NULL, NULL, NULL);
+		if (FD_ISSET(fd, &fdset))
+			ret	= read(fd, buffer, 1024);
+		if (ret <= 0)
+			break ;
+		
+		empty.insert(empty.end(), buffer, buffer + ret);
 	}
+	close(fd);
     return empty;
 }
 
