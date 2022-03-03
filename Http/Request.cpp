@@ -6,7 +6,7 @@
 
 Request::Request(void)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
-, _isFinished(false), _isHeaderParsed(false), _bad_status(0), ofs_open(false), _debug(0)
+, _isFinished(false), _isHeaderParsed(false), _bad_status(0), ofs_open(false)
 {
 
 }
@@ -41,7 +41,6 @@ Request   &Request::operator=(Request const &rhs)
 		_isHeaderParsed = rhs._isHeaderParsed;
 	}
 
-	_debug += 1;
 	return *this;
 }
 
@@ -73,7 +72,12 @@ void    Request::Append(std::string &Message)
 		if (_body_filename.size() == 0)
 			_body_filename = RandString(30);
 		if (ofs_open == false && _method == "POST"){
-			ofs.open(_body_filename, std::ofstream::out);
+			std::cerr << "ofs opened" << std::endl;
+			f_fd = open(_body_filename.c_str(), O_CREAT, O_WRONLY);
+			fcntl(f_fd, F_SETFL, O_NONBLOCK);
+			FD_ZERO(&f_fd_set);
+			FD_SET(f_fd, &f_fd_set);
+			// ofs.open(_body_filename, std::ofstream::out);
 			ofs_open = true;
 		}
 		if (_headers["Transfer-Encoding"] == "chunked")
@@ -97,7 +101,9 @@ void    Request::Append(std::string &Message)
 
 				for(size_t i = 0; i < n; i++){
 					char c = ss.get();
-					ofs << c;
+					// ofs << c;
+					select(f_fd + 1, NULL, &f_fd_set, NULL, NULL);
+					write(f_fd, &c, 1);
 					// // std::cerr << "[" << (int)c << "]";
 				}
 				// // std::cerr << std::endl;
@@ -105,7 +111,10 @@ void    Request::Append(std::string &Message)
 			}
 
 		}else{
-			ofs << _buffer;
+			select(f_fd + 1, NULL, &f_fd_set, NULL, NULL);
+			// ofs << _buffer;
+			for (size_t i = 0; i < _buffer.size(); i++)
+				write(f_fd, &_buffer[i], 1);
 			_body_size += _buffer.size();
 			// std::cerr << "#" << _body_size << " | " << _headers["Content-Length"] << std::endl;
 			if (_body_size+1 >= static_cast<size_t>(std::stoi(_headers["Content-Length"])))
@@ -118,9 +127,11 @@ void    Request::Append(std::string &Message)
 			// std::cout << "==>" << _body_size << std::endl;
 		}
 		_buffer.clear();
-		if (_isFinished){
-			ofs.close();
-			std::cout << "ofs closed" << std::endl;
+		if (_isFinished && ofs_open){
+			// ofs.close();
+			close(f_fd);
+			ofs_open = false;
+			std::cerr << "ofs closed" << std::endl;
 		}
 	}
 	else if (_headers["Transfer-Encoding"] != "chunked" && BodyFinished())
@@ -129,8 +140,12 @@ void    Request::Append(std::string &Message)
 	if (_isFinished)
 	{
 		VerifyRequest();
-		ofs.close();
-		std::cout << "ofs closed" << std::endl;
+		// ofs.close();
+		if (ofs_open){
+			close(f_fd);
+			ofs_open = false;
+		}
+		std::cerr << "ofs closed" << std::endl;
 	}
 
 	// std::cerr << "is finished = " << _isFinished << std::endl;
