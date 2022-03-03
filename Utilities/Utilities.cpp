@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/01 22:38:35 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/03 01:19:01 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,9 +147,6 @@ size_t     HexToDec(std::string nb)
 
 
 
-
-
-
 std::string get_time(time_t unix_timestamp)
 {
 	char time_buf[80];
@@ -251,4 +248,11 @@ bool	file_exist(const char *file)
 		return true;
 	}
 	return false;
+}
+
+
+void delete_file(std::string filename)
+{
+  remove(filename.c_str());
+
 }

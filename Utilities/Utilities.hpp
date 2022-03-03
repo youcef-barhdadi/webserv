@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:09 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/01 22:38:42 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/03 01:19:16 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,3 +56,5 @@ std::string			get_time(time_t unix_timestamp);
 double			get_time2(time_t begin);
 std::string		generate_query_string(std::map<std::string, std::string>  query);
 bool	file_exist(const char *file);
+
+void delete_file(std::string filename);

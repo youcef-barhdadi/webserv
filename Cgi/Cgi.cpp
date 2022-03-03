@@ -182,6 +182,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		kill(9,worker_pid);
 		this->IsTimeOut = true;
 	}
+	delete_file(request->get_body_filename());
 	return "";
 }
 
