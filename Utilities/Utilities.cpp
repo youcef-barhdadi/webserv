@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 07:04:03 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/03 08:12:31 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,30 @@ std::vector<char> getfileRaw(std::string file)
     return empty;
 }
 
+std::vector<char> getfileRange(std::string file, int offset)
+{
+	std::vector<char>   empty;
+	offset = 0;
+	int fd = open(file.c_str(), O_RDONLY);
+	int ret = 1;
+	if (fd < 0)
+		return empty;
+	fcntl(fd, F_SETFL, O_NONBLOCK);
+	lseek(fd, 0, SEEK_SET);
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(fd, &fdset);
+
+	char buffer[100000];
+	select(fd + 1, &fdset, NULL, NULL, NULL);
+	if (FD_ISSET(fd, &fdset))
+		ret	= read(fd, buffer, 100000);
+	empty.insert(empty.end(), buffer, buffer + ret);
+	close(fd);
+    return empty;
+}
+
+
 long FdGetFileSize(int fd)
 {
     struct stat stat_buf;
@@ -87,11 +111,11 @@ std::string	getExtension(std::string file)
 } 
 
 
-int getSizeOfile(std::string file)
+size_t getSizeOfile(std::string file)
 {
    std::ifstream in_file(file, std::ios::binary);
    in_file.seekg(0, std::ios::end);
-   int file_size = in_file.tellg();
+   size_t file_size = in_file.tellg();
 	in_file.close();
 	return file_size;
 }

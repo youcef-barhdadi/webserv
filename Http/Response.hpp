@@ -73,7 +73,7 @@ class Response
 		std::vector<char> _504_error();
 		std::vector<char> _500_error();
 
-//
+		void	 GET_v2(void);
 // 204 (No Content)
 
 		Request				*_request;
@@ -83,11 +83,19 @@ class Response
 		location			*_mylocation;
 		size_t				_bytes_sent;
 
-
-
+		bool  chanked;
+	std::string  create_header_v2(void);
+	void	chunked_header(std::vector<char> body);
+std::vector<char>		response();
 //	not used yet
 		size_t  _size;
 		unsigned int _status;
+
+		size_t readed;
+
+		bool header_sent;
+
+
 //	if the resposnse chunked or not
 		// bool		chunked_request;
 // 		requested file

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utilities.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:09 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 05:45:40 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/03 08:26:41 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,9 @@ typedef struct{
 
 
 std::vector<char> getfileRaw(std::string file);
-int getSizeOfile(std::string file);
+size_t getSizeOfile(std::string file);
 long FdGetFileSize(int fd);
-int getSizeOfile(std::string file);
+// int getSizeOfile(std::string file);
 std::string	getExtension(std::string file);
 std::vector<std::string> split(const std::string &s, char delim);
 std::string ltrim(const std::string &s);
@@ -60,3 +60,4 @@ bool	file_exist(const char *file);
 void delete_file(std::string filename);
 
 std::string get_path_info(std::string str);
+std::vector<char> getfileRange(std::string file, int offset);

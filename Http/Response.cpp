@@ -148,6 +148,48 @@ std::string  Response::create_header(void)
 }
 
 
+std::string  Response::create_header_v2(void)
+{
+	std::string header = "HTTP/1.1 200 OK\n";
+	std::string resource =  _request->get_path();
+
+	if (this->_status == 404)
+	{
+		header = "HTTP/1.1 404 Not found \n";
+		header += "Content-Length: "+ std::to_string(this->_size);
+		header += "\n\n";
+		return header;
+	}
+	else if (this->_status == 201)
+	{
+		header = "HTTP/1.1 201 Created\n";
+		header += "Location: " + this->_request->get_path();
+		header += "\nContent-Length: "+ std::to_string(0);
+
+		header += "\n\r\n";
+		return header;
+	}
+	else if (this->chanked == true)
+	{
+		header + "Transfer-Encoding: chunked";
+	}
+	else if (this->_status == 200)
+	{
+		std::string extetion = getExtension(resource);
+
+// header allow ressource to be downloaded to the client host machine.
+		if (_index_file.size() == 0 && _mylocation->autoindex)
+			header += "Content-Disposition: attachment\n";
+
+		if (_request->get_method() != "DELETE")
+			header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
+		// header += "Content-Length: "+ std::to_string(this->_size);
+		header += "\r\n\r\n";
+	}
+	return header;
+}
+
+
 std::vector<char> handlCgiresponse(std::string & str)
 {
 
@@ -197,39 +239,61 @@ void	 Response::POST(void)
 
 void	 Response::GET(void)
 {
+	std::string resource = get_absolute_path();
+	std::string		responce;
+	int size = getSizeOfile(resource);
+	if (size > 100000)
+	{
+		this->chanked = true;
+		GET_v2();
+	}
+	this->_status = 200;
+	std::vector<char> tow = getfileRaw(resource);
+	this->_size = tow.size();
+	responce = create_header();
+	std::vector<char> first(responce.begin(), responce.end());
+	first.insert(first.end(), tow.begin(), tow.end());
+	this->_is_finshed = true;
+	this->_response_vec = first;
+	_response_vec = first;
+
+
+}
+
+
+void	Response::chunked_header(std::vector<char> body)
+{
+		std::string header = std::to_string(body.size()) + "\r\n";
+		body.insert(body.end(),header.begin(), header.end());
+		body.push_back('\r');
+		body.push_back('\n');
+		_response_vec = body;
+}
+
+
+void	 Response::GET_v2(void)
+{
 
 	std::string resource = get_absolute_path();
 	std::string extension = getExtension(resource);
 
 
-	std::string		responce;
+	std::string		header;
 	std::string		str;
 	std::string		body = "";
-	std::streampos size;
-	std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
 
-	// std::cout << file.is_open() << std::endl;
-
-	// if (file.is_open())
-	// {
-
-		this->_status = 200;
-		file.close();
-		std::vector<char> tow = getfileRaw(resource);
-		this->_size = tow.size();
-		responce = create_header();
-		std::vector<char> first(responce.begin(), responce.end());
-		first.insert(first.end(), tow.begin(), tow.end());
-		this->_is_finshed = true;
-		this->_response_vec = first;
-		_response_vec = first;
-
-	// }
-	// else
-	// {
-	// 	_response_vec = _404_error();
-	// }
-
+	this->_status = 200;
+	if (this->header_sent == false)
+	{
+		header = create_header_v2();
+		std::vector<char> header_vec(header.begin(), header.end());
+		this->header_sent = true;
+		_response_vec =  header_vec;
+		return ;
+	}
+	std::vector<char> tow = getfileRange(resource,readed);
+	readed += tow.size();
+	chunked_header(tow);
 }
 
 void	 Response::DELETE(void)
@@ -270,6 +334,17 @@ bool				Response:: check_methods()
 {
 	return  std::count(_mylocation->methods.begin(), _mylocation->methods.end() , this->_request->get_method()) != 0;
 }
+
+
+std::vector<char>		Response::response()
+{
+	return _response_vec;
+}
+
+
+
+
+
 
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
@@ -341,7 +416,7 @@ std::vector<char>	Response::serv()
 	else{
 		return _501_error();
 	}
-	return _response_vec;
+	return this->response();
 }
 
 void				Response::find_location(void)
