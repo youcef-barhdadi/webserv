@@ -6,6 +6,9 @@
 #include <sys/wait.h>
 #include "../Utilities/Utilities.hpp"
 #include <signal.h>
+#include <stdio.h>
+extern char **environ;
+
 Cgi::Cgi()
 {
 	this->IsTimeOut = false;
@@ -118,18 +121,17 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	std::string	script = location.root  +  new_stg;
 
 
-	if (file_exist(script.c_str()) == false)
-	{	
-			std::cout << "File dosn't exist" << std::endl;
-			this->NotExist = false;	
-			return "";
-	}
+	// if (file_exist(script.c_str()) == false)
+	// {	
+	// 		std::cout << "File dosn't exist" << std::endl;
+	// 		this->NotExist = false;	
+	// 		return "";
+	// }
 
 	if (request->get_method() == "POST")
 	{
 			fd = open(request->get_body_filename().c_str(), O_RDONLY);
 	}
-	std::cout << fd << "=====file  " << std::endl; 
 	std::string extention =	getExtension(request->get_path());
 	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
@@ -147,19 +149,26 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	if (worker_pid == 0)
 	{
 		if (fd != -1)
-		{
 			dup2(fd, 0);
+		else
+		{
+			dup2(pip[0], 0);
+			close(0);
 		}
 		dup2(pip[1], 1);
 		close(pip[1]);
 		close(pip[0]);
-		const char *args[] = {type.c_str(), script.c_str(), NULL };
+		const char *args[] = {"./cgi_tester", "/Users/ybarhdad/Desktop/webserv/var/www/Cgi/file.bla", NULL };
 		setenv("QUERY_STRING", query_string.c_str(), 1);
 		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
 		// setenv("REQUEST_METHOD", "GET", 1);
 		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
-		setenv("SERVER_PROTOCOL", "HTPP 1.1", 1);
-		execvp(type.c_str(), (char **) args);
+		setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
+		
+		setenv("PATH_INFO",get_path_info(request->get_method()).c_str(), 1);
+
+		dprintf(2,"\nPATH INFO IS :[%s]\n",get_path_info(request->get_path()).c_str());
+		execve("./cgi_tester", (char **) args, environ);
 
 	}
 

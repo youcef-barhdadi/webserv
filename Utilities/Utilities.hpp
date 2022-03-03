@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:09 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 01:19:16 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/03 03:07:15 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,3 +58,5 @@ std::string		generate_query_string(std::map<std::string, std::string>  query);
 bool	file_exist(const char *file);
 
 void delete_file(std::string filename);
+
+std::string get_path_info(std::string str);

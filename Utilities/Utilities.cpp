@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 01:19:01 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/03 03:09:27 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,4 +255,13 @@ void delete_file(std::string filename)
 {
   remove(filename.c_str());
 
+}
+
+
+std::string get_path_info(std::string str)
+{
+	int index = str.find_last_of('/');
+	std::string ret =  str.substr(0, index) +"/";
+
+	return ret;
 }
