@@ -72,6 +72,8 @@ int		Cgi::StatusCode()
 {
 	if (this->IsTimeOut)
 		return 504;
+	else if(this->IServerError)
+		return 500;
 	return 200;
 }
 
@@ -80,14 +82,6 @@ int		Cgi::StatusCode()
 
 std::vector<char>	Cgi::readChunk()
 {
-	// if (this->IsTimeOut)
-	// {
-	// 	std::string header = "HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\n";
-	// 	std::string ll = "Content-Length: 120\n\r\n<html><head><title>504  Gateway Timeout</title></head><body><center><h1>504  Gateway Timeout</h1></center></body></html>";
-	// 	std::string l = header + ll;
-	// 	std::vector<char> res_vec(l.begin(), l.end());
-	// 	return res_vec;
-	// }
 	char buffer[50000];
 	int size = 0;
 	std::string str;
@@ -102,8 +96,6 @@ std::vector<char>	Cgi::readChunk()
 	}
 	if (size == -1)
 	{
-		// str = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\n";
-		// str += "Content-Length: 128\n\r\n<html><head><title>500  Internal Server Error</title></head><body><center><h1>Internal Server Error</h1></center></body></html>";
 		throw std::exception();
 	}
 	std::vector<char>  vec =  handlCgiresponse(str);
@@ -131,17 +123,11 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	std::string new_stg = request->get_path();
 	std::string	script = location.root  +  new_stg;
 
-	// if (file_exist(script.c_str()) == false)
-	// {	
-	// 		std::cout << "File dosn't exist" << std::endl;
-	// 		this->NotExist = false;	
-	// 		return "";
-	// }
-
 	if (request->get_method() == "POST")
 	{
 			fd = open(request->get_body_filename().c_str(), O_RDONLY);
 	}
+
 	std::string extention =	getExtension(request->get_path());
 	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
@@ -176,6 +162,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		if (request->get_method() == "POST")
 			setenv("PATH_INFO",std::to_string(getSizeOfile(request->get_body_filename())).c_str()  , 1);
 		execvp(type.c_str(), (char **) args);
+		std::cout << "=========== CGI ERROR " << std::endl;
 
 	}
 	bool timout(true);
@@ -185,6 +172,13 @@ std::string		Cgi::startCgi(Request *request,  location location)
 
 		if (ret == worker_pid)
 		{
+			if (status != 0)
+				this->IServerError = true;
+			if ( WIFEXITED(status) ) {
+				const int es = WEXITSTATUS(status);
+				if (es != 0)
+					this->IServerError = true;
+			}
 			timout = false;
 			break;
 		}

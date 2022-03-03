@@ -6,6 +6,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "../Http/Request.hpp"
+#include <sys/types.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 class Cgi
 {
@@ -19,11 +24,12 @@ class Cgi
 		std::string		startCgi(Request *request,  location location);
 		std::vector<char>	readChunk();
 		int pip[2];
+			int		StatusCode();
 
 	private:
 		bool IsTimeOut;
 		bool	NotExist;
-		int		StatusCode();
+		bool IServerError;
 
 };
 

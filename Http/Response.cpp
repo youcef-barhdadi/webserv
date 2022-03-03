@@ -306,10 +306,20 @@ std::vector<char>	Response::serv()
 
 	if (std::find(_mylocation->cgi.begin(), _mylocation->cgi.end(), extension) !=  _mylocation->cgi.end())
 	{
-		std::cout << "Cgi=====================\n";
-		Cgi  cgi;
-		cgi.startCgi(this->_request, *_mylocation);
-		return cgi.readChunk();
+		try
+		{
+			Cgi  cgi;
+			cgi.startCgi(this->_request, *_mylocation);
+			if (cgi.StatusCode() == 504)
+					return _504_error();
+			else if (cgi.StatusCode() == 500)
+				return _500_error();
+			return cgi.readChunk();
+		}
+		catch(const std::exception& e)
+		{
+				return _500_error();
+		}		
 	}
 
 	if (this->_request->get_method() ==  "POST")
