@@ -174,6 +174,11 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		{
 			if (status != 0)
 				this->IServerError = true;
+			if ( WIFEXITED(status) ) {
+				const int es = WEXITSTATUS(status);
+				if (es != 0)
+					this->IServerError = true;
+			}
 			timout = false;
 			break;
 		}

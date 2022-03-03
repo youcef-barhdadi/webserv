@@ -312,6 +312,8 @@ std::vector<char>	Response::serv()
 			cgi.startCgi(this->_request, *_mylocation);
 			if (cgi.StatusCode() == 504)
 					return _504_error();
+			else if (cgi.StatusCode() == 500)
+				return _500_error();
 			return cgi.readChunk();
 		}
 		catch(const std::exception& e)

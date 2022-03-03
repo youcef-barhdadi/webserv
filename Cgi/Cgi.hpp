@@ -6,6 +6,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "../Http/Request.hpp"
+#include <sys/types.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 class Cgi
 {
