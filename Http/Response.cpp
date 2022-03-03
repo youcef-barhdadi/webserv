@@ -167,14 +167,26 @@ std::vector<char> handlCgiresponse(std::string & str)
 
 void	 Response::POST(void)
 {
-	std::cerr << "\033[32mResponse::POST\033[0m" << std::endl;
+	std::cout << "Response::POST" << std::endl;
 	std::string head_str;
 	std::string upload_dir = _mylocation->upload;
 
+	if (!upload_dir.size())
+	{
+		_response_vec = _405_error();
+		return ;
+	}
+
 	// get path to uploading
 	std::string body_path = _request->get_body_filename();
+	std::string	upload_path = get_upload_path();
+	std::string cmd = "mv " + body_path + " " + upload_path;
 
-	rename(body_path.c_str() , (upload_dir + _request->get_path()).c_str());
+	// std::cerr << upload_path << std::endl;
+	// std::cerr << body_path << std::endl;
+
+	system(cmd.c_str());
+
 	this->_status = 201;
 	head_str = create_header();
 
@@ -244,7 +256,7 @@ bool				Response:: check_methods()
 std::vector<char>	Response::serv()
 {
 	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
-	std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
+	// std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
 
 	if (_request->get_bad_status())
 		return request_error();
@@ -265,7 +277,7 @@ std::vector<char>	Response::serv()
 		return _405_error();
 	if (_mylocation->redirect.size() != 0)
 		return create_303_header();
-	std::cout << extension << "==================extenstion\n";
+
 	if (std::find(_mylocation->cgi.begin(), _mylocation->cgi.end(), extension) !=  _mylocation->cgi.end())
 	{
 		std::cout << "Cgi=====================\n";
@@ -276,8 +288,6 @@ std::vector<char>	Response::serv()
 
 	if (this->_request->get_method() ==  "POST")
 	{
-		if (!_mylocation->upload.size())
-			return _404_error();
 		POST();
 	}
 	else if (this->_request->get_method() == "GET")
@@ -310,7 +320,7 @@ void				Response::find_location(void)
 	for(size_t i = 0;  i < loc.size(); i++)
 	{
 		size_t ret = req_path.find(loc[i].url);
-		// std::cerr << req_path << " | ret = " << ret << " | " << req_path[ret + loc[i].url.size()] << std::endl;
+		// // std::cerr << req_path << " | ret = " << ret << " | " << req_path[ret + loc[i].url.size()] << std::endl;
 		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
 			if (loc[i].url.length() > matched_location.length()){
 				matched_location = loc[i].url;
@@ -368,6 +378,14 @@ std::string			Response::get_absolute_path(void)
 	return _mylocation->root + uri;
 }
 
+std::string			Response::get_upload_path(void)
+{
+	std::string uri = _request->get_path().erase(0, _mylocation->url.size());
+	if (uri.size() && uri[0] != '/')
+		uri.insert(uri.begin(), '/');
+	
+	return _mylocation->upload + uri;
+}
 std::vector<char>				Response::request_error(void)
 {
 	int status = _request->get_bad_status();

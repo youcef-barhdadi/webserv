@@ -46,6 +46,7 @@ class Response
 		bool				check_methods();
 
 		std::string			get_absolute_path(void);
+		std::string			get_upload_path(void);
 
 		Request				*get_request(void);
 		bool				get_is_finished(void);
