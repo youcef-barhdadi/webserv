@@ -84,7 +84,7 @@ class Response
 		location			*_mylocation;
 		size_t				_bytes_sent;
 
-
+		std::string			_cookie;
 
 //	not used yet
 		size_t  _size;

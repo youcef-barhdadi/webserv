@@ -159,6 +159,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
 		setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
 		setenv("PATH_INFO",get_path_info(request->get_method()).c_str(), 1);
+		setenv("HTTP_COOKIE", cookie.c_str(), 1);
 		if (request->get_method() == "POST")
 			setenv("PATH_INFO",std::to_string(getSizeOfile(request->get_body_filename())).c_str()  , 1);
 		execvp(type.c_str(), (char **) args);
@@ -192,7 +193,10 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	return "";
 }
 
-
+void	Cgi::set_cookie(std::string const &Cookie)
+{
+	cookie = Cookie;
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

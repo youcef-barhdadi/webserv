@@ -24,12 +24,15 @@ class Cgi
 		std::string		startCgi(Request *request,  location location);
 		std::vector<char>	readChunk();
 		int pip[2];
-			int		StatusCode();
+		int		StatusCode();
+
+		void	set_cookie(std::string const &Cookie);
 
 	private:
 		bool IsTimeOut;
 		bool	NotExist;
 		bool IServerError;
+		std::string cookie;
 
 };
 

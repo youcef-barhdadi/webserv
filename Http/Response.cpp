@@ -150,6 +150,7 @@ std::string  Response::create_header(void)
 		header += "Content-Length: "+ std::to_string(this->_size) + "\r\n";
 		header += "Server: petitwebserv\r\n";
 		header += "Date: " + formatted_time() + "\r\n";
+		header += "Set-Cookie: id="+_cookie+"; HttpOnly\r\n";
 		header += "\r\n";
 	}
 	return header;
@@ -271,6 +272,8 @@ bool				Response:: check_methods()
 std::vector<char>	Response::serv()
 {
 	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
+
+	_cookie = RandString(30);
 	// std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
 
 	if (_request->get_bad_status())
@@ -298,6 +301,7 @@ std::vector<char>	Response::serv()
 		try
 		{
 			Cgi  cgi;
+			cgi.set_cookie(_cookie);
 			cgi.startCgi(this->_request, *_mylocation);
 			if (cgi.StatusCode() == 504)
 					return _504_error();
