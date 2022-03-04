@@ -67,12 +67,13 @@ void Server::create_server()
 
 		int enable = 1;
 		if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-			perror("setsockopt");
+		{
+			std::cout << "BAD ADDRESS" << std::endl;
+		}
 		fcntl(server_fd, F_SETFL, O_NONBLOCK);
-		assert((server_fd > 0));
 		if (server_fd < 0)
 		{
-			perror("error");
+			std::cout << "BAD ADDRESS" << std::endl;
 			exit(0);
 		}
 		this->_socket_fd.push_back(server_fd);
@@ -82,18 +83,16 @@ void Server::create_server()
 		inet_pton(AF_INET, _host.c_str(), &(address.sin_addr));
 		address.sin_port = htons(this->_ports[i]);
 		int ret =  bind(server_fd, (struct sockaddr *)&address , sizeof(address));
-		assert(ret == 0);
 		if (ret < 0)
 		{
-			perror("error ");
-			return ;
+			std::cout << "Server  Error Check Port and Adress" << std::endl;
+			exit(0);
 		}
 		ret = listen(server_fd, 10000);
-		assert(ret == 0);
 		if (ret < 0)
 		{
-			perror("error ");
-			return ;
+			std::cout << "Server  Error Check Port and Adress" << std::endl;
+			exit(0);
 		}
 	}
 }

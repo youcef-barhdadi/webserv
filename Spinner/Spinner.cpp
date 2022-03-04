@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 06:08:55 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/04 02:58:32 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,8 +237,7 @@ void	Spinner::run()
 		current_socket_write = this->set_write;
 		if (select((int)_maxfd +1, &current_socket_read, &current_socket_write, NULL, &timeout) < 0)
 		{
-			assert(true);
-			perror("select error");
+			std::cout << "Reload the Server " << std::endl;
 			exit(0);
 		}
 		for (size_t connection_fd = 0; connection_fd < _maxfd + 1; connection_fd++)
