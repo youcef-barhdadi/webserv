@@ -72,7 +72,7 @@ class Response
 
 		std::vector<char> _504_error();
 		std::vector<char> _500_error();
-
+void				find_location(void);
 //
 // 204 (No Content)
 

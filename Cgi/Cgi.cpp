@@ -29,15 +29,22 @@ std::vector<std::string> parser_cgi_response(std::string str)
 	std::string body;
 
 	std::vector<std::string> ret;
+	bool _break = false;
 
 	while (std::getline(ss, buffer))
 	{
 		if (buffer == "\r")
 		{
+			_break = true;
 			headers.append(buffer+"\n");
 				break ;
 		}
 		headers.append(buffer + "\n");
+	}
+	if (headers.length() == 0 || _break == false)
+	{
+		body = headers;
+		headers = "Content-type:text/html\r\n\r\n";
 	}
 
 	while (std::getline(ss, buffer))
@@ -54,7 +61,6 @@ std::vector<char> handlCgiresponse(std::string  str)
 {
 	
 	std::vector<std::string> strs = parser_cgi_response(str);;
-	std::cout << strs.size() << std::endl;
 	int size = strs[1].length();
 	std::string content = "HTTP/1.1 200 OK\r\nServer: petitwebserv\r\nDate: "+formatted_time()+"\r\nContent-Length: "+ std::to_string(size) + "\r\n";
 

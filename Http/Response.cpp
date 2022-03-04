@@ -273,7 +273,7 @@ std::vector<char>	Response::serv()
 {
 	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
 
-	_mylocation = _request->_mylocation;
+	 find_location();
 
 	_cookie = RandString(30);
 	std::cerr << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
@@ -449,3 +449,33 @@ void				Response::set_bytes_sent(size_t n)
 {
 	_bytes_sent = n;
 }
+
+
+void				Response::find_location(void)
+{
+	std::vector<struct location>  loc = _request->_my_server->get_locations();
+	std::string req_path = this->_request->get_path();
+	int location_index = -1;
+	std::string matched_location = "/";
+
+	for(size_t i = 0;  i < loc.size(); i++)
+	{
+		size_t ret = req_path.find(loc[i].url);
+		std::cout << loc[i].url << " " << req_path  << " " << (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)  << std::endl;
+		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == "/" || req_path == loc[i].url)){
+			if (loc[i].url.length() >= matched_location.length()){
+				std::cout << "tester look" << std::endl;
+				matched_location = loc[i].url;
+				location_index  = i;
+			}
+		}
+	}
+	if (location_index != -1)
+		this->_mylocation = &_request->_my_server->get_locations()[location_index];
+	else
+		_mylocation = 0x0;
+}
+
+//	/upload.html
+//  /upload
+
