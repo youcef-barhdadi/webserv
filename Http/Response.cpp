@@ -460,20 +460,27 @@ void				Response::find_location(void)
 
 	for(size_t i = 0;  i < loc.size(); i++)
 	{
+		if (loc[i].url == "/")
+		{
+			location_index = i;
+		}
 		size_t ret = req_path.find(loc[i].url);
-		std::cout << loc[i].url << " " << req_path  << " " << (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)  << std::endl;
-		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == "/" || req_path == loc[i].url)){
+		std::cerr << loc[i].url << " " << req_path  << " | req_path[ret + loc[i].size() = " << (req_path[ret + loc[i].url.size()])  << std::endl;
+		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
 			if (loc[i].url.length() >= matched_location.length()){
-				std::cout << "tester look" << std::endl;
 				matched_location = loc[i].url;
 				location_index  = i;
 			}
 		}
 	}
-	if (location_index != -1)
+	if (location_index != -1){
 		this->_mylocation = &_request->_my_server->get_locations()[location_index];
-	else
+		std::cerr << "resolved location ==> " << _mylocation->url << std::endl;
+	}
+	else{
 		_mylocation = 0x0;
+	}
+	std::cerr << "resolved location addr ==> " << _mylocation << std::endl;
 }
 
 //	/upload.html
