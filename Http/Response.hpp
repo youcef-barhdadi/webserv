@@ -59,6 +59,9 @@ class Response
 
 		bool		close_connection;
 
+
+		bool		IsChunked();
+
 	private:
 // error pages
 		std::vector<char> _505_error();
@@ -85,7 +88,7 @@ class Response
 
 		bool  chanked;
 	std::string  create_header_v2(void);
-	void	chunked_header(std::vector<char> body);
+	std::vector<char>	chunked_header(std::vector<char> body);
 std::vector<char>		response();
 //	not used yet
 		size_t  _size;

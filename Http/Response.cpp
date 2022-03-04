@@ -23,12 +23,15 @@ Response::Response()
 	this->_is_finshed = false;
 	this->_mylocation = NULL;
 	this->_index_file = "";
+	this->chanked = false;
+	this->readed = 0;
 }
 Response::Response(Request * req )
 {
 	this->_request = req;
 	this->_bytes_sent = 0;
 	this->_is_finshed = false;
+	this->chanked = false;
 	this->_index_file = "";
 }
 
@@ -169,21 +172,15 @@ std::string  Response::create_header_v2(void)
 		header += "\n\r\n";
 		return header;
 	}
-	else if (this->chanked == true)
-	{
-		header + "Transfer-Encoding: chunked";
-	}
 	else if (this->_status == 200)
 	{
 		std::string extetion = getExtension(resource);
-
-// header allow ressource to be downloaded to the client host machine.
+		if (this->chanked == true)
+			header += "Transfer-Encoding: chunked; charset=iso-8859-1\nConnection: Keep-Alive\n";
 		if (_index_file.size() == 0 && _mylocation->autoindex)
 			header += "Content-Disposition: attachment\n";
-
 		if (_request->get_method() != "DELETE")
 			header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
-		// header += "Content-Length: "+ std::to_string(this->_size);
 		header += "\r\n\r\n";
 	}
 	return header;
@@ -194,17 +191,11 @@ std::vector<char> handlCgiresponse(std::string & str)
 {
 
 	std::vector<std::string> strs = split(str, '\n');;
-
 	int size = strs[2].length();
-
-
 	std::string content = "HTTP/1.1 200 OK\nContent-Length: "+ std::to_string(size);
 	content += "\n";
 	content.append(str);
-
 	std::vector <char> vec(content.begin(), content.end());
-
-
 	return vec;
 }
 
@@ -242,10 +233,12 @@ void	 Response::GET(void)
 	std::string resource = get_absolute_path();
 	std::string		responce;
 	int size = getSizeOfile(resource);
-	if (size > 100000)
+	if (size > 1000)
 	{
 		this->chanked = true;
+		std::cout << "Cheaked " << std::endl;
 		GET_v2();
+		return ;
 	}
 	this->_status = 200;
 	std::vector<char> tow = getfileRaw(resource);
@@ -256,18 +249,13 @@ void	 Response::GET(void)
 	this->_is_finshed = true;
 	this->_response_vec = first;
 	_response_vec = first;
-
-
 }
 
 
-void	Response::chunked_header(std::vector<char> body)
-{
-		std::string header = std::to_string(body.size()) + "\r\n";
-		body.insert(body.end(),header.begin(), header.end());
-		body.push_back('\r');
-		body.push_back('\n');
-		_response_vec = body;
+std::vector<char>	Response::chunked_header(std::vector<char> body)
+{	
+	
+		return body;
 }
 
 
@@ -285,15 +273,19 @@ void	 Response::GET_v2(void)
 	this->_status = 200;
 	if (this->header_sent == false)
 	{
-		header = create_header_v2();
+		this->_status = 200;
+		header = create_header();
+		std::cout <<"header [" << header<< "]" << std::endl;
 		std::vector<char> header_vec(header.begin(), header.end());
 		this->header_sent = true;
 		_response_vec =  header_vec;
 		return ;
 	}
 	std::vector<char> tow = getfileRange(resource,readed);
+	std::cout << "res size " << tow.size() << std::endl;
 	readed += tow.size();
-	chunked_header(tow);
+	_response_vec = tow;
+	std::cout <<  "befoure ["  << _response_vec.data()  << "]" << std::endl;
 }
 
 void	 Response::DELETE(void)
@@ -351,6 +343,13 @@ std::vector<char>	Response::serv()
 {
 	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
 	// std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
+
+	if (this->chanked == true)
+	{
+		GET_v2();
+		return _response_vec;
+	}
+
 
 	if (_request->get_bad_status())
 		return request_error();
@@ -533,6 +532,17 @@ size_t				Response::get_bytes_sent(void)
 }
 
 void				Response::set_bytes_sent(size_t n)
-{
+{	
+	if (this->IsChunked() == true)
+	{
+		if (n == this->_response_vec.size())
+			this->_bytes_sent = 0;
+	}
 	_bytes_sent = n;
+}
+
+
+bool		Response::IsChunked()
+{
+	return this->chanked;
 }

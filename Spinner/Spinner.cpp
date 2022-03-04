@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Spinner.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 06:08:55 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/04 02:01:49 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,9 +139,14 @@ void		Spinner::write_responce(int connection_fd)
 	array = res->serv();
 	
 	data  = array.data();
+	std::cout << "==>[" << data << "]" << std::endl;
 	
 	signal(SIGPIPE, SIG_IGN);
-	writing = write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
+	if (res->IsChunked())
+		writing = write(connection_fd, data ,array.size());
+	else 
+		writing = write(connection_fd, data + res->get_bytes_sent() ,getsize(array.size() - res->get_bytes_sent()));
+
 	signal(SIGPIPE, SIG_DFL);
 
 	if ( writing == 0 || writing == -1) 
@@ -154,7 +159,7 @@ void		Spinner::write_responce(int connection_fd)
 		_requests.erase(connection_fd);
 	}
 	res->set_bytes_sent(res->get_bytes_sent() + writing);
-	if (res->get_bytes_sent() == array.size())
+	if (res->IsChunked() == false &&  res->get_bytes_sent() == array.size())
 	{
 		// std::cout << "Delete" << std::endl;
 		_responces.erase(connection_fd);

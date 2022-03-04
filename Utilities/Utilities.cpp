@@ -6,7 +6,7 @@
 /*   By: ybarhdad <ybarhdad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 08:12:31 by ybarhdad         ###   ########.fr       */
+/*   Updated: 2022/03/04 02:13:35 by ybarhdad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,15 +81,15 @@ std::vector<char> getfileRange(std::string file, int offset)
 	if (fd < 0)
 		return empty;
 	fcntl(fd, F_SETFL, O_NONBLOCK);
-	lseek(fd, 0, SEEK_SET);
+	lseek(fd, offset, SEEK_SET);
 	fd_set fdset;
 	FD_ZERO(&fdset);
 	FD_SET(fd, &fdset);
 
-	char buffer[100000];
+	char buffer[1000];
 	select(fd + 1, &fdset, NULL, NULL, NULL);
 	if (FD_ISSET(fd, &fdset))
-		ret	= read(fd, buffer, 100000);
+		ret	= read(fd, buffer, 1000);
 	empty.insert(empty.end(), buffer, buffer + ret);
 	close(fd);
     return empty;
@@ -294,4 +294,35 @@ std::string get_path_info(std::string str)
 	std::string ret =  str.substr(0, index) +"/";
 
 	return ret;
+}
+
+
+// http://127.0.0.1:8181/large.html
+// 
+
+// http://127.0.0.1:8181/large.html
+
+
+
+// std::string string_to_hex(const std::string& input)
+// {
+//     static const char hex_digits[] = "0123456789ABCDEF";
+
+//     std::string output;
+//     output.reserve(input.length() * 2);
+//     for (size_t i = 0; i  < input.length() ; i++)
+//     {
+//         output.push_back(hex_digits[static_cast<unsigned char>(input[i]) >> 4]);
+//         output.push_back(hex_digits[static_cast<unsigned char>(input[i]) & 15]);
+//     }
+//     return output;
+// }
+
+std::string  string_to_hex(size_t number)
+{
+    std::ostringstream ret;
+
+    // for (std::string::size_type i = 0; i < s.length(); ++i)
+    ret << std::hex << number;
+    return ret.str();
 }
