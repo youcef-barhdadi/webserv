@@ -13,7 +13,7 @@ last_name  = form.getvalue('last_name')
 date  = form.getvalue('date')
 sex  = form.getvalue('sex')
 cookie = os.environ.get("HTTP_COOKIE")
-
+# time.sleep(6)
 print ("Content-type:text/html\r\n\r\n")
 print ("<html>")
 print ("<head>")

