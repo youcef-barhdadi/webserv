@@ -271,12 +271,12 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
-	//std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
-	//std::cout <<  "srver name" << _request->_my_server->get_server_name()  << " " << _request->getHeader("Host") << std::endl;
-	 find_location();
-
+	std::cerr << "Response::serv" << std::endl;
+	std::cerr << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
+	find_location();
+	std::cerr << "location url = " << _mylocation->url << std::endl;
+	std::cerr << "choosed server = " << _request->_my_server->get_server_name() << std::endl;
 	_cookie = RandString(30);
-	//std::cerr << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
 
 	//std::cerr << _request->get_bad_status() << "bad status"  << std::endl;
 	if (_request->get_bad_status())
