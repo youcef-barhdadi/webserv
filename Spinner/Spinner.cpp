@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 01:38:39 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/04 08:25:00 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/04 10:57:57 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int		Spinner::accepet(int connection_fd)
 	socklen_t addrlen;
 	
 	int new_socket = accept(connection_fd , (struct sockaddr *)&address, (socklen_t*)&addrlen);
-	// std::cout << "timestamp#" << get_time2(begin) << " [" << new_socket << "] incoming connection accepted" << std::endl; 
+	// //std::cout << "timestamp#" << get_time2(begin) << " [" << new_socket << "] incoming connection accepted" << std::endl; 
 	fcntl(new_socket, F_SETFL, O_NONBLOCK);
 	if (new_socket < 0)
 	{
@@ -86,7 +86,7 @@ Request 		*Spinner::read_request(int connection_fd)
 	if (readlen == 0 || readlen == -1)
 	{
 		FD_CLR(connection_fd, &this->set_read);
-		std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
+		//std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
 		close(connection_fd);
 		return NULL;
 
@@ -145,7 +145,7 @@ void		Spinner::write_responce(int connection_fd)
 
 	if ( writing == 0 || writing == -1) 
 	{
-		std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
+		//std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
 		close(connection_fd);
 		_responces.erase(connection_fd);
 		FD_CLR(connection_fd, &this->set_write);
@@ -155,7 +155,7 @@ void		Spinner::write_responce(int connection_fd)
 	res->set_bytes_sent(res->get_bytes_sent() + writing);
 	if (res->get_bytes_sent() == array.size())
 	{
-		// std::cout << "Delete" << std::endl;
+		// //std::cout << "Delete" << std::endl;
 		_responces.erase(connection_fd);
 		_requests.erase(connection_fd);
 		if (res->get_request()->HasHeader("Connection", "keep-alive") == false || res->close_connection == true)
@@ -163,7 +163,7 @@ void		Spinner::write_responce(int connection_fd)
 			FD_CLR(connection_fd, &this->set_write);
 			FD_CLR(connection_fd, &this->set_read);
 			ClientFd_Connection.erase(connection_fd);
-			std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
+			//std::cout << "[" << get_time2(begin) << "] " <<  "closed connection fd:" << connection_fd << std::endl;
 			close(connection_fd);
 		}
 		else 
@@ -229,10 +229,10 @@ void	Spinner::run()
 	{
 		current_socket_read = this->set_read;
 		current_socket_write = this->set_write;
-		std::cout << "Started" << std::endl;
+		//std::cout << "Started" << std::endl;
 		if (select((int)_maxfd +1, &current_socket_read, &current_socket_write, NULL, &timeout) < 0)
 		{
-			std::cout << "Reload the Server " << std::endl;
+			//std::cout << "Reload the Server " << std::endl;
 			exit(0);
 		}
 		for (size_t connection_fd = 0; connection_fd < _maxfd + 1; connection_fd++)
@@ -243,17 +243,20 @@ void	Spinner::run()
 				if (std::count(listOfFd.begin(), listOfFd.end() , connection_fd) )
 				{
 					int new_socket = this->accepet(connection_fd);
-					std::cout << "[" << get_time2(begin) << "] " <<  "incoming connection fd:" << new_socket << std::endl;
+					std::cout << std::setw(20) << std::left << get_time2(begin);
+					std::cout << "incoming connection fd: " << new_socket << std::endl;
 					_maxfd = std::max(_maxfd, (unsigned int)  new_socket);
 				}
 				else
 				{
 						if (FD_ISSET(connection_fd, &current_socket_read)){
-							std::cout << "[" << get_time2(begin) << "] " <<  "read ready connection fd:" << connection_fd << std::endl;
+							std::cout << std::setw(20) << std::left << get_time2(begin);
+							std::cout <<  "read ready connection fd: " << connection_fd << std::endl;
 						 	read_request(connection_fd);
 						}
 						else{
-							std::cout << "[" << get_time2(begin) << "] " <<  "write ready connection fd:" << connection_fd << std::endl;
+							std::cout << std::setw(20) << std::left << get_time2(begin);
+							std::cout << "write ready connection fd: " << connection_fd << std::endl;
 							write_responce(connection_fd);
 						}
 				}
@@ -271,7 +274,7 @@ void	Spinner::construct_connections(void)
 	{
 		for (size_t j = 0; j < _servers[i]->get_ports().size(); j++)
 		{
-			// std::cout << "port :" << _servers[i]->get_ports()[j] << std::em
+			// //std::cout << "port :" << _servers[i]->get_ports()[j] << std::em
 			connection = getConnection(_servers[i]->get_host(), _servers[i]->get_ports()[j]);
 			if (connection == NULL)
 			{
@@ -279,7 +282,7 @@ void	Spinner::construct_connections(void)
 				_connections.push_back(connection);
 			}
 			connection->add_server(_servers[i]);
-			std::cerr << "server port " << connection->_port  << " " << _servers[i]->get_host() << " size " << connection->_servers.size() << std::endl; 
+			//std::cerr << "server port " << connection->_port  << " " << _servers[i]->get_host() << " size " << connection->_servers.size() << std::endl; 
 		}
 	}	
 }

@@ -20,14 +20,14 @@ Request::Request(Request const &rhs)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
 , _isFinished(rhs.IsFinished()), _isHeaderParsed(false)
 {
-	// std::cout << "Request::Request(Request const &rhs)" << std::endl;
+	// //std::cout << "Request::Request(Request const &rhs)" << std::endl;
 	*this = rhs;
 
 }
 
 Request   &Request::operator=(Request const &rhs)
 {
-	// std::cout << "Request::operator=" << std::endl;
+	// //std::cout << "Request::operator=" << std::endl;
 	if (this != &rhs){
 		_buffer = rhs._buffer;
 		_method = rhs._method;
@@ -49,10 +49,10 @@ void    Request::Append(std::string &Message)
 // binary go brrrr
 	std::vector<char> myvec;
 	for (size_t i = 0; i < Message.size(); i++){
-		// std::cerr << (int)Message[i] << " ";
+		// //std::cerr << (int)Message[i] << " ";
 		myvec.push_back(Message[i]);
 	}
-	// std::cerr << std::endl;
+	// //std::cerr << std::endl;
 	_buffer.insert(_buffer.end(), myvec.begin(), myvec.end());
 
 	// _buffer += Message;
@@ -64,8 +64,8 @@ void    Request::Append(std::string &Message)
 		_isHeaderParsed = true;
 		// find_server();
 		find_location();
-		// std::cout << _my_server->get_host() << std::endl;
-		// std::cout << _mylocation << std::endl;
+		// //std::cout << _my_server->get_host() << std::endl;
+		// //std::cout << _mylocation << std::endl;
 	}
 
 	if (_isFinished)
@@ -76,7 +76,7 @@ void    Request::Append(std::string &Message)
 		if (_body_filename.size() == 0)
 			_body_filename = RandString(30);
 		if (ofs_open == false && _method == "POST"){
-			std::cerr << "ofs opened" << std::endl;
+			//std::cerr << "ofs opened" << std::endl;
 			f_fd = open(_body_filename.c_str(), O_CREAT|O_APPEND|O_RDWR,  S_IRUSR|S_IWUSR);
 			fcntl(f_fd, F_SETFL, O_NONBLOCK);
 			FD_ZERO(&f_fd_set);
@@ -86,7 +86,7 @@ void    Request::Append(std::string &Message)
 		}
 		if (_headers["Transfer-Encoding"] == "chunked")
 		{
-			// std::cerr << "Transfer-Encoding: chunked" << std::endl;
+			// //std::cerr << "Transfer-Encoding: chunked" << std::endl;
 			std::stringstream ss(_buffer);
 			std::string buff;
 
@@ -98,7 +98,7 @@ void    Request::Append(std::string &Message)
 				std::getline(ss, buff);
 				size_t n = HexToDec(buff);
 
-				// std::cerr << "n = " << n << std::endl;
+				// //std::cerr << "n = " << n << std::endl;
 
 				if (!n)
 					break;
@@ -108,9 +108,9 @@ void    Request::Append(std::string &Message)
 					// ofs << c;
 					select(f_fd + 1, NULL, &f_fd_set, NULL, NULL);
 					write(f_fd, &c, 1);
-					// // std::cerr << "[" << (int)c << "]";
+					// // //std::cerr << "[" << (int)c << "]";
 				}
-				// // std::cerr << std::endl;
+				// // //std::cerr << std::endl;
 				ss.get();
 			}
 
@@ -120,7 +120,7 @@ void    Request::Append(std::string &Message)
 			for (size_t i = 0; i < _buffer.size(); i++)
 				write(f_fd, &_buffer[i], 1);
 			_body_size += _buffer.size();
-			// std::cerr << "#" << _body_size << " | " << _headers["Content-Length"] << std::endl;
+			// //std::cerr << "#" << _body_size << " | " << _headers["Content-Length"] << std::endl;
 			if (_body_size+1 >= static_cast<size_t>(std::stoi(_headers["Content-Length"])))
 				_isFinished = 1;
 			if (_body_size > _my_server->get_client_body_size() * 1048576)
@@ -128,14 +128,14 @@ void    Request::Append(std::string &Message)
 				_isFinished = 1;
 				_bad_status = 413;
 			}
-			// std::cout << "==>" << _body_size << std::endl;
+			// //std::cout << "==>" << _body_size << std::endl;
 		}
 		_buffer.clear();
 		if (_isFinished && ofs_open){
 			// ofs.close();
 			close(f_fd);
 			ofs_open = false;
-			std::cerr << "ofs closed" << std::endl;
+			//std::cerr << "ofs closed" << std::endl;
 		}
 	}
 	else if (_headers["Transfer-Encoding"] != "chunked" && BodyFinished())
@@ -149,11 +149,11 @@ void    Request::Append(std::string &Message)
 			close(f_fd);
 			ofs_open = false;
 		}
-		std::cerr << "ofs closed" << std::endl;
+		//std::cerr << "ofs closed" << std::endl;
 	}
 
-	// std::cerr << "is finished = " << _isFinished << std::endl;
-	// std::cerr << "body size "  << _body_size << std::endl;
+	// //std::cerr << "is finished = " << _isFinished << std::endl;
+	// //std::cerr << "body size "  << _body_size << std::endl;
 }
 
 bool    Request::HeadersFinished(void)
@@ -188,9 +188,9 @@ bool     Request::IsFinished(void) const
 
 void       Request::ParseHeaders(void)
 {
-	std::cerr << "Request::Parseheaders" << std::endl;
+	//std::cerr << "Request::Parseheaders" << std::endl;
 	std::stringstream   ss(_buffer);
-	// // std::cerr << _buffer << std::endl;
+	// // //std::cerr << _buffer << std::endl;
 
 	std::string buffer;
 	std::getline(ss, buffer);
@@ -206,7 +206,7 @@ void       Request::ParseHeaders(void)
 	_path = firstline[1];
 	_protocol_version = stof(split(firstline[2], '/')[1]);
 
-	// // std::cerr << "protocol version = " << _protocol_version << std::endl;
+	// // //std::cerr << "protocol version = " << _protocol_version << std::endl;
 	if (_protocol_version >= 1.2)
 	{
 		_bad_status = 505;
@@ -235,7 +235,7 @@ void       Request::ParseHeaders(void)
 
 	// 
 	find_server();
-	std::cerr << "bug hunter big daddy" << std::endl;
+	//std::cerr << "bug hunter big daddy" << std::endl;
 	try{
 		if (_headers.find("Content-Length") != _headers.end() && (std::stoi(_headers["Content-Length"]) < 0))
 		{
@@ -266,7 +266,7 @@ void       Request::ParseHeaders(void)
 
 void    Request::VerifyRequest(void)
 {
-	// std::cout << "Request::ParseVerify" << std::endl;
+	// //std::cout << "Request::ParseVerify" << std::endl;
 	std::string methods[3] = {"GET", "POST", "DELETE"};
 	int found = 0;
 
@@ -311,10 +311,10 @@ bool    Request::QueryParamsEmpty(void)
 
 void   Request::debug_query_params(void)
 {
-	std::cout << std::string(20, '-') << "+QUERYPARAMS+" << std::string(20, '-') << std::endl;
+	//std::cout << std::string(20, '-') << "+QUERYPARAMS+" << std::string(20, '-') << std::endl;
 	std::map<std::string, std::string>::iterator it = _query_params.begin();
 	for(; it != _query_params.end(); it++){
-		std::cout << it->first << ": " << it->second << std::endl;
+		//std::cout << it->first << ": " << it->second << std::endl;
 	}
 }
 
@@ -338,13 +338,13 @@ void    Request::debug_headers(void)
 	std::map<std::string, std::string>::iterator it = _headers.begin();
 
 	for(; it != _headers.end(); it++){
-		std::cout << it->first << ": " << it->second << std::endl;
+		//std::cout << it->first << ": " << it->second << std::endl;
 	}
 }
 
 void    Request::get_buffer(void)
 {
-	std::cout << _buffer << std::endl;
+	//std::cout << _buffer << std::endl;
 }
 
 
@@ -371,7 +371,7 @@ bool        Request::HasHeader(std::string header,  std::string value)
 
 	if (iter == this->_headers.end())
 		return false;
-	// std::cout << iter->first << " .====={"  << iter->second << "}" << std::endl;
+	// //std::cout << iter->first << " .====={"  << iter->second << "}" << std::endl;
 	if (iter->second == value)
 		return true;
 	return false;
@@ -403,7 +403,7 @@ void				Request::find_location(void)
 	for(size_t i = 0;  i < loc.size(); i++)
 	{
 		size_t ret = req_path.find(loc[i].url);
-		std::cout << loc[i].url << " " << req_path << std::endl;
+		//std::cout << loc[i].url << " " << req_path << std::endl;
 		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
 			if (loc[i].url.length() >= matched_location.length()){
 				matched_location = loc[i].url;
@@ -422,7 +422,7 @@ void				Request::find_location(void)
 void				Request::find_server(void)
 {
 	for (size_t i = 0; i < _server.size(); i++){
-		// std::cerr << _server[i]->get_server_name() << " | " << _headers["Host"] << std::endl;
+		// //std::cerr << _server[i]->get_server_name() << " | " << _headers["Host"] << std::endl;
 		if (_server[i]->get_server_name() == _headers["Host"])
 		{
 			_my_server = _server[i];

@@ -37,25 +37,25 @@ void	Server::set_locations(struct location &location){
 
 void	Server::debug(void)
 {
-	std::cout << std::string(50, '-') << std::endl;
-	std::cout << "server_name: " << _server_name << std::endl;
-	std::cout << "host: " << _host << std::endl;
-	std::cout << "port: "; for(size_t i=0; i<_ports.size(); i++){std::cout << _ports[i] << " ";}; std::cout << '\n';
-	std::cout << "error_pages: " << _error_pages << std::endl;
-	std::cout << "client_body_size: " << _client_body_size << std::endl;
+	//std::cout << std::string(50, '-') << std::endl;
+	//std::cout << "server_name: " << _server_name << std::endl;
+	//std::cout << "host: " << _host << std::endl;
+	//std::cout << "port: "; for(size_t i=0; i<_ports.size(); i++){//std::cout << _ports[i] << " ";}; //std::cout << '\n';
+	//std::cout << "error_pages: " << _error_pages << std::endl;
+	//std::cout << "client_body_size: " << _client_body_size << std::endl;
 	for (size_t i=0; i<_locations.size(); i++)
 	{
-		std::cout << std::endl << "location nb " << i + 1 << std::endl;
-		std::cout << "\t" << "url: " << _locations[i].url << std::endl;
-		std::cout << "\t" << "methods: ";for(size_t j=0;j<_locations[i].methods.size(); j++){std::cout <<_locations[i].methods[j] <<" "; };std::cout << "\n";
-		std::cout << "\t" << "root: " << _locations[i].root << std::endl;
-		std::cout << "\t" << "index: ";for(size_t j=0; j<_locations[i].index.size(); j++){std::cout << _locations[i].index[j] << " ";}; std::cout << "\n";
-		std::cout << "\t" << "autoindex: " << _locations[i].autoindex << std::endl;
-		std::cout << "\t" << "upload: " << _locations[i].upload << std::endl;
-		std::cout << "\t" << "cgi: " << _locations[i].cgi.size() << std::endl;
-		std::cout << "\t" << "redirect: " << _locations[i].redirect << std::endl;
+		//std::cout << std::endl << "location nb " << i + 1 << std::endl;
+		//std::cout << "\t" << "url: " << _locations[i].url << std::endl;
+		//std::cout << "\t" << "methods: ";for(size_t j=0;j<_locations[i].methods.size(); j++){//std::cout <<_locations[i].methods[j] <<" "; };//std::cout << "\n";
+		//std::cout << "\t" << "root: " << _locations[i].root << std::endl;
+		//std::cout << "\t" << "index: ";for(size_t j=0; j<_locations[i].index.size(); j++){//std::cout << _locations[i].index[j] << " ";}; //std::cout << "\n";
+		//std::cout << "\t" << "autoindex: " << _locations[i].autoindex << std::endl;
+		//std::cout << "\t" << "upload: " << _locations[i].upload << std::endl;
+		//std::cout << "\t" << "cgi: " << _locations[i].cgi.size() << std::endl;
+		//std::cout << "\t" << "redirect: " << _locations[i].redirect << std::endl;
 	}
-	std::cout << std::string(50, '&') << std::endl;
+	//std::cout << std::string(50, '&') << std::endl;
 }
 
 
@@ -68,12 +68,12 @@ void Server::create_server()
 		int enable = 1;
 		if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 		{
-			std::cout << "BAD ADDRESS" << std::endl;
+			//std::cout << "BAD ADDRESS" << std::endl;
 		}
 		fcntl(server_fd, F_SETFL, O_NONBLOCK);
 		if (server_fd < 0)
 		{
-			std::cout << "BAD ADDRESS" << std::endl;
+			//std::cout << "BAD ADDRESS" << std::endl;
 			exit(0);
 		}
 		this->_socket_fd.push_back(server_fd);
@@ -85,13 +85,13 @@ void Server::create_server()
 		int ret =  bind(server_fd, (struct sockaddr *)&address , sizeof(address));
 		if (ret < 0)
 		{
-			std::cout << "Server  Error Check Port and Adress" << std::endl;
+			//std::cout << "Server  Error Check Port and Adress" << std::endl;
 			exit(0);
 		}
 		ret = listen(server_fd, 10000);
 		if (ret < 0)
 		{
-			std::cout << "Server  Error Check Port and Adress" << std::endl;
+			//std::cout << "Server  Error Check Port and Adress" << std::endl;
 			exit(0);
 		}
 	}

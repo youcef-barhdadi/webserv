@@ -57,7 +57,7 @@ Response &				Response::operator=( Response const & rhs )
 
 void	  Response::create_autoindex(std::string path)
 {
-	std::cout << "Response::create_autoindex" << std::endl;
+	//std::cout << "Response::create_autoindex" << std::endl;
 	if (path[ path.size() - 1] != '/')
 		path.insert( path.end(), '/');
 
@@ -158,7 +158,7 @@ std::string  Response::create_header(void)
 
 void	 Response::POST(void)
 {
-	std::cout << "Response::POST" << std::endl;
+	//std::cout << "Response::POST" << std::endl;
 	std::string head_str;
 	std::string upload_dir = _mylocation->upload;
 
@@ -173,8 +173,8 @@ void	 Response::POST(void)
 	std::string	upload_path = get_upload_path();
 	std::string cmd = "mv " + body_path + " " + upload_path;
 
-	// std::cerr << upload_path << std::endl;
-	// std::cerr << body_path << std::endl;
+	// //std::cerr << upload_path << std::endl;
+	// //std::cerr << body_path << std::endl;
 
 	system(cmd.c_str());
 
@@ -187,15 +187,15 @@ void	 Response::POST(void)
 
 void	 Response::GET(void)
 {
-	// std::cout << "\033[31;4mResponse::Get\033[0m" << std::endl;
+	// //std::cout << "\033[31;4mResponse::Get\033[0m" << std::endl;
 	// if location has redirection
 
 	//
 	std::string resource = get_absolute_path();
 
-	// std::cout << "resource = " << resource << std::endl;
+	// //std::cout << "resource = " << resource << std::endl;
 	// 
-	// std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
+	// //std::cout << "Response::Get	resource = " << resource << "  |  " << _request->get_path() << std::endl;
 	std::string extension = getExtension(resource);
 
 
@@ -205,7 +205,7 @@ void	 Response::GET(void)
 	std::streampos size;
 	std::ifstream file(resource,  std::ios::in|std::ios::binary|std::ios::ate);
 
-	// std::cout << file.is_open() << std::endl;
+	// //std::cout << file.is_open() << std::endl;
 
 	if (file.is_open())
 	{
@@ -253,7 +253,7 @@ void	 Response::DELETE(void)
 	std::vector<char> hamid(header.begin(), header.end());
 	hamid.insert(hamid.end(), body.begin(), body.end());
 
-	std::cerr << header << body << std::endl;
+	//std::cerr << header << body << std::endl;
 	_response_vec = hamid;
 	return ;
 }
@@ -271,25 +271,25 @@ bool				Response:: check_methods()
 // Method that's responsible for the all the Magic.
 std::vector<char>	Response::serv()
 {
-	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
-	std::cout <<  "srver name" << _request->_my_server->get_server_name()  << " " << _request->getHeader("Host") << std::endl;
+	//std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
+	//std::cout <<  "srver name" << _request->_my_server->get_server_name()  << " " << _request->getHeader("Host") << std::endl;
 	 find_location();
 
 	_cookie = RandString(30);
-	std::cerr << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
+	//std::cerr << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
 
-	std::cerr << _request->get_bad_status() << "bad status"  << std::endl;
+	//std::cerr << _request->get_bad_status() << "bad status"  << std::endl;
 	if (_request->get_bad_status())
 		return request_error();
-	std::cerr << "loc "<< _mylocation << std::endl;
+	//std::cerr << "loc "<< _mylocation << std::endl;
  	if (_mylocation == 0x0)
 		return _404_error();
 
 	std::string absolute_path = get_absolute_path();
-	std::cerr << absolute_path << std::endl;
+	//std::cerr << absolute_path << std::endl;
 	if (isDirectory(absolute_path))
 		this->find_index_file();
-	std::cerr << (isDirectory(absolute_path) && !_mylocation->autoindex && !_mylocation->redirect.size() && !_index_file.size()) << "$$" << std::endl;
+	//std::cerr << (isDirectory(absolute_path) && !_mylocation->autoindex && !_mylocation->redirect.size() && !_index_file.size()) << "$$" << std::endl;
 	if (isDirectory(absolute_path) && !_mylocation->autoindex && !_mylocation->redirect.size() && !_index_file.size())
 		return _404_error();
 	if (!check_methods())
@@ -297,10 +297,10 @@ std::vector<char>	Response::serv()
 	if (_mylocation->redirect.size() != 0)
 		return create_303_header();
 
-	// std::cout << "absolute path = " << absolute_path << std::endl;
-	// std::cout << "location = " << _mylocation->url << std::endl;
+	// //std::cout << "absolute path = " << absolute_path << std::endl;
+	// //std::cout << "location = " << _mylocation->url << std::endl;
 	std::string extension = getExtension(this->_request->get_path());
-	std::cerr << extension << "###" << std::endl;
+	//std::cerr << extension << "###" << std::endl;
 	if (std::find(_mylocation->cgi.begin(), _mylocation->cgi.end(), extension) !=  _mylocation->cgi.end())
 	{
 		try
@@ -464,7 +464,7 @@ void				Response::find_location(void)
 			location_index = i;
 		}
 		size_t ret = req_path.find(loc[i].url);
-		std::cerr << loc[i].url << " " << req_path  << " | req_path[ret + loc[i].size() = " << (req_path[ret + loc[i].url.size()])  << std::endl;
+		//std::cerr << loc[i].url << " " << req_path  << " | req_path[ret + loc[i].size() = " << (req_path[ret + loc[i].url.size()])  << std::endl;
 		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
 			if (loc[i].url.length() >= matched_location.length()){
 				matched_location = loc[i].url;
@@ -474,12 +474,12 @@ void				Response::find_location(void)
 	}
 	if (location_index != -1){
 		this->_mylocation = &_request->_my_server->get_locations()[location_index];
-		std::cerr << "resolved location ==> " << _mylocation->url << std::endl;
+		//std::cerr << "resolved location ==> " << _mylocation->url << std::endl;
 	}
 	else{
 		_mylocation = 0x0;
 	}
-	std::cerr << "resolved location addr ==> " << _mylocation << std::endl;
+	//std::cerr << "resolved location addr ==> " << _mylocation << std::endl;
 }
 
 //	/upload.html

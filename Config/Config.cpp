@@ -42,7 +42,7 @@ void	Config::ext_parse(std::ifstream	&ifs)
 		if (*buffer.begin() == '[' && *(buffer.end() - 1) == ']')
 			server_parse(ifs, buffer);
 
-		// std::cout << buffer << std::endl;
+		// //std::cout << buffer << std::endl;
 	}
 }
 
@@ -53,7 +53,7 @@ void	Config::server_parse(std::ifstream	&ifs, std::string	&server_name)
 
 	server_name = server_name.substr(1, server_name.size()-2);
 	serveur->set_server_name(server_name);
-	// std::cout << "Config::server_parse" << std::endl;
+	// //std::cout << "Config::server_parse" << std::endl;
 	while(std::getline(ifs, buffer)){
 		if (continue_read(buffer))
 			continue;
@@ -109,7 +109,7 @@ void		Config::ext_server_parse(std::vector<std::string>	&buffer_split, Server *s
 
 location	Config::location_parse(std::ifstream	&ifs)
 {
-	// std::cout << "Config::location_parse" << std::endl;
+	// //std::cout << "Config::location_parse" << std::endl;
 	std::string	buffer;
 	location	loc;
 

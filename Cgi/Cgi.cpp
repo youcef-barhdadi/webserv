@@ -68,7 +68,7 @@ std::vector<char> handlCgiresponse(std::string  str)
 	// content.append("\n\r\n");
 	content.append(strs[1]);
 
-	std::cerr << "[" <<  content << "]" <<  std::endl;
+	//std::cerr << "[" <<  content << "]" <<  std::endl;
 	std::vector <char> vec(content.begin(), content.end());
 	return vec;
 }
@@ -168,7 +168,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		if (request->get_method() == "POST")
 			setenv("PATH_INFO",std::to_string(getSizeOfile(request->get_body_filename())).c_str()  , 1);
 		execvp(type.c_str(), (char **) args);
-		std::cout << "=========== CGI ERROR " << std::endl;
+		//std::cout << "=========== CGI ERROR " << std::endl;
 
 	}
 	bool timout(true);

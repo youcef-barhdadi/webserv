@@ -23,12 +23,12 @@ void Connection::create_server()
 	int enable = 1;
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 	{
-		std::cout << "BAD ADDRESS" << std::endl;
+		//std::cout << "BAD ADDRESS" << std::endl;
 	}
 	fcntl(server_fd, F_SETFL, O_NONBLOCK);
 	if (server_fd < 0)
 	{
-		std::cout << "BAD ADDRESS" << std::endl;
+		//std::cout << "BAD ADDRESS" << std::endl;
 		exit(0);
 	}
 	this->_fd = server_fd;
@@ -41,13 +41,13 @@ void Connection::create_server()
 	if (ret < 0)
 	{
 		perror("f");
-		std::cout << "Server  Error Check Port and Adress1" << std::endl;
+		//std::cout << "Server  Error Check Port and Adress1" << std::endl;
 		exit(0);
 	}
 	ret = listen(server_fd, 10000);
 	if (ret < 0)
 	{
-		std::cout << "Server  Error Check Port and Adress" << std::endl;
+		//std::cout << "Server  Error Check Port and Adress" << std::endl;
 		exit(0);
 	}
 	
