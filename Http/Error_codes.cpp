@@ -2,7 +2,7 @@
 
 std::vector<char> Response::_403_error()
 {
-	std::string path =  _request->_server->get_error_pages();
+	std::string path =  _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";
@@ -26,7 +26,7 @@ std::vector<char> Response::_403_error()
 
 std::vector<char> Response::_405_error()
 {
-	std::string path =  _request->_server->get_error_pages();
+	std::string path =  _request->_my_server->get_error_pages();
 	std::vector<char> file_vec = getfileRaw(path + "/405.html");
 	std::string allowed_methods = "";
 
@@ -58,7 +58,7 @@ std::vector<char> Response::_405_error()
 
 std::vector<char>	Response::_404_error()
 {
-	std::string path =  _request->_server->get_error_pages();
+	std::string path =  _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";
@@ -81,7 +81,7 @@ std::vector<char>	Response::_404_error()
 
 std::vector<char>	Response::_501_error()
 {
-	std::string path = _request->_server->get_error_pages();
+	std::string path = _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 501 Not Implemented\r\nContent-Type: text/html\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";
@@ -104,7 +104,7 @@ std::vector<char>	Response::_501_error()
 
 std::vector<char>	Response::_400_error()
 {
-	std::string path = _request->_server->get_error_pages();
+	std::string path = _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";
@@ -127,7 +127,7 @@ std::vector<char>	Response::_400_error()
 
 std::vector<char>	Response::_505_error()
 {
-	std::string path = _request->_server->get_error_pages();
+	std::string path = _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 505 HTTP Version Not Supported\r\nContent-Type: text/html\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";
@@ -150,7 +150,7 @@ std::vector<char>	Response::_505_error()
 
 std::vector<char>	Response::_413_error()
 {
-	std::string path = _request->_server->get_error_pages();
+	std::string path = _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 413 Payload Too Large\r\nContent-Type: text/html\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";
@@ -173,7 +173,7 @@ std::vector<char>	Response::_413_error()
 
 std::vector<char> Response::_204_error()
 {
-	std::string path = _request->_server->get_error_pages();
+	std::string path = _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 204 No Content\r\nContent-Type: text/html\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";
@@ -197,7 +197,7 @@ std::vector<char> Response::_204_error()
 
 std::vector<char> Response::_504_error()
 {
-	std::string path = _request->_server->get_error_pages();
+	std::string path = _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";
@@ -217,7 +217,7 @@ std::vector<char> Response::_504_error()
 
 std::vector<char> Response::_500_error()
 {
-	std::string path = _request->_server->get_error_pages();
+	std::string path = _request->_my_server->get_error_pages();
 	std::string header = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\n";
 	header += "Server: petitwebserv\r\n";
 	header += "Date: " + formatted_time() + "\r\n";

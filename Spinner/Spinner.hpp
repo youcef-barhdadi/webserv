@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <assert.h>
+# include "../Connection/Connection.hpp"
 
 class Spinner
 {
@@ -22,19 +23,21 @@ class Spinner
 		Spinner  &		operator=( Spinner  const & rhs );
 
 		void	run();
-		std::vector<Server *> _servers;
 
+		void	construct_connections(void);
+
+		std::vector<Server *> _servers;
 
 	private:
 		int		accepet(int);
-		std::map<unsigned long,  unsigned long > socketfd_connectionfd;
+		std::map<unsigned long,  Connection *> ClientFd_Connection;
 		Request 		*read_request(int connection_fd);
 		Response *getResponse(int connection_fd);
 
 		std::map<unsigned long , Request*>  _requests;
 
 		void		write_responce(int connection_fd);
-		std::map<unsigned long, Server *> serverMap;
+		std::map<unsigned long, Connection *> serverMap;
 
 		void		init_Spinner();
 
@@ -47,11 +50,14 @@ class Spinner
 
 		void		print_ports();
 
+		std::vector<Connection *> _connections;
 
 		fd_set set_read;
         fd_set set_write;
-
 		time_t	begin;
+
+		Connection *getConnection(std::string host, int port);
+		Connection *getConnection(unsigned int  fd);
 
 };
 

@@ -8,7 +8,7 @@ Request::Request(void)
 : _buffer(), _method(), _path(), _protocol_version(0), _body_filename(), _body_size(0)
 , _isFinished(false), _isHeaderParsed(false), _bad_status(0), ofs_open(false)
 {
-
+	_my_server = NULL;
 }
 
 Request::~Request(void)
@@ -62,6 +62,10 @@ void    Request::Append(std::string &Message)
 		ParseHeaders();
 		ParseQueryParams();
 		_isHeaderParsed = true;
+		// find_server();
+		find_location();
+		// std::cout << _my_server->get_host() << std::endl;
+		// std::cout << _mylocation << std::endl;
 	}
 
 	if (_isFinished)
@@ -119,7 +123,7 @@ void    Request::Append(std::string &Message)
 			// std::cerr << "#" << _body_size << " | " << _headers["Content-Length"] << std::endl;
 			if (_body_size+1 >= static_cast<size_t>(std::stoi(_headers["Content-Length"])))
 				_isFinished = 1;
-			if (_body_size > _server->get_client_body_size() * 1048576)
+			if (_body_size > _my_server->get_client_body_size() * 1048576)
 			{
 				_isFinished = 1;
 				_bad_status = 413;
@@ -184,13 +188,14 @@ bool     Request::IsFinished(void) const
 
 void       Request::ParseHeaders(void)
 {
+	std::cerr << "Request::Parseheaders" << std::endl;
 	std::stringstream   ss(_buffer);
 	// // std::cerr << _buffer << std::endl;
 
 	std::string buffer;
 	std::getline(ss, buffer);
 	std::vector<std::string> firstline = split(buffer, ' ');
-
+//
 	if (firstline.size() != 3){
 		_bad_status = 400;
 		_isFinished = true;
@@ -228,6 +233,9 @@ void       Request::ParseHeaders(void)
 		_headers.insert(std::make_pair(trim(myvec[0]), trim(myvec[1])));
 	}
 
+	// 
+	find_server();
+	std::cerr << "bug hunter big daddy" << std::endl;
 	try{
 		if (_headers.find("Content-Length") != _headers.end() && (std::stoi(_headers["Content-Length"]) < 0))
 		{
@@ -235,7 +243,7 @@ void       Request::ParseHeaders(void)
 			_isFinished = true;
 			return ;
 		}
-		if (_headers.find("Content-Length") != _headers.end() && std::stoi(_headers["Content-Length"]) > static_cast<int>(_server->get_client_body_size() * 1048576))
+		if (_headers.find("Content-Length") != _headers.end() && std::stoi(_headers["Content-Length"]) > static_cast<int>(_my_server->get_client_body_size() * 1048576))
 		{
 			_bad_status = 413;
 			_isFinished = true;
@@ -351,7 +359,7 @@ std::string	Request::get_body_filename(void)
 }
 
 
-void      Request::set_server(Server *server)
+void      Request::set_server(std::vector<Server *> server)
 {
 	this->_server = server;
 }
@@ -382,4 +390,45 @@ std::map<std::string, std::string>  Request::get_query_headers()
 int									Request::get_bad_status(void)
 {
 	return _bad_status;
+}
+
+
+void				Request::find_location(void)
+{
+	std::vector<struct location>  loc = _my_server->get_locations();
+	std::string req_path = _path;
+	int location_index = -1;
+	std::string matched_location = "/";
+
+	for(size_t i = 0;  i < loc.size(); i++)
+	{
+		size_t ret = req_path.find(loc[i].url);
+		std::cout << loc[i].url << " " << req_path << std::endl;
+		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
+			if (loc[i].url.length() >= matched_location.length()){
+				std::cout << "tester look" << std::endl;
+				matched_location = loc[i].url;
+				location_index  = i;
+			}
+		}
+	}
+	if (location_index != -1)
+		this->_mylocation = &_my_server->get_locations()[location_index];
+	else
+		_mylocation = 0x0;
+}
+
+//
+
+void				Request::find_server(void)
+{
+	for (size_t i = 0; i < _server.size(); i++){
+		// std::cerr << _server[i]->get_server_name() << " | " << _headers["Host"] << std::endl;
+		if (_server[i]->get_server_name() == _headers["Host"])
+		{
+			_my_server = _server[i];
+			return ;
+		}
+	}
+	_my_server = _server[0];
 }

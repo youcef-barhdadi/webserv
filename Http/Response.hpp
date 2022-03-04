@@ -40,7 +40,6 @@ class Response
 		std::vector<char>	request_error(void);
 
 		void				create_autoindex(std::string str);
-		void				find_location(void);
 		void				find_index_file(void);
 
 

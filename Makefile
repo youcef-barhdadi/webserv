@@ -3,11 +3,13 @@ CC = clang++
 
 NAME = webserv.out
 
-FLAGS = -Wextra -Werror -Wall
+FLAGS = -Wextra -Werror -Wall -g3
 
 DEBUG = -fsanitize=address
 
 SRCS =	Utilities/Utilities.cpp\
+		\
+		Connection/Connection.cpp\
 		\
 		Spinner/Spinner.cpp\
 		\
@@ -27,6 +29,8 @@ SRCS =	Utilities/Utilities.cpp\
 		\
 
 OBJS =	Utilities.o\
+		\
+		Connection.o\
 		\
 		Spinner.o\
 		\
@@ -48,7 +52,7 @@ OBJS =	Utilities.o\
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@$(CC) $(OBJS) -o $(NAME)
+	@$(CC) $(DEBUG) $(OBJS) -o $(NAME)
 	@echo "Compiled"
 
 $(OBJS): $(SRCS)

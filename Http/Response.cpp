@@ -273,22 +273,23 @@ std::vector<char>	Response::serv()
 {
 	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
 
-	_cookie = RandString(30);
-	// std::cout << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
+	_mylocation = _request->_mylocation;
 
+	_cookie = RandString(30);
+	std::cerr << _request->get_method() << " " << _request->get_path() << " HTTP/" << _request->get_version() << std::endl;
+
+	std::cerr << _request->get_bad_status() << "bad status"  << std::endl;
 	if (_request->get_bad_status())
 		return request_error();
-
-	this->find_location();
-	std::string absolute_path = get_absolute_path();
-	// std::cout << "absolute path = " << absolute_path << std::endl;
-	// std::cout << "location = " << _mylocation->url << std::endl;
-	std::string extension = getExtension(this->_request->get_path());
-
+	std::cerr << "loc "<< _mylocation << std::endl;
  	if (_mylocation == 0x0)
 		return _404_error();
+
+	std::string absolute_path = get_absolute_path();
+	std::cerr << absolute_path << std::endl;
 	if (isDirectory(absolute_path))
 		this->find_index_file();
+	std::cerr << (isDirectory(absolute_path) && !_mylocation->autoindex && !_mylocation->redirect.size() && !_index_file.size()) << "$$" << std::endl;
 	if (isDirectory(absolute_path) && !_mylocation->autoindex && !_mylocation->redirect.size() && !_index_file.size())
 		return _404_error();
 	if (!check_methods())
@@ -296,6 +297,10 @@ std::vector<char>	Response::serv()
 	if (_mylocation->redirect.size() != 0)
 		return create_303_header();
 
+	// std::cout << "absolute path = " << absolute_path << std::endl;
+	// std::cout << "location = " << _mylocation->url << std::endl;
+	std::string extension = getExtension(this->_request->get_path());
+	std::cerr << extension << "###" << std::endl;
 	if (std::find(_mylocation->cgi.begin(), _mylocation->cgi.end(), extension) !=  _mylocation->cgi.end())
 	{
 		try
@@ -343,26 +348,6 @@ std::vector<char>	Response::serv()
 	return _response_vec;
 }
 
-void				Response::find_location(void)
-{
-	std::vector<struct location>  loc = this->_request->_server->get_locations();
-	std::string req_path = _request->get_path();
-	int location_index = 0;
-	std::string matched_location = "/";
-
-	for(size_t i = 0;  i < loc.size(); i++)
-	{
-		size_t ret = req_path.find(loc[i].url);
-		// // std::cerr << req_path << " | ret = " << ret << " | " << req_path[ret + loc[i].url.size()] << std::endl;
-		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
-			if (loc[i].url.length() > matched_location.length()){
-				matched_location = loc[i].url;
-				location_index  = i;
-			}
-		}
-	}
-	this->_mylocation = &this->_request->_server->get_locations()[location_index];
-}
 
 void				Response::find_index_file(void)
 {
@@ -408,6 +393,7 @@ std::vector<char>	Response::create_303_header(void)
 
 std::string			Response::get_absolute_path(void)
 {
+	std::cout << "mylocation addr = " << _mylocation << std::endl;
 	std::string uri = _request->get_path().erase(0, _mylocation->url.size()); 
 	if (uri.size() && uri[0] != '/')
 		uri.insert(uri.begin(), '/');

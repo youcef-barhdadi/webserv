@@ -63,15 +63,21 @@ class Request{
 
 		void        get_buffer(void);
 
-		void        set_server(Server *server);
+		void        set_server(std::vector<Server *> server);
 
+
+		void				find_location(void);
+
+		void				find_server(void);
 
 		bool        HasHeader(std::string header,  std::string value);
 
 		std::map<std::string, std::string>  get_query_parnms();	
 		std::map<std::string, std::string>  get_query_headers();	
 
-		Server       *_server;
+		std::vector<Server *>       _server;
+		Server *					_my_server;
+		location	*_mylocation;
 	private:
 		std::string         _buffer;
 		std::string         _method;
@@ -92,5 +98,6 @@ class Request{
 		int					f_fd;
 		fd_set				f_fd_set;
 
-		//
+		// location
+
 };

@@ -60,8 +60,8 @@ class Server{
 
 		void	debug(void);
 	private:
-		std::string _host;
 		std::vector<location> 	_locations;
+		std::string _host;
 		std::string				_server_name;
 		std::vector<unsigned int>		_ports;
 		std::string				 _error_pages;

@@ -156,7 +156,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 		// const char *args[] = {"./cgi_tester", "/Users/ybarhdad/Desktop/webserv/var/www/Cgi/file.bla", NULL };
 		setenv("QUERY_STRING", query_string.c_str(), 1);
 		setenv("REQUEST_METHOD", request->get_method().c_str(), 1);
-		setenv("SERVER_PORT", std::to_string(request->_server->get_ports()[0]).c_str(), 1);
+		setenv("SERVER_PORT", std::to_string(request->_my_server->get_ports()[0]).c_str(), 1);
 		setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
 		setenv("PATH_INFO",get_path_info(request->get_method()).c_str(), 1);
 		setenv("HTTP_COOKIE", cookie.c_str(), 1);
