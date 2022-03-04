@@ -224,7 +224,7 @@ std::vector<char> Response::_500_error()
 	std::vector<char> file_vec = getfileRaw(path + "/500.html");
 	if (path.size() == 0 || !file_vec.size())
 	{
-		std::string ll = "Content-Length: 128\n\r\n<html><head><title>500  Internal Server Error</title></head><body><center><h1>Internal Server Error</h1></center></body></html>";
+		std::string ll = "Content-Length: 127\n\r\n<html><head><title>500  Internal Server Error</title></head><body><center><h1>Internal Server Error</h1></center></body></html>";
 		std::string l = header + ll;
 		std::vector<char> res_vec(l.begin(), l.end());
 		return res_vec;

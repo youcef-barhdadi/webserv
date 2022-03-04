@@ -137,7 +137,7 @@ std::string		Cgi::startCgi(Request *request,  location location)
 	query_string = generate_query_string(request->get_query_parnms());
 	std::string  type;
 	if (extention == "py")
-		type = "python";
+		type = "python3";
 	else if (extention == "pl")
 		type  = "perl";
 	else
