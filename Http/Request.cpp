@@ -98,21 +98,16 @@ void    Request::Append(std::string &Message)
 				std::getline(ss, buff);
 				size_t n = HexToDec(buff);
 
-				// //std::cerr << "n = " << n << std::endl;
-
-				if (!n)
+				if (ss.eof() || !n)
 					break;
 
-				for(size_t i = 0; i < n; i++){
-					char c = ss.get();
-					// ofs << c;
-					select(f_fd + 1, NULL, &f_fd_set, NULL, NULL);
-					write(f_fd, &c, 1);
-					// // //std::cerr << "[" << (int)c << "]";
-				}
-				// // //std::cerr << std::endl;
-				ss.get();
+				char c[n];
+				ss.read(c, n);
+				select(f_fd + 1, &f_fd_set, NULL, NULL, NULL);
+				write(f_fd, c, n);
+				ss.read(c, 2);
 			}
+			_isFinished = 1;
 
 		}else{
 			select(f_fd + 1, NULL, &f_fd_set, NULL, NULL);
