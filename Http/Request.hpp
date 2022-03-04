@@ -71,7 +71,7 @@ class Request{
 		void				find_server(void);
 
 		bool        HasHeader(std::string header,  std::string value);
-
+		std::string		getHeader(std::string key);
 		std::map<std::string, std::string>  get_query_parnms();	
 		std::map<std::string, std::string>  get_query_headers();	
 

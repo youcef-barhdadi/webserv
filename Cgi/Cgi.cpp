@@ -97,7 +97,6 @@ std::vector<char>	Cgi::readChunk()
 			buffer[size] = 0;
 			
 			str += std::string(buffer);
-			std::cout<< str  << size  << std::endl;
 			break ;
 	}
 	if (size == -1)

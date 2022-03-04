@@ -406,7 +406,6 @@ void				Request::find_location(void)
 		std::cout << loc[i].url << " " << req_path << std::endl;
 		if (ret != std::string::npos && ret == 0 && (req_path[ret + loc[i].url.size()] == '/' || req_path == loc[i].url)){
 			if (loc[i].url.length() >= matched_location.length()){
-				std::cout << "tester look" << std::endl;
 				matched_location = loc[i].url;
 				location_index  = i;
 			}
@@ -431,4 +430,15 @@ void				Request::find_server(void)
 		}
 	}
 	_my_server = _server[0];
+}
+
+
+
+std::string		Request::getHeader(std::string key)
+{
+	std::map<std::string, std::string>::iterator iter =_headers.find(key);
+
+	if (iter != _headers.end())
+		return iter->second;
+	return "";
 }

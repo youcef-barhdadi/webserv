@@ -272,7 +272,7 @@ bool				Response:: check_methods()
 std::vector<char>	Response::serv()
 {
 	std::cout << "\033[32;1;4mResponse::serv\033[0m" << std::endl;
-
+	std::cout <<  "srver name" << _request->_my_server->get_server_name()  << " " << _request->getHeader("Host") << std::endl;
 	 find_location();
 
 	_cookie = RandString(30);
@@ -393,7 +393,6 @@ std::vector<char>	Response::create_303_header(void)
 
 std::string			Response::get_absolute_path(void)
 {
-	std::cout << "mylocation addr = " << _mylocation << std::endl;
 	std::string uri = _request->get_path().erase(0, _mylocation->url.size()); 
 	if (uri.size() && uri[0] != '/')
 		uri.insert(uri.begin(), '/');
