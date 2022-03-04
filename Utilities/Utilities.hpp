@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:09 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 05:45:40 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/03 21:34:48 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include <vector>
 # include <sstream>
 # include <string>
-# include <ctime>
 # include <unistd.h>
 # include <sys/types.h>
 # include <dirent.h>
@@ -60,3 +59,6 @@ bool	file_exist(const char *file);
 void delete_file(std::string filename);
 
 std::string get_path_info(std::string str);
+
+// get current time formatted into human readable form.
+std::string	formatted_time(void);

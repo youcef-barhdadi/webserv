@@ -7,6 +7,7 @@
 # include <vector>
 # include "../MimeTypes/MimeTypes.h"
 # include <algorithm>
+# include "../Utilities/Utilities.hpp"
 
 class Response
 {

@@ -56,13 +56,13 @@ std::vector<char> handlCgiresponse(std::string  str)
 	std::vector<std::string> strs = parser_cgi_response(str);;
 	std::cout << strs.size() << std::endl;
 	int size = strs[1].length();
-	std::string content = "HTTP/1.1 200 OK\nContent-Length: "+ std::to_string(size);
-	content += "\n";
+	std::string content = "HTTP/1.1 200 OK\r\nServer: petitwebserv\r\nDate: "+formatted_time()+"\r\nContent-Length: "+ std::to_string(size) + "\r\n";
+
 	content.append(strs[0]);
 	// content.append("\n\r\n");
 	content.append(strs[1]);
 
-	std::cout << "[" <<  content << "]" <<  std::endl;
+	std::cerr << "[" <<  content << "]" <<  std::endl;
 	std::vector <char> vec(content.begin(), content.end());
 	return vec;
 }

@@ -96,10 +96,12 @@ void	  Response::create_autoindex(std::string path)
 		body +=  "</tbale></body></html>";
 	}
 
-	header = "HTTP/1.1 200 Ok\n";
-	header += "Content-Type: text/html\n";
-	header += "Content-Length: "+ std::to_string(body.size());
-	header += "\n\r\n";
+	header = "HTTP/1.1 200 Ok\r\n";
+	header += "Content-Type: text/html\r\n";
+	header += "Content-Length: "+ std::to_string(body.size()) + "\r\n";
+	header += "Server: petitwebserv\r\n";
+	header += "Date: " + formatted_time() + "\r\n";
+	header += "\r\n";
 	header += body;
 	
 // _response_vec should be empty
@@ -112,58 +114,45 @@ void	  Response::create_autoindex(std::string path)
 
 std::string  Response::create_header(void)
 {
-	std::string header = "HTTP/1.1 200 OK\n";
+	std::string header;
 	std::string resource =  _request->get_path();
 
 	if (this->_status == 404)
 	{
-		header = "HTTP/1.1 404 Not found \n";
-		header += "Content-Length: "+ std::to_string(this->_size);
-		header += "\n\n";
+		header = "HTTP/1.1 404 Not found\r\n";
+		header += "Content-Length: "+ std::to_string(this->_size) + "\r\n";
+		header += "Server: petitwebserv\r\n";
+		header += "Date: " + formatted_time() + "\r\n";
+		header += "\r\n";
 		return header;
 	}
 	else if (this->_status == 201)
 	{
-		header = "HTTP/1.1 201 Created\n";
-		header += "Location: " + this->_request->get_path();
-		header += "\nContent-Length: "+ std::to_string(0);
-
-		header += "\n\r\n";
+		header = "HTTP/1.1 201 Created\r\n";
+		header += "Location: " + this->_request->get_path() + "\r\n";
+		header += "Content-Length: "+ std::to_string(0) + "\r\n";
+		header += "Server: petitwebserv\r\n";
+		header += "Date: " + formatted_time() + "\r\n";
+		header += "\r\n";
 		return header;
 	}
 	else if (this->_status == 200)
 	{
+		header = "HTTP/1.1 200 OK\r\n";
 		std::string extetion = getExtension(resource);
 
 // header allow ressource to be downloaded to the client host machine.
 		if (_index_file.size() == 0 && _mylocation->autoindex)
-			header += "Content-Disposition: attachment\n";
+			header += "Content-Disposition: attachment\r\n";
 
 		if (_request->get_method() != "DELETE")
-			header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\n";
-		header += "Content-Length: "+ std::to_string(this->_size);
-		header += "\r\n\r\n";
+			header += "Content-Type: " + std::string(MimeTypes::getType(extetion.c_str())) +"\r\n";
+		header += "Content-Length: "+ std::to_string(this->_size) + "\r\n";
+		header += "Server: petitwebserv\r\n";
+		header += "Date: " + formatted_time() + "\r\n";
+		header += "\r\n";
 	}
 	return header;
-}
-
-
-std::vector<char> handlCgiresponse(std::string & str)
-{
-
-	std::vector<std::string> strs = split(str, '\n');;
-
-	int size = strs[2].length();
-
-
-	std::string content = "HTTP/1.1 200 OK\nContent-Length: "+ std::to_string(size);
-	content += "\n";
-	content.append(str);
-
-	std::vector <char> vec(content.begin(), content.end());
-
-
-	return vec;
 }
 
 void	 Response::POST(void)
@@ -393,7 +382,9 @@ void				Response::find_index_file(void)
 std::vector<char>	Response::create_302_header(void)
 {
 	this->close_connection = true;
-	std::string s = "HTTP/1.1 303 See Other\nLocation: " + _mylocation->redirect + "\r\n";
+	std::string s = "HTTP/1.1 303 See Other\r\nLocation: " + _mylocation->redirect + "\r\n";
+	s += "Server: petitwebserv\r\n";
+	s += "Date: " + formatted_time() + "\r\n";
 	std::vector<char> ret(s.begin(), s.end());
 	 return ret;
 }
@@ -402,8 +393,9 @@ std::vector<char>	Response::create_302_header(void)
 std::vector<char>	Response::create_303_header(void)
 {
 	this->close_connection = true;
-	std::string s = "HTTP/1.1 303  Moved Permanently\nLocation: " + _mylocation->redirect + "\nConnection: close\nContent-Length: 0\r\n";
-
+	std::string s = "HTTP/1.1 303  Moved Permanently\r\nLocation: " + _mylocation->redirect + "\r\nConnection: close\nContent-Length: 0\r\n";
+	s += "Server: petitwebserv\r\n";
+	s += "Date: " + formatted_time() + "\r\n";
 	std::vector<char> ret(s.begin(), s.end());
 	 return ret;
 }

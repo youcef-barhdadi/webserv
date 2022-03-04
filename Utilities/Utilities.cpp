@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 06:23:34 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/03 23:39:06 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,3 +276,20 @@ std::string get_path_info(std::string str)
 
 	return ret;
 }
+
+std::string	formatted_time(void)
+{
+	time_t	current;
+	struct tm * timeinfo;
+	char	buffer[80];
+
+	time(&current);
+	timeinfo = localtime (&current);
+
+	strftime(buffer, 80, "%a,%e %b %Y %X %Z", timeinfo);
+
+	return std::string(buffer);
+}
+
+// Date: <day-name>, <jour> <mois> <année> <heure>:<minute>:<seconde> GMT
+// Date: Wed, 21 Oct 2015 07:28:00 GMT
