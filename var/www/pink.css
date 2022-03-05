@@ -1,0 +1,63 @@
+body {
+	 background-color: #111;
+	 overflow: hidden;
+	 font-family: 'Nothing You Could Do', cursive;
+}
+ h1 {
+	 color: white;
+	 letter-spacing: 4px;
+	 position: absolute;
+	 top: 70%;
+	 left: calc(50% - 110px);
+}
+ .logo-wrapper {
+	 position: absolute;
+	 width: 100%;
+	 top: calc(50% - 200px);
+}
+ .logo-wrapper .pyramid {
+	 position: absolute;
+	 left: calc(50% - 150px);
+}
+ .logo-wrapper .line {
+	 width: 1500px;
+	 height: 10px;
+	 background-color: white;
+	 position: absolute;
+	 top: 280px;
+	 right: 50%;
+	 transform: rotate(-12deg);
+}
+ .logo-wrapper .rainbow {
+	 position: absolute;
+	 left: 50%;
+	 top: 175px;
+	 transform: rotate(12deg);
+	 perspective: 100px;
+	 perspective-origin: left;
+}
+ .logo-wrapper .rainbow div {
+	 width: 800px;
+	 height: 13px;
+	 transform: rotate3d(0, 1, 0, -10deg);
+	 margin-top: -1px;
+}
+ .logo-wrapper .rainbow div.c1 {
+	 background-color: #bc1300;
+}
+ .logo-wrapper .rainbow div.c2 {
+	 background-color: #cd4314;
+}
+ .logo-wrapper .rainbow div.c3 {
+	 background-color: #ecc20e;
+}
+ .logo-wrapper .rainbow div.c4 {
+	 background-color: #8c9f08;
+}
+ .logo-wrapper .rainbow div.c5 {
+	 background-color: #66a8c2;
+}
+ .logo-wrapper .rainbow div.c6 {
+	 background-color: #773676;
+}
+ 

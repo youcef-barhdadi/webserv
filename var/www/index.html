@@ -1,4 +1,65 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="pink.css">
+</head>
+<body>
+<button  style="background-color: black; border: none; color: blanchedalmond;" onclick="playAudio()" type="button">Play Audio</button>
 
-HAMIIIIIIIIIIIIIIIIIIID
+<audio id="myAudio">
+  <source src="pink.mp3" type="audio/mp3">
+  Your browser does not support the audio element.
+</audio>
+		<h1>PINK FLOYD</h1>
+	<div class="logo-wrapper">
+	<div class="line"></div>
+	<div class="rainbow">
+		<div class="c1"></div>
+		<div class="c2"></div>
+		<div class="c3"></div>
+		<div class="c4"></div>
+		<div class="c5"></div>
+		<div class="c6"></div>
+	</div>
+	<svg class="pyramid" width="300px" height="260px" viewBox="0 0 300 260">
+		<!--INSET SHADOW-->
+		<filter id="inset-shadow" x="-50%" y="-50%" width="200%" height="200%">
+		<feComponentTransfer in=SourceAlpha>
+			<feFuncA type="table" tableValues="1 0" />
+		</feComponentTransfer>
+		<feGaussianBlur stdDeviation="8"/>
+		<feOffset dx="1" dy="1" result="offsetblur"/>
+		<feFlood flood-color="rgba(235,235,255,0.5)" result="color"/>
+		<feComposite in2="offsetblur" operator="in"/>
+		<feComposite in2="SourceAlpha" operator="in" />
+		<feMerge>
+			<feMergeNode in="SourceGraphic" />
+			<feMergeNode />
+		</feMerge>
+		</filter> 
+		<!--GRADIENT-->
+		<linearGradient id="my-gradient">
+		<stop offset="5%"  stop-color="white"/>
+		<stop offset="95%" stop-color="transparent"/>
+		</linearGradient>
+		<polygon fill="#171717" filter="url(#inset-shadow)" points="150,0 0,260 300,260"/>
+		<polygon fill="url(#my-gradient)" points="71,137 217.1,115.9 249.5,172.5 64.3,148.6 "/>
+	</svg>
+	</div>
+	<script>
+	var x = document.getElementById("myAudio"); 
+			function playAudio() { 
+			x.play(); 
+			} 
+
+			function pauseAudio() { 
+			x.pause(); 
+			} 
+	
+	</script>
+</body>
 </html>

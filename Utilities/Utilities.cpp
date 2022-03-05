@@ -6,7 +6,7 @@
 /*   By: ztaouil <ztaouil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/21 08:51:06 by ybarhdad          #+#    #+#             */
-/*   Updated: 2022/03/03 23:39:06 by ztaouil          ###   ########.fr       */
+/*   Updated: 2022/03/05 01:00:52 by ztaouil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ std::vector<char>	getRange(std::string file, size_t start, size_t end)
 std::vector<char> getfileRaw(std::string file)
 {
 	// std::ifstream iffile(file,  std::ios::in|std::ios::binary|std::ios::ate);
-		errno = 0;
 
 	// stup
 	std::vector<char>   empty;
